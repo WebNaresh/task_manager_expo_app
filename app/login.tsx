@@ -1,6 +1,8 @@
 import NBTextInput from "@/components/input/text-input";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod"; // Add this import
+import { useMutation } from "@tanstack/react-query";
+import axios from "axios";
 import React from "react";
 import { useForm } from "react-hook-form";
 import {
@@ -32,10 +34,31 @@ const LoginScreen = () => {
     handleSubmit,
     formState: { errors },
   } = form;
-  console.log(`🚀 ~ errors:`, errors);
+
+  const mutation = useMutation({
+    mutationFn: async (data: form_schema_types) => {
+      const response = await axios.post("/api/v1/auth/login", data);
+      return response.data;
+    },
+    onSuccess(data, variables, context) {
+      console.log(`🚀 ~ data:`, data);
+    },
+    onError(error, variables, context) {
+      console.log(`🚀 ~ error:`, error);
+      if (axios.isAxiosError(error)) {
+        console.log(`🚀 ~ error.response:`, error.response);
+        // Toast.show({
+        //   type: "error",
+        //   text1: "Error",
+        //   text2: error.response?.data.message,
+        // });
+      }
+    },
+  });
 
   const onSubmit = (data: form_schema_types) => {
     console.log(`🚀 ~ data:`, data);
+    mutation.mutate(data);
   };
 
   return (
@@ -84,6 +107,7 @@ const LoginScreen = () => {
         <TouchableOpacity
           onPress={handleSubmit(onSubmit)}
           style={styles.loginButton}
+          disabled={mutation.isPending}
         >
           <Text style={styles.loginButtonText}>Login</Text>
         </TouchableOpacity>

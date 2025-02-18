@@ -59,6 +59,7 @@ function RootLayoutNav() {
           <Stack.Screen name="(manager)" options={{ headerShown: false }} />
         </Stack>
       </ThemeProvider>
+      {/* <Toast /> */}
     </QueryClientProvider>
   );
 }
