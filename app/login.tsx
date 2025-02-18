@@ -28,8 +28,11 @@ const LoginScreen = () => {
     },
     reValidateMode: "onChange",
   });
-  const { handleSubmit, control } = form;
-  console.log(`🚀 ~ form:`, form);
+  const {
+    handleSubmit,
+    formState: { errors },
+  } = form;
+  console.log(`🚀 ~ errors:`, errors);
 
   const onSubmit = (data: form_schema_types) => {
     console.log(`🚀 ~ data:`, data);
@@ -76,13 +79,12 @@ const LoginScreen = () => {
           }
           type="password"
         />
-        {/* Forgot Password */}
-        <TouchableOpacity onPress={handleSubmit(onSubmit)}>
-          <Text style={styles.forgotPassword}>Forgot Password?</Text>
-        </TouchableOpacity>
 
         {/* Login Button */}
-        <TouchableOpacity style={styles.loginButton}>
+        <TouchableOpacity
+          onPress={handleSubmit(onSubmit)}
+          style={styles.loginButton}
+        >
           <Text style={styles.loginButtonText}>Login</Text>
         </TouchableOpacity>
       </View>

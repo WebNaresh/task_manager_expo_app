@@ -1,7 +1,13 @@
 import { Feather } from "@expo/vector-icons";
 import React from "react";
 import { Controller } from "react-hook-form";
-import { StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { NBTextInputProps } from "../text-input";
 
 const NBPasswordInputField = (props: NBTextInputProps) => {
@@ -33,6 +39,19 @@ const NBPasswordInputField = (props: NBTextInputProps) => {
               />
             </TouchableOpacity>
           </View>
+          <View
+            style={{
+              flexDirection: "row",
+              height: "auto",
+              width: "100%",
+              overflow: "hidden",
+              marginHorizontal: 16,
+            }}
+          >
+            <Text style={styles.errorText}>
+              {props.form.formState.errors[props.name]?.message?.toString()}
+            </Text>
+          </View>
         </View>
       )}
     />
@@ -63,5 +82,11 @@ const styles = StyleSheet.create({
   },
   eyeIcon: {
     padding: 4,
+  },
+  errorText: {
+    color: "red",
+    fontSize: 12,
+    marginTop: 4,
+    height: 16,
   },
 });

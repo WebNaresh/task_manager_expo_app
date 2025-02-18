@@ -39,10 +39,10 @@ const NBTextInput = (props: NBTextInputProps) => {
           <View
             style={{
               flexDirection: "row",
-              justifyContent: "flex-end",
-              height: 16,
-              // make text overflow trucate
+              height: "auto",
+              width: "100%",
               overflow: "hidden",
+              marginHorizontal: 16,
             }}
           >
             <Text style={styles.errorText}>
@@ -60,7 +60,7 @@ export default NBTextInput;
 const styles = StyleSheet.create({
   inputContainer: {
     width: "100%",
-    gap: 16,
+    gap: 4,
     marginBottom: 16,
   },
   inputWrapper: {
@@ -81,5 +81,6 @@ const styles = StyleSheet.create({
     color: "red",
     fontSize: 12,
     marginTop: 4,
+    height: 16,
   },
 });
