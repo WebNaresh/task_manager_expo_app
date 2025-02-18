@@ -1,12 +1,12 @@
-import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import NBTextInput from "@/components/input/text-input";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod"; // Add this import
-import React, { useState } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 import {
   SafeAreaView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -20,14 +20,20 @@ const form_schema = z.object({
 type form_schema_types = z.infer<typeof form_schema>;
 
 const LoginScreen = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-
   const form = useForm<form_schema_types>({
     resolver: zodResolver(form_schema),
+    defaultValues: {
+      password: "",
+      email: "",
+    },
+    reValidateMode: "onChange",
   });
+  const { handleSubmit, control } = form;
   console.log(`🚀 ~ form:`, form);
+
+  const onSubmit = (data: form_schema_types) => {
+    console.log(`🚀 ~ data:`, data);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -44,49 +50,34 @@ const LoginScreen = () => {
         <Text style={styles.subtitle}>Sign in to Continue</Text>
 
         {/* Input Fields */}
-        <View style={styles.inputContainer}>
-          <View style={styles.inputWrapper}>
+        <NBTextInput
+          form={form}
+          name="email"
+          placeholder="eg. admin@gmail.com"
+          icon={
             <MaterialCommunityIcons
               name="email-outline"
               size={20}
               color="#A0A0A0"
             />
-            <TextInput
-              style={styles.input}
-              placeholder="admin@gmail.com"
-              placeholderTextColor="#A0A0A0"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
+          }
+          type="text"
+        />
+        <NBTextInput
+          form={form}
+          name="password"
+          placeholder="Pass@123"
+          icon={
+            <MaterialCommunityIcons
+              name="lock-outline"
+              size={20}
+              color="#A0A0A0"
             />
-          </View>
-
-          <View style={styles.inputWrapper}>
-            <Feather name="lock" size={20} color="#A0A0A0" />
-            <TextInput
-              style={styles.input}
-              placeholder="Pass@123"
-              placeholderTextColor="#A0A0A0"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-            />
-            <TouchableOpacity
-              onPress={() => setShowPassword(!showPassword)}
-              style={styles.eyeIcon}
-            >
-              <Feather
-                name={showPassword ? "eye" : "eye-off"}
-                size={20}
-                color="#A0A0A0"
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
-
+          }
+          type="password"
+        />
         {/* Forgot Password */}
-        <TouchableOpacity>
+        <TouchableOpacity onPress={handleSubmit(onSubmit)}>
           <Text style={styles.forgotPassword}>Forgot Password?</Text>
         </TouchableOpacity>
 
