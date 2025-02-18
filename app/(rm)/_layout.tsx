@@ -4,7 +4,7 @@ import React from "react";
 
 import { useColorScheme } from "@/components/useColorScheme";
 import { MaterialIcons } from "@expo/vector-icons";
-import Header from "./(utils)/header";
+import Header from "../../components/ui/rm/header";
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(props: {
