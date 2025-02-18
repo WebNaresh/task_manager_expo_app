@@ -1,9 +1,14 @@
 import React from "react";
+import { StyleSheet, Text, View } from "react-native";
 
-type Props = {};
-
-const RmPage = (props: Props) => {
-  return <div>RmPage</div>;
+const RMScreen = () => {
+  return (
+    <View>
+      <Text>RMScreen</Text>
+    </View>
+  );
 };
 
-export default RmPage;
+export default RMScreen;
+
+const styles = StyleSheet.create({});
