@@ -1,25 +1,55 @@
+import NBTextInput from "@/components/input/text-input";
+import NBButton from "@/components/ui/button";
+import { error_color, primary_color } from "@/constants/Colors";
+import useAuth from "@/hooks/useAuth";
+import { Feather } from "@expo/vector-icons";
+import { zodResolver } from "@hookform/resolvers/zod";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React from "react";
+import { useForm } from "react-hook-form";
 import {
   Alert,
   Image,
   SafeAreaView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import { z } from "zod";
+
+const form_schema = z.object({
+  name: z.string(),
+  email: z.string().email(),
+  password: z.string().min(8).optional(),
+});
+
+type FormValues = z.infer<typeof form_schema>;
 
 export default function ProfileSetup() {
-  const [rmName, setRmName] = useState("");
-  const [rmDesignation, setRmDesignation] = useState("");
+  const { user, isFetching } = useAuth();
   const router = useRouter();
+  const form = useForm<FormValues>({
+    resolver: zodResolver(form_schema),
+    defaultValues: {
+      name: user?.name,
+      email: user?.email,
+      password: "",
+    },
+  });
 
-  const handleSubmit = () => {
+  if (isFetching) {
+    return (
+      <SafeAreaView style={styles.loadingContainer}>
+        <Text>Loading...</Text>
+      </SafeAreaView>
+    );
+  }
+
+  const handleSubmit = (data: FormValues) => {
+    console.log(`🚀 ~ data:`, data);
     // Handle form submission
-    console.log({ rmName, rmDesignation });
   };
 
   const handleLogout = () => {
@@ -43,11 +73,7 @@ export default function ProfileSetup() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Text style={styles.logoutText}>Logout</Text>
-        </TouchableOpacity>
-      </View>
+      <View style={styles.header}></View>
 
       <View style={styles.content}>
         <View style={styles.imageContainer}>
@@ -60,30 +86,38 @@ export default function ProfileSetup() {
         </View>
 
         <View style={styles.form}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>User Name</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter User Name"
-              placeholderTextColor="#999"
-              value={rmName}
-              onChangeText={setRmName}
-            />
-          </View>
+          <NBTextInput
+            name="name"
+            type="text"
+            form={form}
+            placeholder="Enter your name"
+            icon={<Feather name="user" size={20} color="#666" />}
+          />
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>RM Email</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter RM Email"
-              placeholderTextColor="#999"
-              value={rmDesignation}
-              onChangeText={setRmDesignation}
-            />
-          </View>
+          <NBTextInput
+            name="email"
+            type="text"
+            form={form}
+            placeholder="Enter your email"
+            icon={<Feather name="mail" size={20} color="#666" />}
+          />
 
-          <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-            <Text style={styles.submitButtonText}>Submit</Text>
+          <NBTextInput
+            name="password"
+            type="password"
+            form={form}
+            placeholder="Enter your password"
+            icon={<Feather name="lock" size={20} color="#666" />}
+          />
+          <NBButton
+            text="Update Profile"
+            onPress={form.handleSubmit(handleSubmit)}
+            isPending={form.formState.isSubmitting}
+            isDisabled={!form.formState.isDirty}
+          />
+
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <Text style={styles.logoutText}>Logout</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -94,7 +128,7 @@ export default function ProfileSetup() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#fff",
   },
   header: {
     padding: 16,
@@ -104,15 +138,14 @@ const styles = StyleSheet.create({
     borderBottomColor: "#eee",
   },
   logoutButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 6,
-    backgroundColor: "#fff",
-    borderWidth: 1,
-    borderColor: "#dc2626",
+    backgroundColor: error_color,
+    padding: 16,
+    borderRadius: 8,
+    alignItems: "center",
+    marginTop: 20,
   },
   logoutText: {
-    color: "#dc2626",
+    color: "white",
     fontSize: 14,
     fontWeight: "600",
   },
@@ -151,7 +184,7 @@ const styles = StyleSheet.create({
     color: "#000",
   },
   submitButton: {
-    backgroundColor: "#6366f1",
+    backgroundColor: primary_color,
     padding: 16,
     borderRadius: 8,
     alignItems: "center",
@@ -161,5 +194,10 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "600",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

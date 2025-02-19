@@ -2,9 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useQuery } from '@tanstack/react-query';
 import { jwtDecode } from 'jwt-decode';
 
-type Props = {}
-
-const useAuth = async (props: Props) => {
+const useAuth = () => {
     const { data: token, isFetching } = useQuery({
         queryKey: ["token"],
         queryFn: async () => {
@@ -14,13 +12,20 @@ const useAuth = async (props: Props) => {
         initialData: null,
     });
 
+    const user = token ? jwtDecode(token) as {
+        email: string;
+        id: string;
+        role: string;
+        name: string;
+        iat: number;
+        exp: number;
 
-    let user = token ? jwtDecode(token) : null
-    if (user) {
-        user = user
-    }
+    } : null;
 
-    return { token, user, isFetching }
-}
+    return { token, user, isFetching };
+};
 
-export default useAuth
+export default useAuth;
+// user: {"email": "john.doe@example.com
+// ", "exp": 1771540346, "iat": 1739982746, "id": "cm6ul19rm00
+// 00c1log0p5s29r", "role": "ADMIN"}

@@ -1,4 +1,4 @@
-export const primary_color = '#6C63FF';
+export const primary_color = '#0a84ff';
 export const text_color = '#fff';
 
 export default {
@@ -19,5 +19,6 @@ export default {
 };
 export const success_color = "#00C851";
 export const error_color = "#ff4444";
-export const warning = "#ffbb33";
-export const info = "#33b5e5";
+export const warning_color = "#ffbb33";
+export const info_color = "#33b5e5";
+export const disabled_color = "#b0b0b0";

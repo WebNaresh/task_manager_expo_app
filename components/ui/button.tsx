@@ -1,4 +1,4 @@
-import { primary_color, text_color } from "@/constants/Colors";
+import { disabled_color, primary_color, text_color } from "@/constants/Colors";
 import React from "react";
 import {
   ActivityIndicator,
@@ -12,13 +12,17 @@ type NBButtonProps = {
   text: string;
   onPress: () => void;
   type?: "primary" | "secondary";
+  isDisabled?: boolean;
 };
 
 const NBButton = (props: NBButtonProps) => {
   return (
     <TouchableOpacity
-      style={styles.loginButton}
-      disabled={props.isPending}
+      style={[
+        styles.loginButton,
+        (props.isPending || props.isDisabled) && styles.disabledButton,
+      ]}
+      disabled={props.isPending || props.isDisabled}
       onPress={props.onPress}
     >
       {props.isPending ? (
@@ -40,6 +44,9 @@ const styles = StyleSheet.create({
     backgroundColor: primary_color,
     alignItems: "center",
     justifyContent: "center",
+  },
+  disabledButton: {
+    backgroundColor: disabled_color,
   },
   loginButtonText: {
     color: text_color,

@@ -1,11 +1,11 @@
 "use client";
 
+import { primary_color } from "@/constants/Colors";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { Link } from "expo-router";
 import React from "react";
 import {
-  ActivityIndicator,
   Image,
   RefreshControl,
   SafeAreaView,
@@ -59,9 +59,6 @@ const RelationshipManagersList = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Relationship Managers</Text>
-        <TouchableOpacity>
-          <Text style={styles.addButton}>ADD</Text>
-        </TouchableOpacity>
       </View>
 
       <ScrollView
@@ -70,49 +67,43 @@ const RelationshipManagersList = () => {
           <RefreshControl
             refreshing={isFetching}
             onRefresh={onRefresh}
-            colors={["#2196f3"]}
+            colors={[primary_color]}
           />
         }
       >
-        {isFetching && data.length === 0 ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#2196f3" />
-          </View>
-        ) : (
-          data.map((manager: any) => {
-            const progress = Math.floor(
-              (manager?.assignedTasks?.filter(
-                (task: any) => task?.status === "COMPLETED"
-              )?.length ?? 0 / manager?.assignedTasks?.length) * 100
-            );
-            return (
-              <View key={manager.id} style={styles.managerCard}>
-                <View style={styles.managerInfo}>
-                  <Image
-                    source={{
-                      uri:
-                        manager.image ??
-                        "https://images.unsplash.com/photo-1599566150163-29194dcaad36",
-                    }}
-                    style={styles.avatar}
-                  />
-                  <View style={styles.textContainer}>
-                    <Text style={styles.managerName}>{manager.name}</Text>
-                    <Text style={styles.managerTitle}>{manager.email}</Text>
-                    <Text style={styles.tasks}>
-                      {manager?.assignedTasks?.length} Tasks
-                    </Text>
-                    <ProgressBar percentage={progress} />
-                  </View>
-                  <View style={styles.rightContent}>
-                    <StatusBadge status={manager.isActive} />
-                    <Text style={styles.percentage}>{progress} %</Text>
-                  </View>
+        {data.map((manager: any) => {
+          const progress = Math.floor(
+            (manager?.assignedTasks?.filter(
+              (task: any) => task?.status === "COMPLETED"
+            )?.length ?? 0 / manager?.assignedTasks?.length) * 100
+          );
+          return (
+            <View key={manager.id} style={styles.managerCard}>
+              <View style={styles.managerInfo}>
+                <Image
+                  source={{
+                    uri:
+                      manager.image ??
+                      "https://images.unsplash.com/photo-1599566150163-29194dcaad36",
+                  }}
+                  style={styles.avatar}
+                />
+                <View style={styles.textContainer}>
+                  <Text style={styles.managerName}>{manager.name}</Text>
+                  <Text style={styles.managerTitle}>{manager.email}</Text>
+                  <Text style={styles.tasks}>
+                    {manager?.assignedTasks?.length} Tasks
+                  </Text>
+                  <ProgressBar percentage={progress} />
+                </View>
+                <View style={styles.rightContent}>
+                  <StatusBadge status={manager.isActive} />
+                  <Text style={styles.percentage}>{progress} %</Text>
                 </View>
               </View>
-            );
-          })
-        )}
+            </View>
+          );
+        })}
       </ScrollView>
       <Link href={"/add_rm_modal"} asChild>
         <TouchableOpacity style={styles.fab}>
@@ -207,17 +198,17 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     height: "100%",
-    backgroundColor: "#2196f3",
+    backgroundColor: primary_color,
     borderRadius: 2,
   },
   fab: {
     position: "absolute",
-    bottom: 80,
+    bottom: 40,
     right: 24,
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: "#6366f1",
+    backgroundColor: primary_color,
     justifyContent: "center",
     alignItems: "center",
     elevation: 4,
