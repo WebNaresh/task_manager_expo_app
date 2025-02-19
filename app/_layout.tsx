@@ -67,6 +67,14 @@ function RootLayoutNav() {
                 headerShown: false,
               }}
             />
+            <Stack.Screen
+              name="add_task_modal"
+              options={{
+                presentation: "transparentModal",
+                animation: "fade",
+                headerShown: false,
+              }}
+            />
           </Stack>
         </RootSiblingParent>
       </ThemeProvider>

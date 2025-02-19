@@ -4,7 +4,7 @@ import { StyleSheet, Text, View } from "react-native";
 
 const Modal = () => {
   return (
-    <NBModal back_link="/tasks/index">
+    <NBModal back_link="/tasks">
       <View>
         <Text>Modal</Text>
       </View>

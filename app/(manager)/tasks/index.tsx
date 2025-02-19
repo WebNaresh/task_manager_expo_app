@@ -6,7 +6,7 @@ const Tasks = () => {
   return (
     <View>
       <Text>Tasks</Text>
-      <Link href="/tasks/modal" asChild>
+      <Link href="/add_task_modal" asChild>
         <Text>Open Modal</Text>
       </Link>
     </View>
