@@ -50,15 +50,7 @@ const StatusBadge = ({ status }: { status: string }) => (
   </View>
 );
 
-const ProgressBar = ({
-  total_task,
-  completed_task,
-}: {
-  total_task: number;
-  completed_task: number;
-}) => {
-  // get the percentage of the total task
-  const percentage = (completed_task / total_task) * 100;
+const ProgressBar = ({ percentage }: { percentage: number }) => {
   return (
     <View style={styles.progressBarContainer}>
       <View style={[styles.progressBar, { width: `${percentage}%` }]} />
@@ -86,37 +78,41 @@ const RelationshipManagersList = () => {
       </View>
 
       <ScrollView style={styles.scrollView}>
-        {data.map((manager: any) => (
-          <View key={manager.id} style={styles.managerCard}>
-            <View style={styles.managerInfo}>
-              <Image
-                source={{
-                  uri:
-                    manager.image ??
-                    "https://images.unsplash.com/photo-1599566150163-29194dcaad36",
-                }}
-                style={styles.avatar}
-              />
-              <View style={styles.textContainer}>
-                <Text style={styles.managerName}>{manager.name}</Text>
-                <Text style={styles.managerTitle}>{manager.email}</Text>
-                <Text style={styles.tasks}>
-                  {manager?.assignedTasks?.length} Tasks
-                </Text>
-                <ProgressBar
-                  total_task={manager?.assignedTasks?.length ?? 0}
-                  completed_task={manager?.assignedTasks?.map(
-                    (task: any) => task?.status === "COMPLETED"
-                  )}
+        {data.map((manager: any) => {
+          const progress = Math.floor(
+            (manager?.assignedTasks?.map(
+              (task: any) => task?.status === "COMPLETED"
+            )?.length /
+              manager?.assignedTasks?.length) *
+              100
+          );
+          return (
+            <View key={manager.id} style={styles.managerCard}>
+              <View style={styles.managerInfo}>
+                <Image
+                  source={{
+                    uri:
+                      manager.image ??
+                      "https://images.unsplash.com/photo-1599566150163-29194dcaad36",
+                  }}
+                  style={styles.avatar}
                 />
-              </View>
-              <View style={styles.rightContent}>
-                <StatusBadge status={manager.status} />
-                <Text style={styles.percentage}>{manager.progress} %</Text>
+                <View style={styles.textContainer}>
+                  <Text style={styles.managerName}>{manager.name}</Text>
+                  <Text style={styles.managerTitle}>{manager.email}</Text>
+                  <Text style={styles.tasks}>
+                    {manager?.assignedTasks?.length} Tasks
+                  </Text>
+                  <ProgressBar percentage={progress} />
+                </View>
+                <View style={styles.rightContent}>
+                  <StatusBadge status={manager.status} />
+                  <Text style={styles.percentage}>{progress} %</Text>
+                </View>
               </View>
             </View>
-          </View>
-        ))}
+          );
+        })}
       </ScrollView>
     </SafeAreaView>
   );
