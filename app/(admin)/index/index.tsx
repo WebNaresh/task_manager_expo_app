@@ -77,7 +77,6 @@ const TaskDashboard: React.FC = () => {
     },
     initialData: null,
   });
-  console.log(`🚀 ~ stat :`, stat);
 
   const stats: StatCardProps[] = [
     {
