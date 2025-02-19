@@ -57,10 +57,6 @@ const RelationshipManagersList = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* <View style={styles.header}>
-        <Text style={styles.headerTitle}>Relationship Managers</Text>
-      </View> */}
-
       <ScrollView
         style={styles.scrollView}
         refreshControl={

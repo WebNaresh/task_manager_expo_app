@@ -119,7 +119,7 @@ const TaskDashboard: React.FC = () => {
       title: "Tasklist",
       value: "8",
       color: "#DB4437",
-      link: "/tasks",
+      link: "/tasklist",
     },
     {
       icon: "account",

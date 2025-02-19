@@ -11,6 +11,7 @@ const RootLayout = () => {
         options={{ title: "Relationship Manager's" }}
       />
       <Stack.Screen name="client/index" options={{ title: "Client's" }} />
+      <Stack.Screen name="tasklist/index" options={{ title: "Task List" }} />
     </Stack>
   );
 };
