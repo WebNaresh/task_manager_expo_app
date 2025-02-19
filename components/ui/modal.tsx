@@ -1,6 +1,11 @@
 import { Link } from "expo-router";
 import { Pressable, StyleSheet } from "react-native";
-import Animated, { FadeIn, SlideInDown } from "react-native-reanimated";
+import Animated, {
+  FadeIn,
+  FadeOut,
+  SlideInDown,
+  SlideOutUp,
+} from "react-native-reanimated";
 
 type NBModalProps = {
   children: React.ReactNode;
@@ -11,6 +16,7 @@ export default function NBModal(props: NBModalProps) {
   return (
     <Animated.View
       entering={FadeIn}
+      exiting={FadeOut} // Add exiting animation
       style={{
         flex: 1,
         justifyContent: "center",
@@ -23,6 +29,7 @@ export default function NBModal(props: NBModalProps) {
       </Link>
       <Animated.View
         entering={SlideInDown}
+        exiting={SlideOutUp} // Add exiting animation
         style={{
           width: "90%",
           backgroundColor: "white",

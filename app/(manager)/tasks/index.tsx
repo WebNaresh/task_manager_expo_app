@@ -1,4 +1,6 @@
 import { primary_color } from "@/constants/Colors";
+import { Feather, Ionicons } from "@expo/vector-icons";
+import { Link } from "expo-router";
 import React from "react";
 import {
   ScrollView,
@@ -72,17 +74,28 @@ const Tasks: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <View style={styles.taskHeader}>
         <Text style={styles.title}>Tasks</Text>
-        <View style={styles.calendarBadge}>
-          <Text style={styles.calendarText}>17</Text>
-        </View>
       </View>
 
       <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search name"
-          placeholderTextColor="#666"
-        />
+        <View style={styles.searchInputWrapper}>
+          <Feather
+            name="search"
+            size={20}
+            color="#666"
+            style={styles.searchIcon}
+          />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search name"
+            placeholderTextColor="#666"
+          />
+          <TouchableOpacity
+            onPress={(e) => e.stopPropagation()}
+            style={styles.calendarButton}
+          >
+            <Ionicons name="calendar" size={16} style={styles.calendarIcon} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView
@@ -118,24 +131,11 @@ const Tasks: React.FC = () => {
         />
       </ScrollView>
 
-      <TouchableOpacity style={styles.fab}>
-        <Text style={styles.fabText}>+</Text>
-      </TouchableOpacity>
-
-      <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navItem}>
-          <Text>Dashboard</Text>
+      <Link href={"/add_task_modal"} asChild>
+        <TouchableOpacity style={styles.fab}>
+          <Text style={styles.fabText}>+</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.navItem, styles.activeNavItem]}>
-          <Text style={styles.activeNavText}>Tasks</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Text>RM</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Text>Profile</Text>
-        </TouchableOpacity>
-      </View>
+      </Link>
     </SafeAreaView>
   );
 };
@@ -156,26 +156,32 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "bold",
   },
-  calendarBadge: {
-    backgroundColor: "#fff",
-    padding: 4,
-    borderRadius: 4,
-    borderWidth: 1,
-    borderColor: "#e0e0e0",
+  calendarIcon: {
+    marginRight: 4,
   },
   calendarText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "500",
     color: "#f43f5e",
   },
+
   searchContainer: {
     paddingHorizontal: 16,
     marginBottom: 16,
   },
-  searchInput: {
+  searchInputWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: "#f5f5f5",
-    padding: 16,
     borderRadius: 8,
+    paddingHorizontal: 12,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    padding: 12,
     fontSize: 16,
   },
   filterContainer: {
@@ -328,6 +334,12 @@ const styles = StyleSheet.create({
   },
   lowPriority: {
     backgroundColor: "#d1e7dd",
+  },
+  calendarButton: {
+    padding: 8,
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 

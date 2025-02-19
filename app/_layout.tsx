@@ -63,7 +63,8 @@ function RootLayoutNav() {
               name="modal"
               options={{
                 presentation: "transparentModal",
-                animation: "fade",
+                animation: "none", // Disable popping animation
+                animationTypeForReplace: "push", // Ensure no popping animation
                 headerShown: false,
               }}
             />
@@ -71,7 +72,8 @@ function RootLayoutNav() {
               name="add_task_modal"
               options={{
                 presentation: "transparentModal",
-                animation: "fade",
+                animation: "none", // Disable popping animation
+                animationTypeForReplace: "push", // Ensure no popping animation
                 headerShown: false,
               }}
             />
