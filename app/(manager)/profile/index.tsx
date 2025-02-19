@@ -27,14 +27,13 @@ import { z } from "zod";
 const form_schema = z.object({
   name: z.string(),
   email: z.string().email(),
-  password: z.string().min(8).optional(),
+  password: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof form_schema>;
 
 export default function ProfileSetup() {
   const { user, isFetching } = useAuth();
-  console.log(`🚀 ~ user:`, user);
   const router = useRouter();
   const query_client = useQueryClient();
   const form = useForm<FormValues>({
@@ -42,12 +41,12 @@ export default function ProfileSetup() {
     defaultValues: {
       name: user?.name,
       email: user?.email,
-      password: "",
     },
   });
 
   const handleSubmit = (data: FormValues) => {
     console.log(`🚀 ~ data:`, data);
+    mutate(data);
     // Handle form submission
   };
 
@@ -56,7 +55,21 @@ export default function ProfileSetup() {
       await query_client.invalidateQueries({
         queryKey: ["token"],
       });
-      const response = await axios.post("/api/v1/auth/login", data);
+      let body = {};
+      if (data.password && data.password.length > 0) {
+        body = {
+          name: data.name,
+          email: data.email,
+          password: data.password,
+        };
+      } else {
+        body = {
+          name: data.name,
+          email: data.email,
+        };
+      }
+
+      const response = await axios.post("/api/v1/auth/login", body);
       return response.data;
     },
     async onSuccess(data, variables, context) {
@@ -159,7 +172,7 @@ export default function ProfileSetup() {
               text="Update Profile"
               onPress={form.handleSubmit(handleSubmit)}
               isPending={form.formState.isSubmitting}
-              isDisabled={!form.formState.isDirty}
+              // isDisabled={!form.formState.isDirty}
             />
             <TouchableOpacity
               style={styles.logoutButton}
