@@ -3,8 +3,10 @@ import NBButton from "@/components/ui/button";
 import { error_color, primary_color, success_color } from "@/constants/Colors";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod"; // Add this import
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
+import { useRouter } from "expo-router";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -28,15 +30,18 @@ const LoginScreen = () => {
     reValidateMode: "onChange",
   });
   const { handleSubmit } = form;
+  const router = useRouter();
 
   const mutation = useMutation({
     mutationFn: async (data: form_schema_types) => {
       const response = await axios.post("/api/v1/auth/login", data);
       return response.data;
     },
-    onSuccess(data, variables, context) {
-      console.log(`🚀 ~ data:`, data);
-      Toast.show("Login Successful", {
+    async onSuccess(data, variables, context) {
+      console.log(`🚀 ~ data:`, data?.token);
+      await AsyncStorage.setItem("token", data.token);
+
+      Toast.show(`Welcome, ${data?.name}`, {
         duration: Toast.durations.LONG,
         position: Toast.positions.TOP,
         shadow: true,
@@ -44,6 +49,7 @@ const LoginScreen = () => {
         hideOnPress: true,
         backgroundColor: success_color,
       });
+      router.push("/(manager)");
     },
     onError(error, variables, context) {
       console.log(`🚀 ~ error:`, error);
@@ -108,8 +114,6 @@ const LoginScreen = () => {
             }
             type="password"
           />
-
-          {/* Login Button */}
 
           <NBButton
             onPress={handleSubmit(onSubmit)}

@@ -1,11 +1,17 @@
 import { primary_color, text_color } from "@/constants/Colors";
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity } from "react-native";
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+} from "react-native";
 
 type NBButtonProps = {
   isPending: boolean;
   text: string;
   onPress: () => void;
+  type?: "primary" | "secondary";
 };
 
 const NBButton = (props: NBButtonProps) => {
@@ -15,7 +21,11 @@ const NBButton = (props: NBButtonProps) => {
       disabled={props.isPending}
       onPress={props.onPress}
     >
-      <Text style={styles.loginButtonText}>{props.text}</Text>
+      {props.isPending ? (
+        <ActivityIndicator size="small" color={text_color} />
+      ) : (
+        <Text style={styles.loginButtonText}>{props.text}</Text>
+      )}
     </TouchableOpacity>
   );
 };

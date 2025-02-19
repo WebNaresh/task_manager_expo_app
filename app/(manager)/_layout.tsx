@@ -44,7 +44,7 @@ export default function TabLayout() {
         options={{
           title: "Tasks",
           tabBarIcon: (props) => (
-            <FontAwesome5 name="tasks" size={16} color="black" />
+            <FontAwesome5 name="tasks" size={16} color={props.color} />
           ),
         }}
       />
@@ -53,7 +53,7 @@ export default function TabLayout() {
         options={{
           title: "RM",
           tabBarIcon: (props) => (
-            <FontAwesome5 name="users" size={16} color="black" />
+            <FontAwesome5 name="users" size={16} color={props.color} />
           ),
         }}
       />
@@ -62,7 +62,7 @@ export default function TabLayout() {
         options={{
           title: "Profile",
           tabBarIcon: (props) => (
-            <Feather name="user" size={16} color="black" />
+            <Feather name="user" size={16} color={props.color} />
           ),
         }}
       />
