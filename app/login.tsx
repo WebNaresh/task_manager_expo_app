@@ -25,7 +25,7 @@ const LoginScreen = () => {
     resolver: zodResolver(form_schema),
     defaultValues: {
       email: "john.doe@example.com",
-      password: "password123",
+      password: "pass@123",
     },
     reValidateMode: "onChange",
   });
@@ -53,7 +53,7 @@ const LoginScreen = () => {
         hideOnPress: true,
         backgroundColor: success_color,
       });
-      router.push("/(manager)");
+      router.push("/(admin)/(tab)/index/index");
     },
     onError(error, variables, context) {
       console.log(`🚀 ~ error:`, error);

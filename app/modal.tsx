@@ -54,7 +54,7 @@ export default function PriorityForm() {
         hideOnPress: true,
         backgroundColor: success_color,
       });
-      router.navigate("/(manager)");
+      router.navigate("/(admin)/index");
     },
     onError(error, variables, context) {
       console.log(`🚀 ~ error:`, error);
@@ -77,7 +77,7 @@ export default function PriorityForm() {
   };
 
   return (
-    <NBModal back_link="/">
+    <NBModal href="/(admin)/index">
       <View style={styles.container}>
         <NBTextInput
           name="name"

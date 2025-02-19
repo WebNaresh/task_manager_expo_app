@@ -62,7 +62,7 @@ const Modal = () => {
         hideOnPress: true,
         backgroundColor: success_color,
       });
-      router.push("/manager");
+      router.push("/(admin)/index/manager");
     },
     onError(error, variables, context) {
       if (axios.isAxiosError(error)) {
@@ -80,7 +80,7 @@ const Modal = () => {
   });
 
   return (
-    <NBModal back_link="/manager">
+    <NBModal href="/(admin)/index/manager">
       <View style={{ padding: 16 }}>
         <Text style={{ fontSize: 24, fontWeight: "bold", marginBottom: 16 }}>
           Add RM

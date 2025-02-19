@@ -8,7 +8,6 @@ export default function Header(props: BottomTabHeaderProps) {
   const colorScheme = useColorScheme();
   const { user } = useAuth();
 
-  console.log(`🚀 ~ user:`, user);
   return (
     <View style={styles.container}>
       <View style={styles.textContainer}>

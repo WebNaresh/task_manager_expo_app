@@ -29,15 +29,7 @@ export default function TabLayout() {
           ),
         }}
       />
-      <Tabs.Screen
-        name="manager/index"
-        options={{
-          title: "RM",
-          tabBarIcon: (props) => (
-            <FontAwesome5 name="users" size={16} color={props.color} />
-          ),
-        }}
-      />
+
       <Tabs.Screen
         name="profile/index"
         options={{

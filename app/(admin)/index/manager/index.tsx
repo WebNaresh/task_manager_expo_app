@@ -57,9 +57,9 @@ const RelationshipManagersList = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+      {/* <View style={styles.header}>
         <Text style={styles.headerTitle}>Relationship Managers</Text>
-      </View>
+      </View> */}
 
       <ScrollView
         style={styles.scrollView}

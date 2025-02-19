@@ -1,4 +1,4 @@
-import { Link } from "expo-router";
+import { Href, useRouter } from "expo-router";
 import { Pressable, StyleSheet } from "react-native";
 import Animated, {
   FadeIn,
@@ -9,10 +9,11 @@ import Animated, {
 
 type NBModalProps = {
   children: React.ReactNode;
-  back_link: string;
+  href: Href;
 };
 
 export default function NBModal(props: NBModalProps) {
+  const router = useRouter();
   return (
     <Animated.View
       entering={FadeIn}
@@ -24,9 +25,14 @@ export default function NBModal(props: NBModalProps) {
         backgroundColor: "#00000040",
       }}
     >
-      <Link href={props.back_link as any} asChild>
-        <Pressable style={StyleSheet.absoluteFill} />
-      </Link>
+      {/* <Link href={props.href as any} asChild> */}
+      <Pressable
+        onPress={() => {
+          router.back();
+        }}
+        style={StyleSheet.absoluteFill}
+      />
+      {/* </Link> */}
       <Animated.View
         entering={SlideInDown}
         exiting={SlideOutUp} // Add exiting animation

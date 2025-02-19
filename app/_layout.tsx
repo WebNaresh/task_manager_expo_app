@@ -58,7 +58,8 @@ function RootLayoutNav() {
         <RootSiblingParent>
           <Stack>
             <Stack.Screen name="login" options={{ headerShown: false }} />
-            <Stack.Screen name="(manager)" options={{ headerShown: false }} />
+            <Stack.Screen name="(admin)" options={{ headerShown: false }} />
+
             <Stack.Screen
               name="modal"
               options={{
