@@ -1,6 +1,7 @@
 import NBTextInput from "@/components/input/text-input";
 import NBButton from "@/components/ui/button";
 import NBModal from "@/components/ui/modal";
+import { error_color, success_color } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -9,6 +10,7 @@ import { useRouter } from "expo-router";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { StyleSheet, View } from "react-native";
+import Toast from "react-native-root-toast";
 import { z } from "zod";
 
 const form_schema = z.object({
@@ -30,27 +32,54 @@ const AddClientModal = () => {
 
   const queryClient = useQueryClient();
   const router = useRouter();
+  const { mutate, isPending } = useMutation({
+    mutationFn: async (data: form_type) => {
+      // /api/v1/client
+      const response = await axios.post("/api/v1/client", data);
+      console.log(`🚀 ~ response:`, response.data);
+      return response.data;
+    },
+    async onSuccess(data, variables, context) {
+      console.log(`🚀 ~ data:`, data);
+      console.log(`🚀 ~ data:`, data);
+      await queryClient?.invalidateQueries({
+        queryKey: ["clients"],
+      });
+      Toast.show(`Client added`, {
+        duration: Toast.durations.LONG,
+        position: Toast.positions.TOP,
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        backgroundColor: success_color,
+      });
+      router.back();
+    },
+    onError(error, variables, context) {
+      console.log(`🚀 ~ error:`, error);
+      if (axios.isAxiosError(error)) {
+        const message = error?.response?.data?.message;
+        if (message) {
+          Toast.show(message, {
+            duration: Toast.durations.LONG,
+            position: Toast.positions.TOP,
+            shadow: true,
+            animation: true,
+            hideOnPress: true,
+            backgroundColor: error_color,
+          });
+        }
+      }
+    },
+  });
 
   const { handleSubmit } = form;
 
   const onSubmit = (data: form_type) => {
     console.log(data);
+    mutate(data);
   };
 
-  const { mutate, isPending } = useMutation({
-    mutationFn: async (data: form_type) => {
-      // /api/v1/client
-      const response = await axios.post("/api/v1/client", data);
-      return response.data;
-    },
-    async onSuccess(data, variables, context) {
-      console.log(`🚀 ~ data:`, data);
-      await queryClient?.invalidateQueries({
-        queryKey: ["clients"],
-      });
-      router.back();
-    },
-  });
   return (
     <NBModal>
       <View style={{ padding: 20 }}>
@@ -71,7 +100,7 @@ const AddClientModal = () => {
         <NBButton
           onPress={handleSubmit(onSubmit)}
           text="Add Client"
-          isPending={false}
+          isPending={isPending}
         />
       </View>
     </NBModal>
