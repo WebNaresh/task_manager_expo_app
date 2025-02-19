@@ -1,19 +1,13 @@
 import NBTextInput from "@/components/input/text-input";
-import { error_color, success_color } from "@/constants/Colors";
+import NBButton from "@/components/ui/button";
+import { error_color, primary_color, success_color } from "@/constants/Colors";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod"; // Add this import
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import React from "react";
 import { useForm } from "react-hook-form";
-import {
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
 import Toast from "react-native-root-toast";
 import { z } from "zod";
 
@@ -116,13 +110,12 @@ const LoginScreen = () => {
           />
 
           {/* Login Button */}
-          <TouchableOpacity
+
+          <NBButton
             onPress={handleSubmit(onSubmit)}
-            style={styles.loginButton}
-            disabled={mutation.isPending}
-          >
-            <Text style={styles.loginButtonText}>Login</Text>
-          </TouchableOpacity>
+            isPending={mutation.isPending}
+            text="Login"
+          />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -152,7 +145,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 20,
-    backgroundColor: "#6C63FF",
+    backgroundColor: primary_color,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -190,22 +183,9 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   forgotPassword: {
-    color: "#6C63FF",
+    color: primary_color,
     fontSize: 14,
     marginBottom: 24,
-  },
-  loginButton: {
-    width: "100%",
-    height: 56,
-    borderRadius: 12,
-    backgroundColor: "#6C63FF",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  loginButtonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "600",
   },
 });
 
