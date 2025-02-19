@@ -32,23 +32,23 @@ const managers = [
   },
 ];
 
-const StatusBadge = ({ status }: { status: string }) => (
-  <View
-    style={[
-      styles.statusBadge,
-      { backgroundColor: status === "active" ? "#e8f5e9" : "#fff3e0" },
-    ]}
-  >
-    <Text
+const StatusBadge = ({ status }: { status: boolean }) => {
+  console.log(`🚀 ~ status:`, status);
+  return (
+    <View
       style={[
-        styles.statusText,
-        { color: status === "active" ? "#2e7d32" : "#f57c00" },
+        styles.statusBadge,
+        { backgroundColor: status ? "#e8f5e9" : "#fff3e0" },
       ]}
     >
-      {status}
-    </Text>
-  </View>
-);
+      <Text
+        style={[styles.statusText, { color: status ? "#2e7d32" : "#f57c00" }]}
+      >
+        {status ? "Active" : "Inactive"}
+      </Text>
+    </View>
+  );
+};
 
 const ProgressBar = ({ percentage }: { percentage: number }) => {
   return (
@@ -62,7 +62,6 @@ const RelationshipManagersList = () => {
   const { data, isFetching } = useQuery({
     queryKey: ["managers"],
     queryFn: async () => {
-      // axios request to /api/v1/admin/rms
       const response = await axios.get("/api/v1/admin/rms");
       return response.data;
     },
@@ -80,11 +79,9 @@ const RelationshipManagersList = () => {
       <ScrollView style={styles.scrollView}>
         {data.map((manager: any) => {
           const progress = Math.floor(
-            (manager?.assignedTasks?.map(
+            (manager?.assignedTasks?.filter(
               (task: any) => task?.status === "COMPLETED"
-            )?.length /
-              manager?.assignedTasks?.length) *
-              100
+            )?.length ?? 0 / manager?.assignedTasks?.length) * 100
           );
           return (
             <View key={manager.id} style={styles.managerCard}>
@@ -106,7 +103,7 @@ const RelationshipManagersList = () => {
                   <ProgressBar percentage={progress} />
                 </View>
                 <View style={styles.rightContent}>
-                  <StatusBadge status={manager.status} />
+                  <StatusBadge status={manager.isActive} />
                   <Text style={styles.percentage}>{progress} %</Text>
                 </View>
               </View>
