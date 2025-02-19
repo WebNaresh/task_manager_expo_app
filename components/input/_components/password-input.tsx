@@ -22,11 +22,12 @@ const NBPasswordInputField = (props: NBTextInputProps) => {
             {props.icon}
             <TextInput
               style={styles.input}
-              placeholder="Pass@123"
+              placeholder={props.placeholder}
               placeholderTextColor="#A0A0A0"
               value={value}
               onChangeText={onChange}
               secureTextEntry={!showPassword}
+              onBlur={onBlur}
             />
             <TouchableOpacity
               onPress={() => setShowPassword(!showPassword)}

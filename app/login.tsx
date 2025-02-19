@@ -1,4 +1,5 @@
 import NBTextInput from "@/components/input/text-input";
+import { error_color, success_color } from "@/constants/Colors";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod"; // Add this import
 import { useMutation } from "@tanstack/react-query";
@@ -7,11 +8,13 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import {
   SafeAreaView,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import Toast from "react-native-root-toast";
 import { z } from "zod";
 
 const form_schema = z.object({
@@ -25,15 +28,12 @@ const LoginScreen = () => {
   const form = useForm<form_schema_types>({
     resolver: zodResolver(form_schema),
     defaultValues: {
-      password: "",
-      email: "",
+      email: "john.doe@example.com",
+      password: "password123",
     },
     reValidateMode: "onChange",
   });
-  const {
-    handleSubmit,
-    formState: { errors },
-  } = form;
+  const { handleSubmit } = form;
 
   const mutation = useMutation({
     mutationFn: async (data: form_schema_types) => {
@@ -42,76 +42,89 @@ const LoginScreen = () => {
     },
     onSuccess(data, variables, context) {
       console.log(`🚀 ~ data:`, data);
+      Toast.show("Login Successful", {
+        duration: Toast.durations.LONG,
+        position: Toast.positions.TOP,
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        backgroundColor: success_color,
+      });
     },
     onError(error, variables, context) {
       console.log(`🚀 ~ error:`, error);
       if (axios.isAxiosError(error)) {
-        console.log(`🚀 ~ error.response:`, error.response);
-        // Toast.show({
-        //   type: "error",
-        //   text1: "Error",
-        //   text2: error.response?.data.message,
-        // });
+        console.log(`🚀 ~ error.response:`, error.response?.data.message);
+        Toast.show(error.response?.data.message, {
+          duration: Toast.durations.LONG,
+          position: Toast.positions.TOP,
+          shadow: true,
+          animation: true,
+          hideOnPress: true,
+          backgroundColor: error_color,
+        });
       }
     },
   });
+  console.log(mutation.isPending);
 
   const onSubmit = (data: form_schema_types) => {
-    console.log(`🚀 ~ data:`, data);
     mutation.mutate(data);
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        {/* Logo */}
-        <View style={styles.logoContainer}>
-          <View style={styles.logo}>
-            <Ionicons name="checkmark" size={40} color="#FFFFFF" />
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <View style={styles.content}>
+          {/* Logo */}
+          <View style={styles.logoContainer}>
+            <View style={styles.logo}>
+              <Ionicons name="checkmark" size={40} color="#FFFFFF" />
+            </View>
           </View>
+
+          {/* Welcome Text */}
+          <Text style={styles.title}>Welcome Back</Text>
+          <Text style={styles.subtitle}>Sign in to Continue</Text>
+
+          {/* Input Fields */}
+          <NBTextInput
+            form={form}
+            name="email"
+            placeholder="eg. admin@gmail.com"
+            icon={
+              <MaterialCommunityIcons
+                name="email-outline"
+                size={20}
+                color="#A0A0A0"
+              />
+            }
+            type="text"
+          />
+          <NBTextInput
+            form={form}
+            name="password"
+            placeholder="Pass@123"
+            icon={
+              <MaterialCommunityIcons
+                name="lock-outline"
+                size={20}
+                color="#A0A0A0"
+              />
+            }
+            type="password"
+          />
+
+          {/* Login Button */}
+          <TouchableOpacity
+            onPress={handleSubmit(onSubmit)}
+            style={styles.loginButton}
+            disabled={mutation.isPending}
+          >
+            <Text style={styles.loginButtonText}>Login</Text>
+          </TouchableOpacity>
         </View>
-
-        {/* Welcome Text */}
-        <Text style={styles.title}>Welcome Back</Text>
-        <Text style={styles.subtitle}>Sign in to Continue</Text>
-
-        {/* Input Fields */}
-        <NBTextInput
-          form={form}
-          name="email"
-          placeholder="eg. admin@gmail.com"
-          icon={
-            <MaterialCommunityIcons
-              name="email-outline"
-              size={20}
-              color="#A0A0A0"
-            />
-          }
-          type="text"
-        />
-        <NBTextInput
-          form={form}
-          name="password"
-          placeholder="Pass@123"
-          icon={
-            <MaterialCommunityIcons
-              name="lock-outline"
-              size={20}
-              color="#A0A0A0"
-            />
-          }
-          type="password"
-        />
-
-        {/* Login Button */}
-        <TouchableOpacity
-          onPress={handleSubmit(onSubmit)}
-          style={styles.loginButton}
-          disabled={mutation.isPending}
-        >
-          <Text style={styles.loginButtonText}>Login</Text>
-        </TouchableOpacity>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -121,8 +134,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FFFFFF",
   },
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   content: {
-    flex: 1,
+    width: "100%",
     paddingHorizontal: 24,
     alignItems: "center",
     justifyContent: "center",

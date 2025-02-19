@@ -31,11 +31,11 @@ const NBTextInput = (props: NBTextInputProps) => {
               placeholderTextColor="#A0A0A0"
               value={value}
               onChangeText={onChange}
-              keyboardType={props.keyboardType}
-              autoCapitalize={props.autoCapitalize}
+              onBlur={onBlur} // Ensure onBlur is passed
+              keyboardType={props.keyboardType} // Ensure keyboardType is passed
+              autoCapitalize={props.autoCapitalize} // Ensure autoCapitalize is passed
             />
           </View>
-          {/* show errors if exist */}
           <View
             style={{
               flexDirection: "row",
