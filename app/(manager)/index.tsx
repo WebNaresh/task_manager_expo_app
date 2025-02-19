@@ -60,6 +60,16 @@ const TaskDashboard: React.FC = () => {
     },
   });
 
+  const { data: stat } = useQuery({
+    queryKey: ["stat"],
+    queryFn: async () => {
+      const response = await axios.get("/api/v1/task/statistics");
+      return response.data;
+    },
+    initialData: null,
+  });
+  console.log(`🚀 ~ stat :`, stat);
+
   const stats: StatCardProps[] = [
     {
       icon: "format-list-checks",
