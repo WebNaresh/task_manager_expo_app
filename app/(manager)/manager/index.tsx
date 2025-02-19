@@ -50,11 +50,21 @@ const StatusBadge = ({ status }: { status: string }) => (
   </View>
 );
 
-const ProgressBar = ({ progress }: { progress: number }) => (
-  <View style={styles.progressBarContainer}>
-    <View style={[styles.progressBar, { width: `${progress}%` }]} />
-  </View>
-);
+const ProgressBar = ({
+  total_task,
+  completed_task,
+}: {
+  total_task: number;
+  completed_task: number;
+}) => {
+  // get the percentage of the total task
+  const percentage = (completed_task / total_task) * 100;
+  return (
+    <View style={styles.progressBarContainer}>
+      <View style={[styles.progressBar, { width: `${percentage}%` }]} />
+    </View>
+  );
+};
 
 const RelationshipManagersList = () => {
   const { data, isFetching } = useQuery({
@@ -93,7 +103,12 @@ const RelationshipManagersList = () => {
                 <Text style={styles.tasks}>
                   {manager?.assignedTasks?.length} Tasks
                 </Text>
-                <ProgressBar progress={manager.progress} />
+                <ProgressBar
+                  total_task={manager?.assignedTasks?.length ?? 0}
+                  completed_task={manager?.assignedTasks?.map(
+                    (task: any) => task?.status === "COMPLETED"
+                  )}
+                />
               </View>
               <View style={styles.rightContent}>
                 <StatusBadge status={manager.status} />
