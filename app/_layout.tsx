@@ -59,6 +59,14 @@ function RootLayoutNav() {
           <Stack>
             <Stack.Screen name="login" options={{ headerShown: false }} />
             <Stack.Screen name="(manager)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="modal"
+              options={{
+                presentation: "transparentModal",
+                animation: "fade",
+                headerShown: false,
+              }}
+            />
           </Stack>
         </RootSiblingParent>
       </ThemeProvider>

@@ -1,29 +1,10 @@
-import { Redirect, Tabs } from "expo-router";
+import { Tabs } from "expo-router";
 import React from "react";
 
 import { Feather, FontAwesome5, MaterialIcons } from "@expo/vector-icons";
-import { useAsyncStorage } from "@react-native-async-storage/async-storage";
-import { useQuery } from "@tanstack/react-query";
 import Header from "../../components/ui/rm/header";
 
 export default function TabLayout() {
-  const { getItem } = useAsyncStorage("token");
-  const fetchToken = async () => {
-    const storedToken = await getItem();
-    return storedToken ? storedToken : null;
-  };
-
-  const { data, isFetching } = useQuery({
-    queryKey: ["user"],
-    queryFn: fetchToken,
-  });
-  if (data === null) {
-    return <Redirect href={"/login"} />;
-  }
-  if (isFetching) {
-    return null;
-  }
-
   return (
     <Tabs
       screenOptions={{

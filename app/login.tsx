@@ -4,7 +4,7 @@ import { error_color, primary_color, success_color } from "@/constants/Colors";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod"; // Add this import
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useRouter } from "expo-router";
 import React from "react";
@@ -31,9 +31,13 @@ const LoginScreen = () => {
   });
   const { handleSubmit } = form;
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const mutation = useMutation({
     mutationFn: async (data: form_schema_types) => {
+      await queryClient.invalidateQueries({
+        queryKey: ["token"],
+      });
       const response = await axios.post("/api/v1/auth/login", data);
       return response.data;
     },

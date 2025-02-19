@@ -1,21 +1,26 @@
 import React from "react";
 import { Controller, UseFormReturn } from "react-hook-form";
 import { StyleSheet, Text, TextInput, View } from "react-native";
+import NBColorInput from "./_components/color-input";
 import NBPasswordInputField from "./_components/password-input";
 
 export type NBTextInputProps = {
   form: UseFormReturn<any, any>;
   name: string;
   placeholder: string;
-  keyboardType?: "email-address" | "default";
+  keyboardType?: "email-address" | "default" | "number-pad";
   autoCapitalize?: "none" | "sentences" | "words" | "characters" | undefined;
   icon: React.ReactNode;
-  type: "text" | "password";
+  type: "text" | "password" | "color";
 };
 
 const NBTextInput = (props: NBTextInputProps) => {
   if (props.type === "password") {
     return <NBPasswordInputField {...props} />;
+  }
+
+  if (props.type === "color") {
+    return <NBColorInput {...props} />;
   }
   return (
     <Controller
@@ -60,8 +65,6 @@ export default NBTextInput;
 const styles = StyleSheet.create({
   inputContainer: {
     width: "100%",
-    gap: 4,
-    marginBottom: 16,
   },
   inputWrapper: {
     flexDirection: "row",

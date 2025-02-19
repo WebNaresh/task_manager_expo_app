@@ -1,11 +1,14 @@
 import Colors from "@/constants/Colors";
+import useAuth from "@/hooks/useAuth";
 import { BottomTabHeaderProps } from "@react-navigation/bottom-tabs";
 import React from "react";
 import { Image, StyleSheet, Text, useColorScheme, View } from "react-native";
 
 export default function Header(props: BottomTabHeaderProps) {
   const colorScheme = useColorScheme();
+  const data = useAuth({});
 
+  console.log(`🚀 ~ token:`, data);
   return (
     <View style={styles.container}>
       <View style={styles.textContainer}>
