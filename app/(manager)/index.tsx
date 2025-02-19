@@ -13,8 +13,8 @@ import {
 
 interface StatCardProps {
   icon: keyof typeof MaterialCommunityIcons.glyphMap;
-  value: string;
   title: string;
+  value: string;
   color: string;
 }
 
@@ -34,13 +34,12 @@ interface PriorityData {
 }
 
 const StatCard: React.FC<StatCardProps> = ({ icon, title, value, color }) => (
-  <View style={styles.statCard}>
+  <View style={[styles.card, { backgroundColor: "white" }]}>
     <MaterialCommunityIcons name={icon} size={24} color={color} />
-    <Text style={styles.statValue}>{value}</Text>
-    <Text style={styles.statTitle}>{title}</Text>
+    <Text style={styles.value}>{value}</Text>
+    <Text style={styles.title}>{title}</Text>
   </View>
 );
-
 const PriorityItem: React.FC<PriorityItemProps> = ({ name, color, number }) => (
   <View style={styles.priorityRow}>
     <Text style={styles.priorityName}>{name}</Text>
