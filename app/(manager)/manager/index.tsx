@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { Link } from "expo-router";
 import React from "react";
 import {
   Image,
@@ -33,7 +34,6 @@ const managers = [
 ];
 
 const StatusBadge = ({ status }: { status: boolean }) => {
-  console.log(`🚀 ~ status:`, status);
   return (
     <View
       style={[
@@ -111,6 +111,11 @@ const RelationshipManagersList = () => {
           );
         })}
       </ScrollView>
+      <Link href={"/add_rm_modal"} asChild>
+        <TouchableOpacity style={styles.fab}>
+          <Text style={styles.fabText}>+</Text>
+        </TouchableOpacity>
+      </Link>
     </SafeAreaView>
   );
 };
@@ -201,6 +206,29 @@ const styles = StyleSheet.create({
     height: "100%",
     backgroundColor: "#2196f3",
     borderRadius: 2,
+  },
+  fab: {
+    position: "absolute",
+    bottom: 80,
+    right: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: "#6366f1",
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+  },
+  fabText: {
+    fontSize: 24,
+    color: "#fff",
   },
 });
 
