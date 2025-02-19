@@ -69,7 +69,10 @@ export default function ProfileSetup() {
         };
       }
 
-      const response = await axios.post("/api/v1/auth/login", body);
+      const response = await axios.post(
+        `/api/v1/auth/update-user/${user?.id}`,
+        body
+      );
       return response.data;
     },
     async onSuccess(data, variables, context) {
