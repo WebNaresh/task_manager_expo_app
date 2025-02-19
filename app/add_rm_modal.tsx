@@ -1,13 +1,16 @@
 import NBTextInput from "@/components/input/text-input";
 import NBButton from "@/components/ui/button";
 import NBModal from "@/components/ui/modal";
+import { error_color, success_color } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import { useRouter } from "expo-router";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { StyleSheet, Text, View } from "react-native";
+import Toast from "react-native-root-toast";
 import { z } from "zod";
 
 const from_schema = z.object({
@@ -28,6 +31,9 @@ const Modal = () => {
     },
     reValidateMode: "onChange",
   });
+  const router = useRouter();
+
+  const queryClient = useQueryClient();
 
   const { handleSubmit } = form;
 
@@ -43,11 +49,33 @@ const Modal = () => {
       const response = await axios.post("/api/v1/admin/create-rm", data);
       return response.data;
     },
-    onSuccess(data, variables, context) {
+    async onSuccess(data, variables, context) {
       console.log(`🚀 ~ data:`, data);
+      await queryClient?.invalidateQueries({
+        queryKey: ["managers"],
+      });
+      Toast.show(`RM added`, {
+        duration: Toast.durations.LONG,
+        position: Toast.positions.TOP,
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        backgroundColor: success_color,
+      });
+      router.push("/manager");
     },
     onError(error, variables, context) {
-      console.log(`🚀 ~ error:`, error);
+      if (axios.isAxiosError(error)) {
+        console.log(`🚀 ~ error:`, error.response?.data?.message);
+        Toast.show(error.response?.data?.message, {
+          duration: Toast.durations.LONG,
+          position: Toast.positions.TOP,
+          shadow: true,
+          animation: true,
+          hideOnPress: true,
+          backgroundColor: error_color,
+        });
+      }
     },
   });
 

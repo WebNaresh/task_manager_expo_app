@@ -61,10 +61,10 @@ export default function ProfileSetup() {
 
         <View style={styles.form}>
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>RM Name</Text>
+            <Text style={styles.label}>User Name</Text>
             <TextInput
               style={styles.input}
-              placeholder="Enter RM name"
+              placeholder="Enter User Name"
               placeholderTextColor="#999"
               value={rmName}
               onChangeText={setRmName}
@@ -72,10 +72,10 @@ export default function ProfileSetup() {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>RM Designation</Text>
+            <Text style={styles.label}>RM Email</Text>
             <TextInput
               style={styles.input}
-              placeholder="Enter RM Designation"
+              placeholder="Enter RM Email"
               placeholderTextColor="#999"
               value={rmDesignation}
               onChangeText={setRmDesignation}

@@ -1,9 +1,13 @@
+"use client";
+
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { Link } from "expo-router";
 import React from "react";
 import {
+  ActivityIndicator,
   Image,
+  RefreshControl,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -11,27 +15,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
-const managers = [
-  {
-    id: 1,
-    name: "Sarah Johnson",
-    title: "Senior RM",
-    tasks: 12,
-    progress: 75,
-    status: "active",
-    image: "https://images.unsplash.com/photo-1599566150163-29194dcaad36",
-  },
-  {
-    id: 2,
-    name: "Sarah Johnson",
-    title: "Senior RM",
-    tasks: 12,
-    progress: 75,
-    status: "active",
-    image: "https://images.unsplash.com/photo-1599566150163-29194dcaad36",
-  },
-];
 
 const StatusBadge = ({ status }: { status: boolean }) => {
   return (
@@ -59,7 +42,7 @@ const ProgressBar = ({ percentage }: { percentage: number }) => {
 };
 
 const RelationshipManagersList = () => {
-  const { data, isFetching } = useQuery({
+  const { data, isFetching, refetch } = useQuery({
     queryKey: ["managers"],
     queryFn: async () => {
       const response = await axios.get("/api/v1/admin/rms");
@@ -67,6 +50,11 @@ const RelationshipManagersList = () => {
     },
     initialData: [],
   });
+
+  const onRefresh = React.useCallback(() => {
+    refetch();
+  }, [refetch]);
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -76,40 +64,55 @@ const RelationshipManagersList = () => {
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.scrollView}>
-        {data.map((manager: any) => {
-          const progress = Math.floor(
-            (manager?.assignedTasks?.filter(
-              (task: any) => task?.status === "COMPLETED"
-            )?.length ?? 0 / manager?.assignedTasks?.length) * 100
-          );
-          return (
-            <View key={manager.id} style={styles.managerCard}>
-              <View style={styles.managerInfo}>
-                <Image
-                  source={{
-                    uri:
-                      manager.image ??
-                      "https://images.unsplash.com/photo-1599566150163-29194dcaad36",
-                  }}
-                  style={styles.avatar}
-                />
-                <View style={styles.textContainer}>
-                  <Text style={styles.managerName}>{manager.name}</Text>
-                  <Text style={styles.managerTitle}>{manager.email}</Text>
-                  <Text style={styles.tasks}>
-                    {manager?.assignedTasks?.length} Tasks
-                  </Text>
-                  <ProgressBar percentage={progress} />
-                </View>
-                <View style={styles.rightContent}>
-                  <StatusBadge status={manager.isActive} />
-                  <Text style={styles.percentage}>{progress} %</Text>
+      <ScrollView
+        style={styles.scrollView}
+        refreshControl={
+          <RefreshControl
+            refreshing={isFetching}
+            onRefresh={onRefresh}
+            colors={["#2196f3"]}
+          />
+        }
+      >
+        {isFetching && data.length === 0 ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#2196f3" />
+          </View>
+        ) : (
+          data.map((manager: any) => {
+            const progress = Math.floor(
+              (manager?.assignedTasks?.filter(
+                (task: any) => task?.status === "COMPLETED"
+              )?.length ?? 0 / manager?.assignedTasks?.length) * 100
+            );
+            return (
+              <View key={manager.id} style={styles.managerCard}>
+                <View style={styles.managerInfo}>
+                  <Image
+                    source={{
+                      uri:
+                        manager.image ??
+                        "https://images.unsplash.com/photo-1599566150163-29194dcaad36",
+                    }}
+                    style={styles.avatar}
+                  />
+                  <View style={styles.textContainer}>
+                    <Text style={styles.managerName}>{manager.name}</Text>
+                    <Text style={styles.managerTitle}>{manager.email}</Text>
+                    <Text style={styles.tasks}>
+                      {manager?.assignedTasks?.length} Tasks
+                    </Text>
+                    <ProgressBar percentage={progress} />
+                  </View>
+                  <View style={styles.rightContent}>
+                    <StatusBadge status={manager.isActive} />
+                    <Text style={styles.percentage}>{progress} %</Text>
+                  </View>
                 </View>
               </View>
-            </View>
-          );
-        })}
+            );
+          })
+        )}
       </ScrollView>
       <Link href={"/add_rm_modal"} asChild>
         <TouchableOpacity style={styles.fab}>
@@ -229,6 +232,12 @@ const styles = StyleSheet.create({
   fabText: {
     fontSize: 24,
     color: "#fff",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: 20,
   },
 });
 
