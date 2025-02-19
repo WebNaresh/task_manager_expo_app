@@ -134,28 +134,6 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 12,
   },
-  statCard: {
-    backgroundColor: "white",
-    padding: 16,
-    borderRadius: 12,
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    alignItems: "center",
-    width: "47%",
-  },
-  statValue: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginVertical: 8,
-  },
-  statTitle: {
-    fontSize: 14,
-    color: "#666",
-    textAlign: "center",
-  },
   prioritySection: {
     backgroundColor: "white",
     margin: 16,
