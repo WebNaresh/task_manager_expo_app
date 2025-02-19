@@ -112,14 +112,14 @@ const TaskDashboard: React.FC = () => {
       title: "Completed",
       value: "16",
       color: "#0F9D58",
-      link: "/(admin)/index/manager",
+      link: "(admin)/index/manager",
     },
     {
       icon: "format-list-bulleted",
       title: "Tasklist",
       value: "8",
       color: "#DB4437",
-      link: "/(admin)/index/manager",
+      link: "/tasks",
     },
     {
       icon: "account",
