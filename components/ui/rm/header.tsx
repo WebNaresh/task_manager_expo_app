@@ -6,25 +6,18 @@ import { Image, StyleSheet, Text, useColorScheme, View } from "react-native";
 
 export default function Header(props: BottomTabHeaderProps) {
   const colorScheme = useColorScheme();
-  const data = useAuth({});
+  const { user } = useAuth();
 
-  console.log(`🚀 ~ token:`, data);
+  console.log(`🚀 ~ user:`, user);
   return (
     <View style={styles.container}>
       <View style={styles.textContainer}>
         <Text
           style={[styles.title, { color: Colors[colorScheme ?? "light"].text }]}
         >
-          Ravi Kumar B
+          {user?.name}
         </Text>
-        <Text
-          style={[
-            styles.subtitle,
-            { color: Colors[colorScheme ?? "light"].tabIconDefault },
-          ]}
-        >
-          Welcome back, Admin
-        </Text>
+        <Text style={[styles.subtitle]}>Welcome back, {user?.name}</Text>
       </View>
       <Image
         source={{
