@@ -91,14 +91,9 @@ const ClientList = () => {
                 <View style={styles.textContainer}>
                   <Text style={styles.clientName}>{client.name}</Text>
                   <Text style={styles.clientTitle}>{client.email}</Text>
-                  <Text style={styles.tasks}>
-                    {client?.assignedTasks?.length} Tasks
-                  </Text>
-                  <ProgressBar percentage={progress} />
                 </View>
                 <View style={styles.rightContent}>
                   <StatusBadge status={client.isActive} />
-                  <Text style={styles.percentage}>{progress} %</Text>
                 </View>
               </View>
             </View>

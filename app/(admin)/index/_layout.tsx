@@ -8,8 +8,9 @@ const RootLayout = () => {
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen
         name="manager/index"
-        options={{ title: "Relationship Manager" }}
+        options={{ title: "Relationship Manager's" }}
       />
+      <Stack.Screen name="client/index" options={{ title: "Client's" }} />
     </Stack>
   );
 };

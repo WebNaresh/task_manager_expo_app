@@ -53,7 +53,7 @@ const LoginScreen = () => {
         hideOnPress: true,
         backgroundColor: success_color,
       });
-      router.push("/(admin)/(tab)/index/index");
+      router.push("/" as any);
     },
     onError(error, variables, context) {
       console.log(`🚀 ~ error:`, error);
