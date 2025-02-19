@@ -69,7 +69,7 @@ export default function ProfileSetup() {
         };
       }
 
-      const response = await axios.post(
+      const response = await axios.put(
         `/api/v1/auth/update-user/${user?.id}`,
         body
       );
@@ -79,7 +79,7 @@ export default function ProfileSetup() {
       console.log(`🚀 ~ data:`, data?.token);
       await AsyncStorage.setItem("token", data.token);
 
-      Toast.show(`Welcome, ${data?.name}`, {
+      Toast.show(data?.message, {
         duration: Toast.durations.LONG,
         position: Toast.positions.TOP,
         shadow: true,
