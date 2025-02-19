@@ -26,6 +26,3 @@ const useAuth = () => {
 };
 
 export default useAuth;
-// user: {"email": "john.doe@example.com
-// ", "exp": 1771540346, "iat": 1739982746, "id": "cm6ul19rm00
-// 00c1log0p5s29r", "role": "ADMIN"}

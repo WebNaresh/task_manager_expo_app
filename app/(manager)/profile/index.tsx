@@ -1,22 +1,27 @@
 import NBTextInput from "@/components/input/text-input";
 import NBButton from "@/components/ui/button";
-import { error_color, primary_color } from "@/constants/Colors";
+import { error_color, primary_color, success_color } from "@/constants/Colors";
 import useAuth from "@/hooks/useAuth";
 import { Feather } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 import { useRouter } from "expo-router";
 import React from "react";
 import { useForm } from "react-hook-form";
 import {
   Alert,
   Image,
+  RefreshControl,
   SafeAreaView,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import Toast from "react-native-root-toast";
 import { z } from "zod";
 
 const form_schema = z.object({
@@ -29,7 +34,9 @@ type FormValues = z.infer<typeof form_schema>;
 
 export default function ProfileSetup() {
   const { user, isFetching } = useAuth();
+  console.log(`🚀 ~ user:`, user);
   const router = useRouter();
+  const query_client = useQueryClient();
   const form = useForm<FormValues>({
     resolver: zodResolver(form_schema),
     defaultValues: {
@@ -39,18 +46,48 @@ export default function ProfileSetup() {
     },
   });
 
-  if (isFetching) {
-    return (
-      <SafeAreaView style={styles.loadingContainer}>
-        <Text>Loading...</Text>
-      </SafeAreaView>
-    );
-  }
-
   const handleSubmit = (data: FormValues) => {
     console.log(`🚀 ~ data:`, data);
     // Handle form submission
   };
+
+  const { mutate } = useMutation({
+    mutationFn: async (data: FormValues) => {
+      await query_client.invalidateQueries({
+        queryKey: ["token"],
+      });
+      const response = await axios.post("/api/v1/auth/login", data);
+      return response.data;
+    },
+    async onSuccess(data, variables, context) {
+      console.log(`🚀 ~ data:`, data?.token);
+      await AsyncStorage.setItem("token", data.token);
+
+      Toast.show(`Welcome, ${data?.name}`, {
+        duration: Toast.durations.LONG,
+        position: Toast.positions.TOP,
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+        backgroundColor: success_color,
+      });
+      // router.push("/(manager)");
+    },
+    onError(error, variables, context) {
+      console.log(`🚀 ~ error:`, error);
+      if (axios.isAxiosError(error)) {
+        console.log(`🚀 ~ error.response:`, error.response?.data.message);
+        Toast.show(error.response?.data.message, {
+          duration: Toast.durations.LONG,
+          position: Toast.positions.TOP,
+          shadow: true,
+          animation: true,
+          hideOnPress: true,
+          backgroundColor: error_color,
+        });
+      }
+    },
+  });
 
   const handleLogout = () => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
@@ -73,54 +110,66 @@ export default function ProfileSetup() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}></View>
-
-      <View style={styles.content}>
-        <View style={styles.imageContainer}>
-          <Image
-            source={{
-              uri: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-cQfL4nBBRlIcBoOirzokTtE3DcUF3k.png",
+      <ScrollView
+        contentContainerStyle={styles.scrollViewContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={isFetching}
+            onRefresh={async () => {
+              await query_client.invalidateQueries({
+                queryKey: ["token"],
+              });
             }}
-            style={styles.profileImage}
           />
+        }
+      >
+        <View style={styles.header}></View>
+        <View style={styles.content}>
+          <View style={styles.imageContainer}>
+            <Image
+              source={{
+                uri: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-cQfL4nBBRlIcBoOirzokTtE3DcUF3k.png",
+              }}
+              style={styles.profileImage}
+            />
+          </View>
+          <View style={styles.form}>
+            <NBTextInput
+              name="name"
+              type="text"
+              form={form}
+              placeholder="Enter your name"
+              icon={<Feather name="user" size={20} color="#666" />}
+            />
+            <NBTextInput
+              name="email"
+              type="text"
+              form={form}
+              placeholder="Enter your email"
+              icon={<Feather name="mail" size={20} color="#666" />}
+            />
+            <NBTextInput
+              name="password"
+              type="password"
+              form={form}
+              placeholder="Enter your password"
+              icon={<Feather name="lock" size={20} color="#666" />}
+            />
+            <NBButton
+              text="Update Profile"
+              onPress={form.handleSubmit(handleSubmit)}
+              isPending={form.formState.isSubmitting}
+              isDisabled={!form.formState.isDirty}
+            />
+            <TouchableOpacity
+              style={styles.logoutButton}
+              onPress={handleLogout}
+            >
+              <Text style={styles.logoutText}>Logout</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-
-        <View style={styles.form}>
-          <NBTextInput
-            name="name"
-            type="text"
-            form={form}
-            placeholder="Enter your name"
-            icon={<Feather name="user" size={20} color="#666" />}
-          />
-
-          <NBTextInput
-            name="email"
-            type="text"
-            form={form}
-            placeholder="Enter your email"
-            icon={<Feather name="mail" size={20} color="#666" />}
-          />
-
-          <NBTextInput
-            name="password"
-            type="password"
-            form={form}
-            placeholder="Enter your password"
-            icon={<Feather name="lock" size={20} color="#666" />}
-          />
-          <NBButton
-            text="Update Profile"
-            onPress={form.handleSubmit(handleSubmit)}
-            isPending={form.formState.isSubmitting}
-            isDisabled={!form.formState.isDirty}
-          />
-
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            <Text style={styles.logoutText}>Logout</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -129,6 +178,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+  },
+  scrollViewContent: {
+    flexGrow: 1,
   },
   header: {
     padding: 16,
