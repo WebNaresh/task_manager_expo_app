@@ -213,6 +213,27 @@ const styles = StyleSheet.create({
     textAlign: "center",
     padding: 16,
   },
+  card: {
+    width: "48%",
+    padding: 16,
+    borderRadius: 8,
+    marginBottom: 12,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  value: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginTop: 8,
+  },
+  title: {
+    fontSize: 14,
+    color: "#666",
+    marginTop: 4,
+  },
 });
 
 export default TaskDashboard;
