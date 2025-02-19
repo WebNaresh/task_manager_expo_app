@@ -1,33 +1,17 @@
-import PriorityForm from "@/components/ui/rm/priority-form";
-import { Link } from "expo-router";
-import { Pressable, StyleSheet } from "react-native";
-import Animated, { FadeIn, SlideInDown } from "react-native-reanimated";
+import NBModal from "@/components/ui/modal";
+import React from "react";
+import { StyleSheet, Text, View } from "react-native";
 
-export default function Modal() {
+const Modal = () => {
   return (
-    <Animated.View
-      entering={FadeIn}
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#00000040",
-      }}
-    >
-      <Link href={"/tasks"} asChild>
-        <Pressable style={StyleSheet.absoluteFill} />
-      </Link>
-      <Animated.View
-        entering={SlideInDown}
-        style={{
-          width: "90%",
-          backgroundColor: "white",
-          borderRadius: 12,
-          overflow: "hidden",
-        }}
-      >
-        <PriorityForm />
-      </Animated.View>
-    </Animated.View>
+    <NBModal back_link="/tasks/index">
+      <View>
+        <Text>Modal</Text>
+      </View>
+    </NBModal>
   );
-}
+};
+
+export default Modal;
+
+const styles = StyleSheet.create({});
