@@ -77,7 +77,7 @@ export default function PriorityForm() {
   };
 
   return (
-    <NBModal href="/(admin)/index">
+    <NBModal>
       <View style={styles.container}>
         <NBTextInput
           name="name"

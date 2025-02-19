@@ -80,7 +80,7 @@ const Modal = () => {
   });
 
   return (
-    <NBModal href="/(admin)/index/manager">
+    <NBModal>
       <View style={{ padding: 16 }}>
         <Text style={{ fontSize: 24, fontWeight: "bold", marginBottom: 16 }}>
           Add RM

@@ -1,4 +1,4 @@
-import { Href, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { Pressable, StyleSheet } from "react-native";
 import Animated, {
   FadeIn,
@@ -9,7 +9,6 @@ import Animated, {
 
 type NBModalProps = {
   children: React.ReactNode;
-  href: Href;
 };
 
 export default function NBModal(props: NBModalProps) {
