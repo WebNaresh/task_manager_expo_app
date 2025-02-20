@@ -1,3 +1,4 @@
+import { primary_color } from "@/constants/Colors";
 import { AntDesign, Feather } from "@expo/vector-icons"; // Using Expo icons
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
@@ -213,7 +214,7 @@ const styles = StyleSheet.create({
     color: "#666",
   },
   createButton: {
-    backgroundColor: "#7C3AED",
+    backgroundColor: primary_color,
     borderRadius: 8,
     padding: 16,
     alignItems: "center",

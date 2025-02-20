@@ -21,7 +21,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="tasks/index"
+        name="tasks"
         options={{
           title: "Tasks",
           tabBarIcon: (props) => (

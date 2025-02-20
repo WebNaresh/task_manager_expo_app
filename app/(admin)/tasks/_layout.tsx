@@ -5,8 +5,11 @@ import { StyleSheet } from "react-native";
 const StackLayout = () => {
   return (
     <Stack>
-      <Stack.Screen name="index" />
-      <Stack.Screen name="add_task/index" />
+      <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="add_task/index"
+        options={{ headerTitle: "Add Task" }}
+      />
     </Stack>
   );
 };

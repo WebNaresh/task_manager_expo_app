@@ -131,7 +131,7 @@ const Tasks: React.FC = () => {
         />
       </ScrollView>
 
-      <Link href={"/add_task_modal"} asChild>
+      <Link href={"/(admin)/tasks/add_task"} asChild>
         <TouchableOpacity style={styles.fab}>
           <Text style={styles.fabText}>+</Text>
         </TouchableOpacity>

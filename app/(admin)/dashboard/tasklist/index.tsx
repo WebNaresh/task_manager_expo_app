@@ -54,7 +54,7 @@ export default function TaskManagement() {
           </View>
         ))}
       </ScrollView>
-      <Link href={"/(admin)/dashboard/tasklist/add_task/index"} asChild>
+      <Link href={"/add_tasklist_modal"} asChild>
         <TouchableOpacity style={styles.fab}>
           <Text style={styles.fabText}>+</Text>
         </TouchableOpacity>
