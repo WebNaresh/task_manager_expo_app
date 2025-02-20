@@ -1,19 +1,25 @@
 ├── .gitignore
 ├── app
 │ ├── (admin)
-│ │ ├── (tab)
+│ │ ├── index
+│ │ │ ├── client
+│ │ │ │ └── index.tsx
 │ │ │ ├── index.tsx
 │ │ │ ├── manager
 │ │ │ │ └── index.tsx
-│ │ │ ├── profile
-│ │ │ │ └── index.tsx
-│ │ │ ├── tasks
+│ │ │ ├── tasklist
 │ │ │ │ └── index.tsx
 │ │ │ └── \_layout.tsx
+│ │ ├── profile
+│ │ │ └── index.tsx
+│ │ ├── tasks
+│ │ │ └── index.tsx
 │ │ └── \_layout.tsx
 │ ├── +html.tsx
 │ ├── +not-found.tsx
+│ ├── add_client_modal.tsx
 │ ├── add_rm_modal.tsx
+│ ├── add_tasklist_modal.tsx
 │ ├── add_task_modal.tsx
 │ ├── login.tsx
 │ ├── modal.tsx

@@ -88,6 +88,6 @@ const styles = StyleSheet.create({
     color: "red",
     fontSize: 12,
     marginTop: 4,
-    height: 16,
+    height: 20,
   },
 });

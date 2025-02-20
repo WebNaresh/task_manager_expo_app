@@ -52,7 +52,7 @@ const LoginScreen = () => {
         hideOnPress: true,
         backgroundColor: success_color,
       });
-      router.push("/" as any);
+      router.push("/(admin)/dashboard");
     },
     onError(error, variables, context) {
       console.log(`🚀 ~ error:`, error);

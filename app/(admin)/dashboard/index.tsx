@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { Link } from "expo-router";
+import { Href, Link } from "expo-router";
 import type React from "react";
 import {
   ActivityIndicator,
@@ -16,7 +16,7 @@ interface StatCardProps {
   title: string;
   value: string;
   color: string;
-  link: string;
+  link: Href;
 }
 
 interface PriorityItemProps {
@@ -84,49 +84,49 @@ const TaskDashboard: React.FC = () => {
       title: "Total Tasks",
       value: "24",
       color: "#4285F4",
-      link: "/(admin)/index/manager",
+      link: "/(admin)/dashboard/tasklist",
     },
     {
       icon: "alert",
       title: "No Updates",
       value: "5",
       color: "#FFA000",
-      link: "/(admin)/index/manager",
+      link: "/(admin)/dashboard/tasklist",
     },
     {
       icon: "clock-alert",
       title: "Delayed",
       value: "3",
       color: "#DB4437",
-      link: "/(admin)/index/manager",
+      link: "/(admin)/dashboard/tasklist",
     },
     {
       icon: "account-group",
       title: "RM",
       value: "3",
       color: "#673AB7",
-      link: "/manager",
+      link: "/(admin)/dashboard/manager",
     },
     {
       icon: "check-circle",
       title: "Completed",
       value: "16",
       color: "#0F9D58",
-      link: "(admin)/index/manager",
+      link: "/(admin)/dashboard/tasklist",
     },
     {
       icon: "format-list-bulleted",
       title: "Tasklist",
       value: "8",
       color: "#DB4437",
-      link: "/tasklist",
+      link: "/(admin)/dashboard/tasklist",
     },
     {
       icon: "account",
       title: "Client",
       value: "8",
       color: "#673AB7",
-      link: "/client",
+      link: "/(admin)/dashboard/client",
     },
   ];
 
