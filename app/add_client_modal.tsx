@@ -40,8 +40,6 @@ const AddClientModal = () => {
       return response.data;
     },
     async onSuccess(data, variables, context) {
-      console.log(`🚀 ~ data:`, data);
-      console.log(`🚀 ~ data:`, data);
       await queryClient?.invalidateQueries({
         queryKey: ["clients"],
       });

@@ -27,7 +27,6 @@ export default function TaskManagement() {
     },
     initialData: [],
   });
-  console.log(`🚀 ~ data:`, data);
 
   return (
     <View style={styles.container}>
@@ -55,7 +54,7 @@ export default function TaskManagement() {
           </View>
         ))}
       </ScrollView>
-      <Link href={"/add_rm_modal"} asChild>
+      <Link href={"/add_tasklist_modal"} asChild>
         <TouchableOpacity style={styles.fab}>
           <Text style={styles.fabText}>+</Text>
         </TouchableOpacity>

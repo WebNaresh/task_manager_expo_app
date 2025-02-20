@@ -50,7 +50,6 @@ const Modal = () => {
       return response.data;
     },
     async onSuccess(data, variables, context) {
-      console.log(`🚀 ~ data:`, data);
       await queryClient?.invalidateQueries({
         queryKey: ["managers"],
       });

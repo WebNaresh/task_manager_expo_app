@@ -42,7 +42,6 @@ const LoginScreen = () => {
       return response.data;
     },
     async onSuccess(data, variables, context) {
-      console.log(`🚀 ~ data:`, data?.token);
       await AsyncStorage.setItem("token", data.token);
 
       Toast.show(`Welcome, ${data?.name}`, {

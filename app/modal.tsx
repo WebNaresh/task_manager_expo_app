@@ -45,7 +45,6 @@ export default function PriorityForm() {
       return response.data;
     },
     onSuccess(data, variables, context) {
-      console.log(`🚀 ~ data:`, data);
       Toast.show(`Priority added`, {
         duration: Toast.durations.LONG,
         position: Toast.positions.TOP,

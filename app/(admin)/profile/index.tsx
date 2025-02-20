@@ -45,7 +45,6 @@ export default function ProfileSetup() {
   });
 
   const handleSubmit = (data: FormValues) => {
-    console.log(`🚀 ~ data:`, data);
     mutate(data);
     // Handle form submission
   };
@@ -76,7 +75,6 @@ export default function ProfileSetup() {
       return response.data;
     },
     async onSuccess(data, variables, context) {
-      console.log(`🚀 ~ data:`, data?.token);
       await AsyncStorage.setItem("token", data.token);
 
       Toast.show(data?.message, {
