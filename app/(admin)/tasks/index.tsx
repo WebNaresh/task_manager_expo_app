@@ -1,7 +1,7 @@
 import { primary_color } from "@/constants/Colors";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { Link, useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -10,7 +10,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 interface TaskItemProps {
@@ -66,30 +65,6 @@ const TaskItem: React.FC<TaskItemProps> = ({
 type task_filter = "all" | "pending" | "no_updates" | "priority";
 
 const Tasks: React.FC = () => {
-  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
-  const [selectingStartDate, setSelectingStartDate] = useState(true);
-
-  const showDatePicker = () => {
-    setDatePickerVisibility(true);
-    setSelectingStartDate(true);
-  };
-
-  const hideDatePicker = () => {
-    setDatePickerVisibility(false);
-  };
-
-  const handleConfirm = (date: Date) => {
-    if (selectingStartDate) {
-      setStartDate(date);
-      setSelectingStartDate(false);
-    } else {
-      setEndDate(date);
-      hideDatePicker();
-    }
-  };
-
   const searchParams = useLocalSearchParams<{ task_type: task_filter }>();
   const router = useRouter();
   useEffect(() => {
@@ -126,20 +101,13 @@ const Tasks: React.FC = () => {
             placeholderTextColor="#666"
           />
           <TouchableOpacity
-            onPress={showDatePicker}
+            onPress={(e) => e.stopPropagation()}
             style={styles.calendarButton}
           >
             <Ionicons name="calendar" size={16} style={styles.calendarIcon} />
           </TouchableOpacity>
         </View>
       </View>
-
-      <DateTimePickerModal
-        isVisible={isDatePickerVisible}
-        mode="date"
-        onConfirm={handleConfirm}
-        onCancel={hideDatePicker}
-      />
 
       <ScrollView
         horizontal
