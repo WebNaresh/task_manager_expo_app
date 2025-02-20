@@ -1,10 +1,14 @@
 import NBTextInput from "@/components/input/text-input";
 import NBButton from "@/components/ui/button";
+import { error_color, success_color } from "@/constants/Colors";
 import { Feather } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import axios, { isAxiosError } from "axios";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { RefreshControl, ScrollView, StyleSheet } from "react-native";
+import Toast from "react-native-root-toast";
 import { z } from "zod";
 
 const form_schema = z.object({
@@ -48,8 +52,6 @@ const AddTaskForm = (props: Props) => {
   });
 
   const { handleSubmit, formState, watch, reset } = form;
-  console.log(`🚀 ~ watch:`, watch());
-  console.log(`🚀 ~ formState:`, formState);
 
   const [refreshing, setRefreshing] = React.useState(false);
 
@@ -62,6 +64,32 @@ const AddTaskForm = (props: Props) => {
   const onSubmit = (data: Form) => {
     console.log(data);
   };
+
+  const { mutate } = useMutation({
+    mutationFn: async (data: Form) => {
+      //  axios request here /api/v1/task
+      const response = await axios.post("/api/v1/task", data);
+      return response.data;
+    },
+    onSuccess(data, variables, context) {
+      console.log(`🚀 ~ data:`, data);
+      Toast.show("Task created successfully", {
+        duration: Toast.durations.SHORT,
+        position: Toast.positions.BOTTOM,
+        backgroundColor: success_color,
+      });
+    },
+    onError(error, variables, context) {
+      if (isAxiosError(error)) {
+        console.error(`🚀 ~ error.response.data:`, error?.response?.data);
+        Toast.show(error?.response?.data?.message, {
+          duration: Toast.durations.SHORT,
+          position: Toast.positions.BOTTOM,
+          backgroundColor: error_color,
+        });
+      }
+    },
+  });
 
   return (
     <ScrollView
