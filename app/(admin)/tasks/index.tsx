@@ -1,8 +1,15 @@
 import { primary_color } from "@/constants/Colors";
-import { Feather, Ionicons } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
+import DateTimePicker, {
+  DateTimePickerEvent,
+} from "@react-native-community/datetimepicker";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 import { Link, useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
+  Platform,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -64,7 +71,21 @@ const TaskItem: React.FC<TaskItemProps> = ({
 
 type task_filter = "all" | "pending" | "no_updates" | "priority";
 
+const formatDate = (date: Date): string => {
+  return date.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+};
+
 const Tasks: React.FC = () => {
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
+  const [showStartPicker, setShowStartPicker] = useState(false);
+  const [showEndPicker, setShowEndPicker] = useState(false);
+  const [showDateRange, setShowDateRange] = useState(false);
+
   const searchParams = useLocalSearchParams<{ task_type: task_filter }>();
   const router = useRouter();
   useEffect(() => {
@@ -72,7 +93,7 @@ const Tasks: React.FC = () => {
     if (searchParams.task_type === undefined) {
       router.setParams({ task_type: "all" });
     }
-  }, [searchParams.task_type]);
+  }, [searchParams]);
   console.log(`🚀 ~ searchParams:`, searchParams);
   const filterOptions: FilterOption[] = [
     { id: "all", label: "All Tasks" },
@@ -80,6 +101,56 @@ const Tasks: React.FC = () => {
     { id: "no_updates", label: "No Updates" },
     { id: "priority", label: "Priority" },
   ];
+
+  const { data, refetch, isFetching } = useQuery({
+    queryKey: ["tasks", searchParams.task_type, startDate, endDate],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      params.append("task_type", searchParams.task_type);
+      params.append("start_date", startDate.toISOString());
+      params.append("end_date", endDate.toISOString());
+      console.log(`🚀 ~ params:`, params);
+      const response = await axios.get("/api/v1/task", {
+        params,
+      });
+      return response.data;
+    },
+    initialData: [],
+  });
+  console.log(`🚀 ~ data:`, data);
+
+  const onStartDateChange = (
+    _event: DateTimePickerEvent,
+    selectedDate?: Date
+  ) => {
+    setShowStartPicker(false);
+    if (selectedDate) {
+      setStartDate(selectedDate);
+      setShowEndPicker(true); // Show end date picker after selecting start date
+    }
+  };
+
+  const onEndDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+    setShowEndPicker(false);
+    if (selectedDate) {
+      setEndDate(selectedDate);
+      setShowDateRange(true);
+    }
+  };
+
+  const handleDateRangePress = () => {
+    setShowStartPicker(true);
+  };
+
+  const clearDateRange = () => {
+    setShowDateRange(false);
+    setStartDate(new Date());
+    setEndDate(new Date());
+  };
+
+  const onRefresh = async () => {
+    await refetch();
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -100,14 +171,47 @@ const Tasks: React.FC = () => {
             placeholder="Search name"
             placeholderTextColor="#666"
           />
-          <TouchableOpacity
-            onPress={(e) => e.stopPropagation()}
-            style={styles.calendarButton}
-          >
-            <Ionicons name="calendar" size={16} style={styles.calendarIcon} />
-          </TouchableOpacity>
         </View>
       </View>
+
+      {!showDateRange ? (
+        <TouchableOpacity
+          style={styles.datePickerButton}
+          onPress={handleDateRangePress}
+        >
+          <Feather name="calendar" size={20} color="#666" />
+          <Text style={styles.datePickerButtonText}>Select Date Range</Text>
+        </TouchableOpacity>
+      ) : (
+        <View style={styles.dateRangeContainer}>
+          <View style={styles.dateRangeContent}>
+            <Text style={styles.dateText}>{formatDate(startDate)}</Text>
+            <Text style={styles.dateText}>{formatDate(endDate)}</Text>
+          </View>
+          <TouchableOpacity style={styles.closeButton} onPress={clearDateRange}>
+            <Feather name="x" size={20} color="#666" />
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {showStartPicker && (
+        <DateTimePicker
+          value={startDate}
+          mode="date"
+          display={Platform.OS === "ios" ? "inline" : "default"}
+          onChange={onStartDateChange}
+        />
+      )}
+
+      {showEndPicker && (
+        <DateTimePicker
+          value={endDate}
+          mode="date"
+          display={Platform.OS === "ios" ? "inline" : "default"}
+          onChange={onEndDateChange}
+          minimumDate={startDate}
+        />
+      )}
 
       <ScrollView
         horizontal
@@ -138,14 +242,23 @@ const Tasks: React.FC = () => {
         ))}
       </ScrollView>
 
-      <ScrollView style={styles.taskList}>
-        <TaskItem
-          title="Review KYC Documents"
-          description="Verify and approve client KYC documentation for new account opening"
-          priority="high"
-          assignee="Sarah Chen"
-          time="Today, 5:00 PM"
-        />
+      <ScrollView
+        style={styles.taskList}
+        refreshControl={
+          <RefreshControl refreshing={isFetching} onRefresh={onRefresh} />
+        }
+      >
+        {data.map((task: any) => (
+          <TaskItem
+            key={task.id}
+            title={task.title}
+            description={task.description}
+            priority={task?.priority?.name}
+            assignee={task?.responsibleUser?.name}
+            // format time created at
+            time={task.created_at}
+          />
+        ))}
       </ScrollView>
 
       <Link href={"/(admin)/tasks/add_task"} asChild>
@@ -290,7 +403,7 @@ const styles = StyleSheet.create({
     color: "#666",
   },
   remarkButton: {
-    backgroundColor: "#6366f1",
+    backgroundColor: primary_color,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
@@ -357,6 +470,46 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",
+  },
+  datePickerButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 12,
+    backgroundColor: "#f5f5f5",
+    borderRadius: 8,
+    marginHorizontal: 16,
+    marginBottom: 12,
+  },
+  datePickerButtonText: {
+    marginLeft: 8,
+    fontSize: 14,
+    color: "#666",
+  },
+  dateRangeContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 12,
+    backgroundColor: "#f5f5f5",
+    marginHorizontal: 16,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  dateRangeContent: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginRight: 12,
+  },
+  dateText: {
+    fontSize: 14,
+    color: "#666",
+  },
+  closeButton: {
+    padding: 4,
+  },
+  datePickerWrapper: {
+    position: "relative",
   },
 });
 
