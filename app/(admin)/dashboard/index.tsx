@@ -34,6 +34,16 @@ interface PriorityData {
   updatedAt: string;
 }
 
+type ApiResponse = {
+  clientCount: number;
+  completedTaskCount: number;
+  delayedTaskCount: number;
+  taskWithNoUpdatesCount: number;
+  totalRmsCount: number;
+  totalTaskCount: number;
+  totalTaskListCount: number;
+};
+
 const StatCard: React.FC<StatCardProps> = ({
   icon,
   title,
@@ -72,59 +82,60 @@ const TaskDashboard: React.FC = () => {
   const { data: stat } = useQuery({
     queryKey: ["stat"],
     queryFn: async () => {
-      const response = await axios.get("/api/v1/task/statistics");
-      return response.data;
+      const response = await axios.get("/api/v1/task/dashboard/statistics");
+      return response.data as ApiResponse;
     },
     initialData: null,
   });
+  console.log(`🚀 ~ stat:`, stat);
 
   const stats: StatCardProps[] = [
     {
       icon: "format-list-checks",
       title: "Total Tasks",
-      value: "24",
+      value: stat?.totalTaskCount.toString() ?? "0",
       color: "#4285F4",
       link: "/(admin)/dashboard/tasklist",
     },
     {
       icon: "alert",
       title: "No Updates",
-      value: "5",
+      value: stat?.taskWithNoUpdatesCount.toString() ?? "0",
       color: "#FFA000",
       link: "/(admin)/dashboard/tasklist",
     },
     {
       icon: "clock-alert",
       title: "Delayed",
-      value: "3",
+      value: stat?.delayedTaskCount.toString() ?? "0",
       color: "#DB4437",
       link: "/(admin)/dashboard/tasklist",
     },
     {
       icon: "account-group",
       title: "RM",
-      value: "3",
+      value: stat?.totalRmsCount.toString() ?? "0",
       color: "#673AB7",
       link: "/(admin)/dashboard/manager",
     },
     {
       icon: "check-circle",
       title: "Completed",
-      value: "16",
+      value: stat?.completedTaskCount.toString() ?? "0",
       color: "#0F9D58",
       link: "/(admin)/dashboard/tasklist",
     },
     {
       icon: "format-list-bulleted",
       title: "Tasklist",
-      value: "8",
+      value: stat?.totalTaskListCount.toString() ?? "0",
       color: "#DB4437",
       link: "/(admin)/dashboard/tasklist",
     },
     {
       icon: "account",
       title: "Client",
-      value: "8",
+      value: stat?.clientCount.toString() ?? "0",
       color: "#673AB7",
       link: "/(admin)/dashboard/client",
     },
