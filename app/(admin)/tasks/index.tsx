@@ -1,7 +1,7 @@
 import { primary_color } from "@/constants/Colors";
 import { Feather, Ionicons } from "@expo/vector-icons";
-import { Link } from "expo-router";
-import React from "react";
+import { Link, useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 interface TaskItemProps {
@@ -62,11 +63,46 @@ const TaskItem: React.FC<TaskItemProps> = ({
   </View>
 );
 
+type task_filter = "all" | "pending" | "no_updates" | "priority";
+
 const Tasks: React.FC = () => {
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [selectingStartDate, setSelectingStartDate] = useState(true);
+
+  const showDatePicker = () => {
+    setDatePickerVisibility(true);
+    setSelectingStartDate(true);
+  };
+
+  const hideDatePicker = () => {
+    setDatePickerVisibility(false);
+  };
+
+  const handleConfirm = (date: Date) => {
+    if (selectingStartDate) {
+      setStartDate(date);
+      setSelectingStartDate(false);
+    } else {
+      setEndDate(date);
+      hideDatePicker();
+    }
+  };
+
+  const searchParams = useLocalSearchParams<{ task_type: task_filter }>();
+  const router = useRouter();
+  useEffect(() => {
+    console.log(`🚀 ~ searchParams:`, searchParams.task_type);
+    if (searchParams.task_type === undefined) {
+      router.setParams({ task_type: "all" });
+    }
+  }, [searchParams.task_type]);
+  console.log(`🚀 ~ searchParams:`, searchParams);
   const filterOptions: FilterOption[] = [
     { id: "all", label: "All Tasks" },
     { id: "delayed", label: "Delayed" },
-    { id: "no-updates", label: "No Updates" },
+    { id: "no_updates", label: "No Updates" },
     { id: "priority", label: "Priority" },
   ];
 
@@ -90,13 +126,20 @@ const Tasks: React.FC = () => {
             placeholderTextColor="#666"
           />
           <TouchableOpacity
-            onPress={(e) => e.stopPropagation()}
+            onPress={showDatePicker}
             style={styles.calendarButton}
           >
             <Ionicons name="calendar" size={16} style={styles.calendarIcon} />
           </TouchableOpacity>
         </View>
       </View>
+
+      <DateTimePickerModal
+        isVisible={isDatePickerVisible}
+        mode="date"
+        onConfirm={handleConfirm}
+        onCancel={hideDatePicker}
+      />
 
       <ScrollView
         horizontal
@@ -107,12 +150,18 @@ const Tasks: React.FC = () => {
         {filterOptions.map((filter, index) => (
           <TouchableOpacity
             key={filter.id}
-            style={[styles.filterChip, index === 0 && styles.activeFilterChip]}
+            style={[
+              styles.filterChip,
+              filter.id === searchParams.task_type && styles.activeFilterChip,
+            ]}
+            onPress={() => {
+              router.setParams({ task_type: filter.id as task_filter });
+            }}
           >
             <Text
               style={[
                 styles.filterText,
-                index === 0 && styles.activeFilterText,
+                filter.id === searchParams.task_type && styles.activeFilterText,
               ]}
             >
               {filter.label}
