@@ -4,8 +4,9 @@ import NBButton from "@/components/ui/button";
 import { error_color, success_color } from "@/constants/Colors";
 import { Feather } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios, { isAxiosError } from "axios";
+import { useRouter } from "expo-router";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { RefreshControl, ScrollView, StyleSheet } from "react-native";
@@ -13,7 +14,7 @@ import Toast from "react-native-root-toast";
 import { z } from "zod";
 
 const form_schema = z.object({
-  task_title: z
+  title: z
     .string()
     .trim()
     .min(3, { message: "Task title must be at least 3 characters long" }),
@@ -61,7 +62,7 @@ const AddTaskForm = (props: Props) => {
   const form = useForm<Form>({
     resolver: zodResolver(form_schema),
     defaultValues: {
-      task_title: "First",
+      title: "First",
       description: "First Description",
       dueDate: "",
       taskListId: "",
@@ -71,6 +72,8 @@ const AddTaskForm = (props: Props) => {
       assignedById: props.assignedById,
     },
   });
+  const router = useRouter();
+  const query_client = useQueryClient();
 
   const { handleSubmit, formState, reset } = form;
   console.log(`🚀 ~ formState.errors:`, formState.errors);
@@ -98,18 +101,22 @@ const AddTaskForm = (props: Props) => {
     },
     onSuccess(data, variables, context) {
       console.log(`🚀 ~ data:`, data);
+      query_client.invalidateQueries({
+        queryKey: ["tasks"],
+      });
       Toast.show("Task created successfully", {
         duration: Toast.durations.SHORT,
-        position: Toast.positions.BOTTOM,
+        position: Toast.positions.TOP,
         backgroundColor: success_color,
       });
+      router.back();
     },
     onError(error, variables, context) {
       if (isAxiosError(error)) {
         console.error(`🚀 ~ error.response.data:`, error?.response?.data);
         Toast.show(error?.response?.data?.message, {
           duration: Toast.durations.SHORT,
-          position: Toast.positions.BOTTOM,
+          position: Toast.positions.TOP,
           backgroundColor: error_color,
         });
       }
@@ -126,7 +133,7 @@ const AddTaskForm = (props: Props) => {
     >
       <NBTextInput
         form={form}
-        name="task_title"
+        name="title"
         placeholder="Enter task title"
         type="text"
         icon={<Feather name="clipboard" size={24} color="black" />}
