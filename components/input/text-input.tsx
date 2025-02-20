@@ -3,6 +3,8 @@ import { Controller, UseFormReturn } from "react-hook-form";
 import { StyleSheet, Text, TextInput, View } from "react-native";
 import NBColorInput from "./_components/color-input";
 import NBPasswordInputField from "./_components/password-input";
+import NBSelectInputField from "./_components/select-input";
+import NBTextAreaInputField from "./_components/text-area-input";
 
 export type NBTextInputProps = {
   form: UseFormReturn<any, any>;
@@ -11,7 +13,8 @@ export type NBTextInputProps = {
   keyboardType?: "email-address" | "default" | "number-pad";
   autoCapitalize?: "none" | "sentences" | "words" | "characters" | undefined;
   icon: React.ReactNode;
-  type: "text" | "password" | "color";
+  type: "text" | "password" | "color" | "select" | "textarea";
+  options?: { label: string; value: string }[]; // Add options for select type
 };
 
 const NBTextInput = (props: NBTextInputProps) => {
@@ -22,6 +25,18 @@ const NBTextInput = (props: NBTextInputProps) => {
   if (props.type === "color") {
     return <NBColorInput {...props} />;
   }
+
+  if (props.type === "select") {
+    if (!props.options) {
+      throw new Error("Options are required for select input type");
+    }
+    return <NBSelectInputField {...props} />;
+  }
+
+  if (props.type === "textarea") {
+    return <NBTextAreaInputField {...props} />;
+  }
+
   return (
     <Controller
       name={props.name}
