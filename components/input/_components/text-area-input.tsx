@@ -11,7 +11,13 @@ const NBTextAreaInputField = (props: NBTextInputProps) => {
       render={({ field: { onChange, onBlur, value } }) => (
         <View style={styles.inputContainer}>
           <View style={styles.inputWrapper}>
-            {props.icon}
+            <View
+              style={{
+                paddingTop: 8,
+              }}
+            >
+              {props.icon}
+            </View>
             <TextInput
               style={styles.input}
               placeholder={props.placeholder}
@@ -62,6 +68,7 @@ const styles = StyleSheet.create({
     color: "#000000",
     marginLeft: 12,
     textAlignVertical: "top",
+    height: 100,
   },
   errorText: {
     color: "red",

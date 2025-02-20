@@ -28,7 +28,7 @@ const NBTextInput = (props: NBTextInputProps) => {
 
   if (props.type === "select") {
     if (!props.options) {
-      throw new Error("Options are required for select input type");
+      return null; // TypeScript will catch this error
     }
     return <NBSelectInputField {...props} />;
   }

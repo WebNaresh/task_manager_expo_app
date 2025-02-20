@@ -1,4 +1,5 @@
 import NBTextInput from "@/components/input/text-input";
+import NBButton from "@/components/ui/button";
 import { Feather } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
@@ -54,42 +55,52 @@ const AddTaskForm = (props: Props) => {
         name="task_title"
         placeholder="Enter task title"
         type="text"
-        icon={<Feather name="edit-2" size={24} color="black" />}
+        icon={<Feather name="clipboard" size={24} color="black" />}
       />
       <NBTextInput
         form={form}
         name="description"
         placeholder="Enter description"
         type="textarea"
-        icon={<Feather name="edit-2" size={24} color="black" />}
+        icon={<Feather name="file-text" size={24} color="black" />}
       />
       <NBTextInput
         form={form}
         name="tasklist"
         placeholder="Enter tasklist"
-        type="text"
-        icon={<Feather name="edit-2" size={24} color="black" />}
+        type="select"
+        icon={<Feather name="list" size={24} color="black" />}
+        options={[
+          { label: "KYC Approval", value: "KYC Approval" },
+          { label: "Account Opening", value: "Account Opening" },
+          { label: "Account Closure", value: "Account Closure" },
+        ]}
       />
       <NBTextInput
         form={form}
         name="assigned_rm"
         placeholder="Enter assigned RM"
         type="text"
-        icon={<Feather name="edit-2" size={24} color="black" />}
+        icon={<Feather name="user" size={24} color="black" />}
       />
       <NBTextInput
         form={form}
         name="due_date"
         placeholder="Enter due date"
         type="text"
-        icon={<Feather name="edit-2" size={24} color="black" />}
+        icon={<Feather name="calendar" size={24} color="black" />}
       />
       <NBTextInput
         form={form}
         name="client"
         placeholder="Enter client"
         type="text"
-        icon={<Feather name="edit-2" size={24} color="black" />}
+        icon={<Feather name="briefcase" size={24} color="black" />}
+      />
+      <NBButton
+        text="Create Task"
+        onPress={handleSubmit(onSubmit)}
+        isPending={formState.isSubmitting}
       />
     </View>
   );
