@@ -70,15 +70,6 @@ function RootLayoutNav() {
               }}
             />
             <Stack.Screen
-              name="add_task_modal"
-              options={{
-                presentation: "transparentModal",
-                animation: "none", // Disable popping animation
-                animationTypeForReplace: "push", // Ensure no popping animation
-                headerShown: false,
-              }}
-            />
-            <Stack.Screen
               name="add_rm_modal"
               options={{
                 presentation: "transparentModal",
