@@ -1,5 +1,6 @@
 import AddTaskForm from "@/components/task/add_task/comp";
-import React, { useState } from "react";
+import TaskCreateScreenSkeleton from "@/components/task/add_task/task-skeleton";
+import React from "react";
 import { ScrollView, StyleSheet } from "react-native";
 import { z } from "zod";
 
@@ -33,28 +34,9 @@ const form_schema = z.object({
 type Form = z.infer<typeof form_schema>;
 
 export default function TaskCreateScreen() {
-  const [taskTitle, setTaskTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [selectedTask, setSelectedTask] = useState("KYC Approval");
-  const [assignedRM, setAssignedRM] = useState("Sarah Chen");
-  const [dueDate, setDueDate] = useState(new Date());
-  const [selectedClient, setSelectedClient] = useState("");
-  const [showDatePicker, setShowDatePicker] = useState(false);
-
-  const handleCreateTask = () => {
-    // Handle task creation logic here
-    console.log({
-      taskTitle,
-      description,
-      selectedTask,
-      assignedRM,
-      dueDate,
-      selectedClient,
-    });
-  };
-
   return (
     <ScrollView style={styles.container}>
+      <TaskCreateScreenSkeleton />
       <AddTaskForm />
     </ScrollView>
   );
