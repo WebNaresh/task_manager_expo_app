@@ -2,6 +2,7 @@ import React from "react";
 import { Controller, UseFormReturn } from "react-hook-form";
 import { StyleSheet, Text, TextInput, View } from "react-native";
 import NBColorInput from "./_components/color-input";
+import NBDateInputField from "./_components/date-input"; // Import the new date input component
 import NBPasswordInputField from "./_components/password-input";
 import NBSelectInputField from "./_components/select-input";
 import NBTextAreaInputField from "./_components/text-area-input";
@@ -13,7 +14,7 @@ export type NBTextInputProps = {
   keyboardType?: "email-address" | "default" | "number-pad";
   autoCapitalize?: "none" | "sentences" | "words" | "characters" | undefined;
   icon: React.ReactNode;
-  type: "text" | "password" | "color" | "select" | "textarea";
+  type: "text" | "password" | "color" | "select" | "textarea" | "date"; // Add date type
   options?: { label: string; value: string }[]; // Add options for select type
 };
 
@@ -35,6 +36,10 @@ const NBTextInput = (props: NBTextInputProps) => {
 
   if (props.type === "textarea") {
     return <NBTextAreaInputField {...props} />;
+  }
+
+  if (props.type === "date") {
+    return <NBDateInputField {...props} />;
   }
 
   return (

@@ -33,14 +33,6 @@ const StatusBadge = ({ status }: { status: boolean }) => {
   );
 };
 
-const ProgressBar = ({ percentage }: { percentage: number }) => {
-  return (
-    <View style={styles.progressBarContainer}>
-      <View style={[styles.progressBar, { width: `${percentage}%` }]} />
-    </View>
-  );
-};
-
 const ClientList = () => {
   const { data, isFetching, refetch } = useQuery({
     queryKey: ["clients"],
@@ -57,10 +49,6 @@ const ClientList = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* <View style={styles.header}>
-        <Text style={styles.headerTitle}>Clients</Text>
-      </View> */}
-
       <ScrollView
         style={styles.scrollView}
         refreshControl={

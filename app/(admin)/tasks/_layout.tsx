@@ -6,10 +6,7 @@ const StackLayout = () => {
   return (
     <Stack>
       <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen
-        name="add_task/index"
-        options={{ headerTitle: "Add Task" }}
-      />
+      <Stack.Screen name="add_task/index" options={{ headerShown: false }} />
     </Stack>
   );
 };

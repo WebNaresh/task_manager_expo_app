@@ -18,6 +18,7 @@ const NBSelectInputField = (props: NBTextInputProps) => {
               style={styles.input}
               onValueChange={onChange}
             >
+              <Picker.Item label={props.placeholder} value="" enabled={false} />
               {props.options?.map((option) => (
                 <Picker.Item
                   key={option.value}

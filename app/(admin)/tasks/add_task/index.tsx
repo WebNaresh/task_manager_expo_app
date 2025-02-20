@@ -1,43 +1,44 @@
 import AddTaskForm from "@/components/task/add_task/comp";
 import TaskCreateScreenSkeleton from "@/components/task/add_task/task-skeleton";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 import React from "react";
-import { ScrollView, StyleSheet } from "react-native";
-import { z } from "zod";
-
-const form_schema = z.object({
-  task_title: z
-    .string()
-    .trim()
-    .min(3, { message: "Task title must be at least 3 characters long" }),
-  description: z
-    .string()
-    .trim()
-    .min(3, { message: "Description must be at least 3 characters long" }),
-  tasklist: z
-    .string()
-    .trim()
-    .min(3, { message: "Tasklist must be at least 3 characters long" }),
-  assigned_rm: z
-    .string()
-    .trim()
-    .min(3, { message: "Assigned RM must be at least 3 characters long" }),
-  due_date: z
-    .string()
-    .trim()
-    .min(3, { message: "Due date must be at least 3 characters long" }),
-  client: z
-    .string()
-    .trim()
-    .min(3, { message: "Client must be at least 3 characters long" }),
-});
-
-type Form = z.infer<typeof form_schema>;
+import { ScrollView, StyleSheet, Task } from "react-native";
 
 export default function TaskCreateScreen() {
+  const { data: tasklists, isFetching: isTaskListFetching } = useQuery({
+    queryKey: ["tasklist"],
+    queryFn: async () => {
+      const response = await axios.get("/api/v1/tasklist");
+      return response.data as Task[];
+    },
+    initialData: [],
+  });
+
+  const { data: clients, isFetching: isClientFetching } = useQuery({
+    queryKey: ["clients"],
+    queryFn: async () => {
+      const response = await axios.get("/api/v1/client");
+      return response.data;
+    },
+    initialData: [],
+  });
+
+  const { data, isFetching: isManagerFetching } = useQuery({
+    queryKey: ["managers"],
+    queryFn: async () => {
+      const response = await axios.get("/api/v1/admin/rms");
+      return response.data;
+    },
+    initialData: [],
+  });
   return (
     <ScrollView style={styles.container}>
-      <TaskCreateScreenSkeleton />
-      <AddTaskForm />
+      {isClientFetching || isManagerFetching || isTaskListFetching ? (
+        <TaskCreateScreenSkeleton />
+      ) : (
+        <AddTaskForm clients={clients} managers={data} tasklists={tasklists} />
+      )}
     </ScrollView>
   );
 }

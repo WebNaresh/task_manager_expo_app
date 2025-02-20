@@ -4,7 +4,7 @@ import { Feather } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { StyleSheet, View } from "react-native";
+import { RefreshControl, ScrollView, StyleSheet } from "react-native";
 import { z } from "zod";
 
 const form_schema = z.object({
@@ -36,20 +36,40 @@ const form_schema = z.object({
 
 type Form = z.infer<typeof form_schema>;
 
-type Props = {};
+type Props = {
+  clients: any[];
+  managers: any[];
+  tasklists: any[];
+};
 
 const AddTaskForm = (props: Props) => {
   const form = useForm<Form>({
     resolver: zodResolver(form_schema),
   });
 
-  const { handleSubmit, formState } = form;
+  const { handleSubmit, formState, watch, reset } = form;
+  console.log(`🚀 ~ watch:`, watch());
+  console.log(`🚀 ~ formState:`, formState);
+
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    reset();
+    setRefreshing(false);
+  }, [reset]);
 
   const onSubmit = (data: Form) => {
     console.log(data);
   };
+
   return (
-    <View>
+    <ScrollView
+      contentContainerStyle={{ paddingBottom: 26 }}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
       <NBTextInput
         form={form}
         name="task_title"
@@ -70,39 +90,46 @@ const AddTaskForm = (props: Props) => {
         placeholder="Enter tasklist"
         type="select"
         icon={<Feather name="list" size={24} color="black" />}
-        options={[
-          { label: "KYC Approval", value: "KYC Approval" },
-          { label: "Account Opening", value: "Account Opening" },
-          { label: "Account Closure", value: "Account Closure" },
-        ]}
-      />
-      <NBTextInput
-        form={form}
-        name="assigned_rm"
-        placeholder="Enter assigned RM"
-        type="text"
-        icon={<Feather name="user" size={24} color="black" />}
+        options={props.tasklists.map((tasklist) => ({
+          label: tasklist.name,
+          value: tasklist.id,
+        }))}
       />
       <NBTextInput
         form={form}
         name="due_date"
         placeholder="Enter due date"
-        type="text"
+        type="date"
         icon={<Feather name="calendar" size={24} color="black" />}
+      />
+      <NBTextInput
+        form={form}
+        name="assigned_rm"
+        placeholder="Enter assigned RM"
+        type="select"
+        icon={<Feather name="user" size={24} color="black" />}
+        options={props.managers.map((manager) => ({
+          label: manager.name,
+          value: manager.id,
+        }))}
       />
       <NBTextInput
         form={form}
         name="client"
         placeholder="Enter client"
-        type="text"
+        type="select"
         icon={<Feather name="briefcase" size={24} color="black" />}
+        options={props.clients.map((client) => ({
+          label: client.name,
+          value: client.id,
+        }))}
       />
       <NBButton
         text="Create Task"
         onPress={handleSubmit(onSubmit)}
         isPending={formState.isSubmitting}
       />
-    </View>
+    </ScrollView>
   );
 };
 
