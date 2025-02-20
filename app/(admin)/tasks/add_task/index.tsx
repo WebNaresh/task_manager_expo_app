@@ -1,9 +1,11 @@
 import AddTaskForm from "@/components/task/add_task/comp";
 import TaskCreateScreenSkeleton from "@/components/task/add_task/task-skeleton";
+import useAuth from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import React from "react";
 import { ScrollView, StyleSheet, Task } from "react-native";
+import { PriorityData } from "../../dashboard";
 
 export default function TaskCreateScreen() {
   const { data: tasklists, isFetching: isTaskListFetching } = useQuery({
@@ -14,6 +16,7 @@ export default function TaskCreateScreen() {
     },
     initialData: [],
   });
+  const { user } = useAuth();
 
   const { data: clients, isFetching: isClientFetching } = useQuery({
     queryKey: ["clients"],
@@ -32,12 +35,33 @@ export default function TaskCreateScreen() {
     },
     initialData: [],
   });
+  const { data: priorities, isLoading: isPriorityFetching } = useQuery<
+    PriorityData[]
+  >({
+    queryKey: ["priority"],
+    queryFn: async () => {
+      const response = await axios.get("/api/v1/priority");
+      return response.data;
+    },
+    initialData: [],
+  });
+
   return (
     <ScrollView style={styles.container}>
-      {isClientFetching || isManagerFetching || isTaskListFetching ? (
+      {(isClientFetching ||
+        isManagerFetching ||
+        isTaskListFetching ||
+        isPriorityFetching) &&
+      user?.id ? (
         <TaskCreateScreenSkeleton />
       ) : (
-        <AddTaskForm clients={clients} managers={data} tasklists={tasklists} />
+        <AddTaskForm
+          clients={clients}
+          managers={data}
+          tasklists={tasklists}
+          priorities={priorities}
+          assignedById={user?.id!}
+        />
       )}
     </ScrollView>
   );

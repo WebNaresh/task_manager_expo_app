@@ -25,7 +25,7 @@ interface PriorityItemProps {
   number: number;
 }
 
-interface PriorityData {
+export interface PriorityData {
   color: string;
   createdAt: string;
   id: string;

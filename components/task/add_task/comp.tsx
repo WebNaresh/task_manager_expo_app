@@ -1,3 +1,4 @@
+import { PriorityData } from "@/app/(admin)/dashboard";
 import NBTextInput from "@/components/input/text-input";
 import NBButton from "@/components/ui/button";
 import { error_color, success_color } from "@/constants/Colors";
@@ -20,22 +21,30 @@ const form_schema = z.object({
     .string()
     .trim()
     .min(3, { message: "Description must be at least 3 characters long" }),
-  tasklist: z
-    .string()
-    .trim()
-    .min(3, { message: "Tasklist must be at least 3 characters long" }),
-  assigned_rm: z
-    .string()
-    .trim()
-    .min(3, { message: "Assigned RM must be at least 3 characters long" }),
-  due_date: z
+  dueDate: z
     .string()
     .trim()
     .min(3, { message: "Due date must be at least 3 characters long" }),
-  client: z
+  taskListId: z
+    .string()
+    .trim()
+    .min(3, { message: "Tasklist must be at least 3 characters long" }),
+  responsibleUserId: z
+    .string()
+    .trim()
+    .min(3, { message: "Assigned RM must be at least 3 characters long" }),
+  clientId: z
     .string()
     .trim()
     .min(3, { message: "Client must be at least 3 characters long" }),
+  priorityId: z
+    .string()
+    .trim()
+    .min(3, { message: "Priority must be at least 3 characters long" }),
+  assignedById: z
+    .string()
+    .trim()
+    .min(3, { message: "Assigned by must be at least 3 characters long" }),
 });
 
 type Form = z.infer<typeof form_schema>;
@@ -44,14 +53,27 @@ type Props = {
   clients: any[];
   managers: any[];
   tasklists: any[];
+  priorities: PriorityData[];
+  assignedById: string;
 };
 
 const AddTaskForm = (props: Props) => {
   const form = useForm<Form>({
     resolver: zodResolver(form_schema),
+    defaultValues: {
+      task_title: "First",
+      description: "First Description",
+      dueDate: "",
+      taskListId: "",
+      responsibleUserId: "",
+      clientId: "",
+      priorityId: "",
+      assignedById: props.assignedById,
+    },
   });
 
-  const { handleSubmit, formState, watch, reset } = form;
+  const { handleSubmit, formState, reset } = form;
+  console.log(`🚀 ~ formState.errors:`, formState.errors);
 
   const [refreshing, setRefreshing] = React.useState(false);
 
@@ -62,13 +84,16 @@ const AddTaskForm = (props: Props) => {
   }, [reset]);
 
   const onSubmit = (data: Form) => {
-    console.log(data);
+    console.log(`🚀 ~ data:`, data);
+    mutate(data);
   };
 
-  const { mutate } = useMutation({
+  const { mutate, isPending } = useMutation({
     mutationFn: async (data: Form) => {
+      console.log(`🚀 ~ data:`, data);
       //  axios request here /api/v1/task
       const response = await axios.post("/api/v1/task", data);
+      console.log(`🚀 ~ response:`, response);
       return response.data;
     },
     onSuccess(data, variables, context) {
@@ -90,6 +115,7 @@ const AddTaskForm = (props: Props) => {
       }
     },
   });
+  console.log(`🚀 ~ isPending:`, isPending);
 
   return (
     <ScrollView
@@ -114,7 +140,7 @@ const AddTaskForm = (props: Props) => {
       />
       <NBTextInput
         form={form}
-        name="tasklist"
+        name="taskListId"
         placeholder="Enter tasklist"
         type="select"
         icon={<Feather name="list" size={24} color="black" />}
@@ -125,14 +151,14 @@ const AddTaskForm = (props: Props) => {
       />
       <NBTextInput
         form={form}
-        name="due_date"
+        name="dueDate"
         placeholder="Enter due date"
         type="date"
         icon={<Feather name="calendar" size={24} color="black" />}
       />
       <NBTextInput
         form={form}
-        name="assigned_rm"
+        name="responsibleUserId"
         placeholder="Enter assigned RM"
         type="select"
         icon={<Feather name="user" size={24} color="black" />}
@@ -143,7 +169,7 @@ const AddTaskForm = (props: Props) => {
       />
       <NBTextInput
         form={form}
-        name="client"
+        name="clientId"
         placeholder="Enter client"
         type="select"
         icon={<Feather name="briefcase" size={24} color="black" />}
@@ -152,10 +178,22 @@ const AddTaskForm = (props: Props) => {
           value: client.id,
         }))}
       />
+      <NBTextInput
+        form={form}
+        name="priorityId"
+        placeholder="Enter priority"
+        type="select"
+        icon={<Feather name="star" size={24} color="black" />}
+        options={props.priorities.map((priority) => ({
+          label: priority.name,
+          value: priority.id,
+        }))}
+      />
+
       <NBButton
         text="Create Task"
         onPress={handleSubmit(onSubmit)}
-        isPending={formState.isSubmitting}
+        isPending={formState.isSubmitting || isPending}
       />
     </ScrollView>
   );
