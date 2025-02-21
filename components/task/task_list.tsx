@@ -92,11 +92,24 @@ const TaskItem: React.FC<TaskItemProps> = ({
               {title}
             </Text>
             <View style={styles.tagContainer}>
-              {status === "PENDING" && (
-                <View style={styles.statusTag}>
-                  <Text style={styles.statusText}>pending</Text>
-                </View>
-              )}
+              <View
+                style={[
+                  styles.statusTag,
+                  {
+                    backgroundColor:
+                      status === "COMPLETED" ? "#E0F7FA" : "#FFF9E7",
+                  },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.statusText,
+                    { color: status === "COMPLETED" ? "#00BFA5" : "#FFB800" },
+                  ]}
+                >
+                  {status}
+                </Text>
+              </View>
               <View
                 style={[
                   styles.priorityTag,
