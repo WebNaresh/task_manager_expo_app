@@ -32,6 +32,7 @@ interface TaskItemProps {
   dueDate: string;
   status: string;
   onPressRemark?: () => void;
+  tasklist_title?: string;
 }
 
 const TaskItem: React.FC<TaskItemProps> = ({
@@ -42,6 +43,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
   dueDate,
   status,
   onPressRemark,
+  tasklist_title,
 }) => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -60,17 +62,11 @@ const TaskItem: React.FC<TaskItemProps> = ({
             style={[
               styles.priorityTag,
               {
-                backgroundColor:
-                  priority.color === "pink" ? "#FFE4E4" : "#F5F5F5",
+                backgroundColor: priority.color,
               },
             ]}
           >
-            <Text
-              style={[
-                styles.priorityText,
-                { color: priority.color === "pink" ? "#FF4444" : "#666666" },
-              ]}
-            >
+            <Text style={[styles.priorityText, { color: "#fff" }]}>
               {priority.name.toLowerCase()}
             </Text>
           </View>
@@ -96,9 +92,23 @@ const TaskItem: React.FC<TaskItemProps> = ({
             </View>
           </View>
         )}
-        <TouchableOpacity style={styles.remarkButton} onPress={onPressRemark}>
-          <Text style={styles.remarkButtonText}>Remark</Text>
-        </TouchableOpacity>
+        <View
+          style={{
+            flex: 1,
+            flexDirection: "row",
+            justifyContent: "space-between",
+          }}
+        >
+          <TouchableOpacity style={styles.remarkButton} onPress={onPressRemark}>
+            <Text style={styles.remarkButtonText}>Remark</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.taskListButton}
+            onPress={onPressRemark}
+          >
+            <Text style={styles.taskButtonText}>{tasklist_title}</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
@@ -288,17 +298,20 @@ const Tasks: React.FC = () => {
           <RefreshControl refreshing={isFetching} onRefresh={onRefresh} />
         }
       >
-        {data.map((task: any) => (
-          <TaskItem
-            key={task.id}
-            title={task.title}
-            description={task.description}
-            priority={task?.priority}
-            responsibleUser={task?.responsibleUser}
-            dueDate={task?.dueDate}
-            status={task?.status}
-          />
-        ))}
+        {data.map((task: any) => {
+          return (
+            <TaskItem
+              key={task.id}
+              title={task.title}
+              description={task.description}
+              priority={task?.priority}
+              responsibleUser={task?.responsibleUser}
+              dueDate={task?.dueDate}
+              status={task?.status}
+              tasklist_title={task?.taskList?.name}
+            />
+          );
+        })}
       </ScrollView>
 
       <Link href={"/(admin)/tasks/add_task"} asChild>
@@ -397,8 +410,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderRadius: 12,
     padding: 16,
-    marginHorizontal: 16,
     marginVertical: 8,
+    borderColor: "#F0F0F0",
+    borderWidth: 1,
   },
   taskContent: {
     gap: 12,
@@ -491,6 +505,19 @@ const styles = StyleSheet.create({
   },
   remarkButtonText: {
     color: "#666666",
+    fontSize: 14,
+    fontWeight: "500",
+  },
+
+  taskListButton: {
+    backgroundColor: primary_color,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    alignSelf: "flex-start",
+  },
+  taskButtonText: {
+    color: "#fff",
     fontSize: 14,
     fontWeight: "500",
   },
