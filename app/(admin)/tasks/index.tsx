@@ -22,52 +22,87 @@ import { SafeAreaView } from "react-native-safe-area-context";
 interface TaskItemProps {
   title: string;
   description: string;
-  priority: "high" | "pending" | "low";
-  category?: string;
-  assignee: string;
-  time: string;
-}
-
-interface FilterOption {
-  id: string;
-  label: string;
+  priority: {
+    color: string;
+    name: string;
+  };
+  responsibleUser: {
+    name: string;
+  };
+  dueDate: string;
+  status: string;
+  onPressRemark?: () => void;
 }
 
 const TaskItem: React.FC<TaskItemProps> = ({
   title,
   description,
   priority,
-  assignee,
-  time,
-}) => (
-  <View style={styles.taskItem}>
-    <View style={styles.taskContent}>
-      <View style={styles.taskItemHeader}>
-        <Text style={styles.taskTitle}>{title}</Text>
-        <View
-          style={[
-            styles.priorityTag,
-            priority === "high"
-              ? styles.highPriority
-              : priority === "pending"
-              ? styles.pendingPriority
-              : styles.lowPriority,
-          ]}
-        >
-          <Text style={styles.priorityText}>{priority}</Text>
+  responsibleUser,
+  dueDate,
+  status,
+  onPressRemark,
+}) => {
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  };
+
+  return (
+    <View style={styles.taskItem}>
+      <View style={styles.taskContent}>
+        <View style={styles.taskItemHeader}>
+          <Text style={styles.taskTitle}>{title}</Text>
+          <View
+            style={[
+              styles.priorityTag,
+              {
+                backgroundColor:
+                  priority.color === "pink" ? "#FFE4E4" : "#F5F5F5",
+              },
+            ]}
+          >
+            <Text
+              style={[
+                styles.priorityText,
+                { color: priority.color === "pink" ? "#FF4444" : "#666666" },
+              ]}
+            >
+              {priority.name.toLowerCase()}
+            </Text>
+          </View>
         </View>
+        <Text style={styles.taskDescription}>{description}</Text>
+        <View style={styles.taskFooter}>
+          <View style={styles.userInfo}>
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>
+                {responsibleUser.name.charAt(0)}
+              </Text>
+            </View>
+            <Text style={styles.userName}>{responsibleUser.name}</Text>
+          </View>
+          <View style={styles.timeContainer}>
+            <Text style={styles.timeText}>{formatDate(dueDate)}</Text>
+          </View>
+        </View>
+        {status === "PENDING" && (
+          <View style={styles.statusContainer}>
+            <View style={styles.statusTag}>
+              <Text style={styles.statusText}>pending</Text>
+            </View>
+          </View>
+        )}
+        <TouchableOpacity style={styles.remarkButton} onPress={onPressRemark}>
+          <Text style={styles.remarkButtonText}>Remark</Text>
+        </TouchableOpacity>
       </View>
-      <Text style={styles.taskDescription}>{description}</Text>
-      <View style={styles.taskFooter}>
-        <Text style={styles.assigneeName}>{assignee}</Text>
-        <Text style={styles.timeText}>{time}</Text>
-      </View>
-      <TouchableOpacity style={styles.remarkButton}>
-        <Text style={styles.remarkButtonText}>Remark</Text>
-      </TouchableOpacity>
     </View>
-  </View>
-);
+  );
+};
 
 type task_filter = "all" | "pending" | "no_updates" | "priority";
 
@@ -78,6 +113,11 @@ const formatDate = (date: Date): string => {
     year: "numeric",
   });
 };
+
+interface FilterOption {
+  id: string;
+  label: string;
+}
 
 const Tasks: React.FC = () => {
   const [startDate, setStartDate] = useState(new Date());
@@ -253,10 +293,10 @@ const Tasks: React.FC = () => {
             key={task.id}
             title={task.title}
             description={task.description}
-            priority={task?.priority?.name}
-            assignee={task?.responsibleUser?.name}
-            // format time created at
-            time={task.created_at}
+            priority={task?.priority}
+            responsibleUser={task?.responsibleUser}
+            dueDate={task?.dueDate}
+            status={task?.status}
           />
         ))}
       </ScrollView>
@@ -354,12 +394,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   taskItem: {
-    backgroundColor: "#fff",
+    backgroundColor: "#FFFFFF",
     borderRadius: 12,
     padding: 16,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: "#eee",
+    marginHorizontal: 16,
+    marginVertical: 8,
   },
   taskContent: {
     gap: 12,
@@ -367,22 +406,26 @@ const styles = StyleSheet.create({
   taskItemHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: "flex-start",
+    marginBottom: 8,
   },
   taskTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "600",
+    color: "#000000",
+    flex: 1,
+    marginRight: 8,
   },
   priorityTag: {
-    paddingHorizontal: 12,
+    paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 16,
-  },
-  highPriority: {
-    backgroundColor: "#fee2e2",
+    minWidth: 48,
+    alignItems: "center",
   },
   priorityText: {
-    fontSize: 14,
+    fontSize: 12,
+    fontWeight: "500",
   },
   taskDescription: {
     color: "#666",
@@ -394,70 +437,69 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
+  userInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  avatar: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: "#F0F0F0",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 8,
+  },
+  avatarText: {
+    fontSize: 12,
+    fontWeight: "500",
+    color: "#666666",
+  },
+  userName: {
+    fontSize: 14,
+    color: "#333333",
+  },
+  timeContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  timeText: {
+    fontSize: 12,
+    color: "#666666",
+  },
+  statusContainer: {
+    marginBottom: 12,
+  },
+  statusTag: {
+    backgroundColor: "#FFF9E7",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 16,
+    alignSelf: "flex-start",
+  },
+  statusText: {
+    color: "#FFB800",
+    fontSize: 12,
+    fontWeight: "500",
+  },
+  remarkButton: {
+    backgroundColor: "#F5F5F5",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    alignSelf: "flex-start",
+  },
+  remarkButtonText: {
+    color: "#666666",
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  highPriority: {
+    backgroundColor: "#fee2e2",
+  },
   assigneeName: {
     fontSize: 16,
     color: "#666",
-  },
-  timeText: {
-    fontSize: 16,
-    color: "#666",
-  },
-  remarkButton: {
-    backgroundColor: primary_color,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-    alignSelf: "flex-end",
-    marginTop: 8,
-  },
-  remarkButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "500",
-  },
-  fab: {
-    position: "absolute",
-    bottom: 40,
-    right: 24,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: primary_color,
-    justifyContent: "center",
-    alignItems: "center",
-    elevation: 4,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-  },
-  fabText: {
-    fontSize: 24,
-    color: "#fff",
-  },
-  bottomNav: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    backgroundColor: "#fff",
-    paddingVertical: 12,
-    borderTopWidth: 1,
-    borderTopColor: "#eee",
-  },
-  navItem: {
-    alignItems: "center",
-    padding: 8,
-  },
-  activeNavItem: {
-    borderBottomWidth: 2,
-    borderBottomColor: "#6366f1",
-  },
-  activeNavText: {
-    color: "#6366f1",
-    fontWeight: "500",
   },
   pendingPriority: {
     backgroundColor: "#fff2cc",
@@ -510,6 +552,48 @@ const styles = StyleSheet.create({
   },
   datePickerWrapper: {
     position: "relative",
+  },
+  bottomNav: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: "#eee",
+  },
+  navItem: {
+    alignItems: "center",
+    padding: 8,
+  },
+  activeNavItem: {
+    borderBottomWidth: 2,
+    borderBottomColor: "#6366f1",
+  },
+  activeNavText: {
+    color: "#6366f1",
+    fontWeight: "500",
+  },
+  fab: {
+    position: "absolute",
+    bottom: 16,
+    right: 16,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: primary_color,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 5,
+  },
+  fabText: {
+    color: "#fff",
+    fontSize: 24,
+    fontWeight: "bold",
   },
 });
 

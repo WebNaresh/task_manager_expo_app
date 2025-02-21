@@ -1,12 +1,17 @@
 import Colors from "@/constants/Colors";
 import useAuth from "@/hooks/useAuth";
 import { BottomTabHeaderProps } from "@react-navigation/bottom-tabs";
+import { Redirect } from "expo-router";
 import React from "react";
 import { Image, StyleSheet, Text, useColorScheme, View } from "react-native";
 
 export default function Header(props: BottomTabHeaderProps) {
   const colorScheme = useColorScheme();
-  const { user } = useAuth();
+  const { user, token } = useAuth();
+
+  if (!token) {
+    return <Redirect href={"/login"} />;
+  }
 
   return (
     <View style={styles.container}>

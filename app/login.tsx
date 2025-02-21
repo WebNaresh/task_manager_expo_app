@@ -1,12 +1,13 @@
 import NBTextInput from "@/components/input/text-input";
 import NBButton from "@/components/ui/button";
 import { error_color, primary_color, success_color } from "@/constants/Colors";
+import useAuth from "@/hooks/useAuth";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod"; // Add this import
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { useRouter } from "expo-router";
+import { Redirect, useRouter } from "expo-router";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -32,6 +33,7 @@ const LoginScreen = () => {
   const { handleSubmit } = form;
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { token } = useAuth();
 
   const mutation = useMutation({
     mutationFn: async (data: form_schema_types) => {
@@ -74,6 +76,10 @@ const LoginScreen = () => {
   const onSubmit = (data: form_schema_types) => {
     mutation.mutate(data);
   };
+
+  if (token !== null) {
+    return <Redirect href={"/(admin)/dashboard"} />;
+  }
 
   return (
     <SafeAreaView style={styles.container}>
