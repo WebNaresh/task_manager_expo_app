@@ -3,7 +3,7 @@
 import { Feather } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import type React from "react";
 import { useEffect, useState } from "react";
 import {
@@ -192,13 +192,23 @@ const TaskDetailScreen: React.FC = () => {
       </View>
 
       <View style={styles.actionButtons}>
-        <TouchableOpacity style={[styles.button, styles.editButton]}>
+        <TouchableOpacity
+          onPress={() => {
+            // Navigate to the edit task screen
+            router.push({
+              pathname: "/tasks/[task_id]/edit",
+              params: { task_id: taskId },
+            });
+          }}
+          style={[styles.button, styles.editButton]}
+        >
           <Feather name="edit-2" size={20} color="#fff" />
           <Text style={styles.buttonText}>Edit Task</Text>
         </TouchableOpacity>
+
         <TouchableOpacity style={[styles.button, styles.completeButton]}>
-          <Feather name="check-circle" size={20} color="#fff" />
-          <Text style={styles.buttonText}>Mark as Complete</Text>
+          <Feather name="check" size={20} color="#fff" />
+          <Text style={styles.buttonText}>Complete Task</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
