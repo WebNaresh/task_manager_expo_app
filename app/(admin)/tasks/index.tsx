@@ -14,7 +14,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -114,7 +113,7 @@ const Tasks: React.FC = () => {
         <Text style={styles.title}>Tasks</Text>
       </View>
 
-      <View style={styles.searchContainer}>
+      {/* <View style={styles.searchContainer}>
         <View style={styles.searchInputWrapper}>
           <Feather
             name="search"
@@ -128,7 +127,7 @@ const Tasks: React.FC = () => {
             placeholderTextColor="#666"
           />
         </View>
-      </View>
+      </View> */}
 
       {!showDateRange ? (
         <TouchableOpacity
