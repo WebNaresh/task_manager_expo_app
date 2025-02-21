@@ -1,7 +1,8 @@
 "use client";
 
+import { error_color, success_color } from "@/constants/Colors";
 import { Feather } from "@expo/vector-icons";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { router, useLocalSearchParams } from "expo-router";
 import type React from "react";
@@ -14,6 +15,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Toast from "react-native-root-toast";
 
 interface Task {
   id: string;
@@ -59,6 +61,7 @@ interface Task {
 
 const TaskDetailScreen: React.FC = () => {
   const { task_id: taskId } = useLocalSearchParams<{ task_id: string }>();
+  const queryClient = useQueryClient();
   const {
     data: task,
     isFetching: loading,
@@ -71,6 +74,40 @@ const TaskDetailScreen: React.FC = () => {
       return response.data;
     },
     enabled: !!taskId,
+  });
+
+  const { mutate } = useMutation({
+    mutationFn: async (status: "PENDING" | "COMPLETED") => {
+      // axios put /api/v1/task/{id}/complete
+
+      const response = await axios.put(`/api/v1/task/${taskId}/complete`, {
+        status,
+      });
+      return response.data;
+    },
+    async onSuccess(data, variables, context) {
+      await queryClient.invalidateQueries({
+        queryKey: ["task", taskId],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ["tasks"],
+      });
+      Toast.show("Task updated successfully", {
+        duration: Toast.durations.SHORT,
+        position: Toast.positions.TOP,
+        backgroundColor: success_color,
+      });
+    },
+    onError(error, variables, context) {
+      if (axios.isAxiosError(error)) {
+        console.error(`🚀 ~ error.response.data:`, error?.response?.data);
+        Toast.show(error?.response?.data?.message, {
+          duration: Toast.durations.SHORT,
+          position: Toast.positions.TOP,
+          backgroundColor: error_color,
+        });
+      }
+    },
   });
 
   const formatDate = (dateString: string) => {
@@ -206,10 +243,27 @@ const TaskDetailScreen: React.FC = () => {
           <Text style={styles.buttonText}>Edit Task</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.button, styles.completeButton]}>
-          <Feather name="check" size={20} color="#fff" />
-          <Text style={styles.buttonText}>Complete Task</Text>
-        </TouchableOpacity>
+        {task?.status === "PENDING" ? (
+          <TouchableOpacity
+            onPress={() => {
+              mutate("COMPLETED");
+            }}
+            style={[styles.button, styles.completeButton]}
+          >
+            <Feather name="check" size={20} color="#fff" />
+            <Text style={styles.buttonText}>Complete Task</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            onPress={() => {
+              mutate("PENDING");
+            }}
+            style={[styles.button, styles.pendingButton]}
+          >
+            <Feather name="x" size={20} color="#fff" />
+            <Text style={styles.buttonText}>Make it Pending</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </ScrollView>
   );
@@ -361,7 +415,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#2196F3",
   },
   completeButton: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: success_color,
+  },
+  pendingButton: {
+    backgroundColor: "#FFB800",
   },
   buttonText: {
     color: "#fff",
