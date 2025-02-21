@@ -214,6 +214,7 @@ const Tasks: React.FC = () => {
               dueDate={task?.dueDate}
               status={task?.status}
               tasklist_title={task?.taskList?.name}
+              id={task.id}
             />
           );
         })}

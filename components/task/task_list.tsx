@@ -1,6 +1,7 @@
 "use client";
 
 import { Feather } from "@expo/vector-icons";
+import { Link } from "expo-router";
 import React from "react";
 import {
   Animated,
@@ -24,6 +25,7 @@ interface TaskItemProps {
   status: string;
   onPressRemark?: () => void;
   tasklist_title?: string;
+  id: string;
 }
 
 const TaskItem: React.FC<TaskItemProps> = ({
@@ -35,6 +37,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
   status,
   onPressRemark,
   tasklist_title,
+  id,
 }) => {
   const scaleAnim = React.useRef(new Animated.Value(1)).current;
 
@@ -68,87 +71,96 @@ const TaskItem: React.FC<TaskItemProps> = ({
   };
 
   return (
-    <Animated.View
-      style={[styles.taskItem, { transform: [{ scale: scaleAnim }] }]}
-    >
-      <View style={styles.taskContent}>
-        <View style={styles.taskItemHeader}>
-          <Text style={styles.taskTitle} numberOfLines={1} ellipsizeMode="tail">
-            {title}
-          </Text>
-          <View style={styles.tagContainer}>
-            {status === "PENDING" && (
-              <View style={styles.statusTag}>
-                <Text style={styles.statusText}>pending</Text>
-              </View>
-            )}
-            <View
-              style={[styles.priorityTag, { backgroundColor: priority.color }]}
+    <Link href={`/tasks/${id}`}>
+      <Animated.View
+        style={[styles.taskItem, { transform: [{ scale: scaleAnim }] }]}
+      >
+        <View style={styles.taskContent}>
+          <View style={styles.taskItemHeader}>
+            <Text
+              style={styles.taskTitle}
+              numberOfLines={1}
+              ellipsizeMode="tail"
             >
-              <Text style={styles.priorityText}>
-                {priority.name.toLowerCase()}
-              </Text>
+              {title}
+            </Text>
+            <View style={styles.tagContainer}>
+              {status === "PENDING" && (
+                <View style={styles.statusTag}>
+                  <Text style={styles.statusText}>pending</Text>
+                </View>
+              )}
+              <View
+                style={[
+                  styles.priorityTag,
+                  { backgroundColor: priority.color },
+                ]}
+              >
+                <Text style={styles.priorityText}>
+                  {priority.name.toLowerCase()}
+                </Text>
+              </View>
             </View>
           </View>
-        </View>
-        <Text
-          style={styles.taskDescription}
-          numberOfLines={2}
-          ellipsizeMode="tail"
-        >
-          {description}
-        </Text>
-        <View style={styles.taskFooter}>
-          <View style={styles.userInfo}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>
-                {responsibleUser.name.charAt(0)}
-              </Text>
+          <Text
+            style={styles.taskDescription}
+            numberOfLines={2}
+            ellipsizeMode="tail"
+          >
+            {description}
+          </Text>
+          <View style={styles.taskFooter}>
+            <View style={styles.userInfo}>
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>
+                  {responsibleUser.name.charAt(0)}
+                </Text>
+              </View>
+              <Text style={styles.userName}>{responsibleUser.name}</Text>
             </View>
-            <Text style={styles.userName}>{responsibleUser.name}</Text>
+            <View style={styles.timeContainer}>
+              <Feather
+                name="calendar"
+                size={14}
+                color="#666666"
+                style={styles.calendarIcon}
+              />
+              <Text style={styles.timeText}>{formatDateTime(dueDate)}</Text>
+            </View>
           </View>
-          <View style={styles.timeContainer}>
-            <Feather
-              name="calendar"
-              size={14}
-              color="#666666"
-              style={styles.calendarIcon}
-            />
-            <Text style={styles.timeText}>{formatDateTime(dueDate)}</Text>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={styles.remarkButton}
+              onPress={onPressRemark}
+              onPressIn={handlePressIn}
+              onPressOut={handlePressOut}
+            >
+              <Feather
+                name="message-square"
+                size={16}
+                color="#666666"
+                style={styles.buttonIcon}
+              />
+              <Text style={styles.remarkButtonText}>Remark</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.taskListButton}
+              onPress={onPressRemark}
+              onPressIn={handlePressIn}
+              onPressOut={handlePressOut}
+            >
+              <Feather
+                name="list"
+                size={16}
+                color="#FFFFFF"
+                style={styles.buttonIcon}
+              />
+              <Text style={styles.taskButtonText}>{tasklist_title}</Text>
+            </TouchableOpacity>
           </View>
         </View>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={styles.remarkButton}
-            onPress={onPressRemark}
-            onPressIn={handlePressIn}
-            onPressOut={handlePressOut}
-          >
-            <Feather
-              name="message-square"
-              size={16}
-              color="#666666"
-              style={styles.buttonIcon}
-            />
-            <Text style={styles.remarkButtonText}>Remark</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.taskListButton}
-            onPress={onPressRemark}
-            onPressIn={handlePressIn}
-            onPressOut={handlePressOut}
-          >
-            <Feather
-              name="list"
-              size={16}
-              color="#FFFFFF"
-              style={styles.buttonIcon}
-            />
-            <Text style={styles.taskButtonText}>{tasklist_title}</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </Animated.View>
+      </Animated.View>
+    </Link>
   );
 };
 
