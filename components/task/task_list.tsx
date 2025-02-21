@@ -71,9 +71,16 @@ const TaskItem: React.FC<TaskItemProps> = ({
   };
 
   return (
-    <Link href={`/tasks/${id}`}>
+    <Link href={`/tasks/${id}`} style={{ width: "100%", paddingVertical: 10 }}>
       <Animated.View
-        style={[styles.taskItem, { transform: [{ scale: scaleAnim }] }]}
+        style={[
+          styles.taskItem,
+          {
+            transform: [{ scale: scaleAnim }],
+            width: "100%",
+            height: "100%",
+          },
+        ]}
       >
         <View style={styles.taskContent}>
           <View style={styles.taskItemHeader}>

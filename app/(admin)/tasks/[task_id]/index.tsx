@@ -1,7 +1,9 @@
 "use client";
 
 import { Feather } from "@expo/vector-icons";
+import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { useLocalSearchParams } from "expo-router";
 import type React from "react";
 import { useEffect, useState } from "react";
 import {
@@ -55,28 +57,21 @@ interface Task {
   };
 }
 
-const TaskDetailScreen: React.FC<{ taskId: string }> = ({ taskId }) => {
-  const [task, setTask] = useState<Task | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchTaskDetails();
-  }, [taskId]);
-
-  const fetchTaskDetails = async () => {
-    try {
-      setLoading(true);
+const TaskDetailScreen: React.FC = () => {
+  const { task_id: taskId } = useLocalSearchParams<{ task_id: string }>();
+  const {
+    data: task,
+    isFetching: loading,
+    error,
+    refetch: retry,
+  } = useQuery({
+    queryKey: ["task", taskId],
+    queryFn: async () => {
       const response = await axios.get(`/api/v1/task/${taskId}`);
-      setTask(response.data);
-      setError(null);
-    } catch (err) {
-      setError("Failed to fetch task details. Please try again.");
-      console.error("Error fetching task details:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+      return response.data;
+    },
+    enabled: !!taskId,
+  });
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -96,8 +91,8 @@ const TaskDetailScreen: React.FC<{ taskId: string }> = ({ taskId }) => {
   if (error) {
     return (
       <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>{error}</Text>
-        <TouchableOpacity style={styles.retryButton} onPress={fetchTaskDetails}>
+        <Text style={styles.errorText}>Something went wrong</Text>
+        <TouchableOpacity style={styles.retryButton} onPress={() => retry()}>
           <Text style={styles.retryButtonText}>Retry</Text>
         </TouchableOpacity>
       </View>

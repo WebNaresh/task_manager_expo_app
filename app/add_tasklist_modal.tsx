@@ -46,7 +46,6 @@ const TaskListModal = () => {
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: Form) => {
-      console.log(`🚀 ~ data:`, data);
       const response = await axios.post("/api/v1/tasklist", data);
       console.log(`🚀 ~ response:`, response);
       return response.data;

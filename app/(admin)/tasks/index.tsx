@@ -44,12 +44,10 @@ const Tasks: React.FC = () => {
   const searchParams = useLocalSearchParams<{ task_type: task_filter }>();
   const router = useRouter();
   useEffect(() => {
-    console.log(`🚀 ~ searchParams:`, searchParams.task_type);
     if (searchParams.task_type === undefined) {
       router.setParams({ task_type: "all" });
     }
   }, [searchParams]);
-  console.log(`🚀 ~ searchParams:`, searchParams);
   const filterOptions: FilterOption[] = [
     { id: "all", label: "All Tasks" },
     { id: "delayed", label: "Delayed" },
@@ -72,7 +70,6 @@ const Tasks: React.FC = () => {
     },
     initialData: [],
   });
-  console.log(`🚀 ~ data:`, data);
 
   const onStartDateChange = (
     _event: DateTimePickerEvent,

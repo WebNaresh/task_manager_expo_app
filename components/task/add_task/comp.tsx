@@ -87,20 +87,17 @@ const AddTaskForm = (props: Props) => {
   }, [reset]);
 
   const onSubmit = (data: Form) => {
-    console.log(`🚀 ~ data:`, data);
     mutate(data);
   };
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: Form) => {
-      console.log(`🚀 ~ data:`, data);
       //  axios request here /api/v1/task
       const response = await axios.post("/api/v1/task", data);
       console.log(`🚀 ~ response:`, response);
       return response.data;
     },
     onSuccess(data, variables, context) {
-      console.log(`🚀 ~ data:`, data);
       query_client.invalidateQueries({
         queryKey: ["tasks"],
       });
