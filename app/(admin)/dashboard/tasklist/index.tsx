@@ -5,6 +5,7 @@ import axios from "axios";
 import { Link } from "expo-router";
 import React from "react";
 import {
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -19,7 +20,7 @@ export interface Task {
 }
 
 export default function TaskManagement() {
-  const { data, isLoading } = useQuery({
+  const { data, isFetching, refetch } = useQuery({
     queryKey: ["tasklist"],
     queryFn: async () => {
       const response = await axios.get("/api/v1/tasklist");
@@ -30,7 +31,12 @@ export default function TaskManagement() {
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.taskList}>
+      <ScrollView
+        style={styles.taskList}
+        refreshControl={
+          <RefreshControl refreshing={isFetching} onRefresh={refetch} />
+        }
+      >
         {data.map((task) => (
           <View key={task.id} style={styles.taskItem}>
             <View style={styles.taskContent}>

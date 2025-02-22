@@ -1,7 +1,7 @@
 "use client";
 
 import { Feather } from "@expo/vector-icons";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import React from "react";
 import {
   Animated,
@@ -24,8 +24,9 @@ interface TaskItemProps {
   dueDate: string;
   status: string;
   onPressRemark?: () => void;
-  tasklist_title?: string;
+  task_list?: any;
   id: string;
+  user_id?: string;
 }
 
 const TaskItem: React.FC<TaskItemProps> = ({
@@ -36,9 +37,11 @@ const TaskItem: React.FC<TaskItemProps> = ({
   dueDate,
   status,
   onPressRemark,
-  tasklist_title,
+  task_list: { name: tasklist_title, id: tasklist_id } = {} as any,
   id,
+  user_id,
 }) => {
+  const router = useRouter();
   const scaleAnim = React.useRef(new Animated.Value(1)).current;
 
   const formatDateTime = (dateString: string) => {
@@ -165,7 +168,16 @@ const TaskItem: React.FC<TaskItemProps> = ({
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.taskListButton}
-              onPress={onPressRemark}
+              onPress={() => {
+                router.push({
+                  pathname: `/tasks/[task_id]/[user_id]/[task_list_id]/status_modal`,
+                  params: {
+                    task_id: id,
+                    user_id: user_id,
+                    task_list_id: tasklist_id,
+                  },
+                });
+              }}
               onPressIn={handlePressIn}
               onPressOut={handlePressOut}
             >
