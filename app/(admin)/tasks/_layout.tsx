@@ -12,6 +12,16 @@ const StackLayout = () => {
         name="[task_id]/edit/index"
         options={{ title: "Edit Task" }}
       />
+      {/* modal */}
+      <Stack.Screen
+        name="[task_id]/edit/modal"
+        options={{
+          presentation: "transparentModal",
+          animation: "none", // Disable popping animation
+          animationTypeForReplace: "push", // Ensure no popping animation
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 };

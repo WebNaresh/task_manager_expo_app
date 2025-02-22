@@ -1,5 +1,6 @@
 import TaskItem from "@/components/task/task_list";
 import { primary_color } from "@/constants/Colors";
+import useAuth from "@/hooks/useAuth";
 import { Feather } from "@expo/vector-icons";
 import DateTimePicker, {
   DateTimePickerEvent,
@@ -40,6 +41,9 @@ const Tasks: React.FC = () => {
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
   const [showDateRange, setShowDateRange] = useState(false);
+
+  const { user } = useAuth();
+  console.log(`🚀 ~ user:`, user);
 
   const searchParams = useLocalSearchParams<{ task_type: task_filter }>();
   const router = useRouter();
@@ -109,23 +113,6 @@ const Tasks: React.FC = () => {
       <View style={styles.taskHeader}>
         <Text style={styles.title}>Tasks</Text>
       </View>
-
-      {/* <View style={styles.searchContainer}>
-        <View style={styles.searchInputWrapper}>
-          <Feather
-            name="search"
-            size={20}
-            color="#666"
-            style={styles.searchIcon}
-          />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search name"
-            placeholderTextColor="#666"
-          />
-        </View>
-      </View> */}
-
       {!showDateRange ? (
         <TouchableOpacity
           style={styles.datePickerButton}
@@ -211,6 +198,13 @@ const Tasks: React.FC = () => {
               dueDate={task?.dueDate}
               status={task?.status}
               tasklist_title={task?.taskList?.name}
+              onPressRemark={() => {
+                console.log("Remark pressed");
+                router.push({
+                  pathname: `/tasks/[task_id]/modal`,
+                  params: { task_id: task.id },
+                });
+              }}
               id={task.id}
             />
           );
