@@ -57,6 +57,14 @@ interface Task {
     createdAt: string;
     updatedAt: string;
   };
+  taskListChanges: TaskListChange[];
+}
+
+interface TaskListChange {
+  id: string;
+  description: string;
+  changedAt: string;
+  type: "TASKLIST_CHANGE" | "REMARK_CHANGE";
 }
 
 const TaskDetailScreen: React.FC = () => {
@@ -75,6 +83,7 @@ const TaskDetailScreen: React.FC = () => {
     },
     enabled: !!taskId,
   });
+  console.log(`🚀 ~ task:`, task);
 
   const { mutate } = useMutation({
     mutationFn: async (status: "PENDING" | "COMPLETED") => {
@@ -226,6 +235,18 @@ const TaskDetailScreen: React.FC = () => {
             Updated: {formatDate(task.updatedAt)}
           </Text>
         </View>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Task List Changes</Text>
+        {task.taskListChanges.map((change: any) => (
+          <View key={change.id} style={styles.changeItem}>
+            <Text style={styles.changeDescription}>{change.description}</Text>
+            <Text style={styles.changeInfo}>
+              {change.type} - {new Date(change.changedAt).toLocaleString()}
+            </Text>
+          </View>
+        ))}
       </View>
 
       <View style={styles.actionButtons}>
@@ -410,6 +431,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     flex: 1,
     marginHorizontal: 5,
+    width: "auto",
   },
   editButton: {
     backgroundColor: "#2196F3",
@@ -448,6 +470,16 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "600",
+  },
+  changeItem: {
+    marginBottom: 12,
+  },
+  changeDescription: {
+    fontSize: 16,
+  },
+  changeInfo: {
+    fontSize: 14,
+    color: "#666",
   },
 });
 

@@ -5,6 +5,7 @@ import { Href, Link } from "expo-router";
 import type React from "react";
 import {
   ActivityIndicator,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -71,7 +72,7 @@ const PriorityItem: React.FC<PriorityItemProps> = ({ name, color, number }) => (
 );
 
 const TaskDashboard: React.FC = () => {
-  const { data, isLoading, isError } = useQuery<PriorityData[]>({
+  const { data, isLoading, isError, refetch } = useQuery<PriorityData[]>({
     queryKey: ["priority"],
     queryFn: async () => {
       const response = await axios.get("/api/v1/priority");
@@ -141,7 +142,12 @@ const TaskDashboard: React.FC = () => {
   ];
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      refreshControl={
+        <RefreshControl refreshing={isLoading} onRefresh={refetch} />
+      }
+      style={styles.container}
+    >
       <View style={styles.statSection}>
         <View style={styles.statGrid}>
           {stats.map((stat, index) => (

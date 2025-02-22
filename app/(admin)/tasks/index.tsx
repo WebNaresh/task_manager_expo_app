@@ -200,10 +200,15 @@ const Tasks: React.FC = () => {
               tasklist_title={task?.taskList?.name}
               onPressRemark={() => {
                 console.log("Remark pressed");
-                router.push({
-                  pathname: `/tasks/[task_id]/modal`,
-                  params: { task_id: task.id },
-                });
+                if (user) {
+                  router.push({
+                    pathname: `/tasks/[task_id]/[user_id]/modal`,
+                    params: {
+                      task_id: task.id,
+                      user_id: user.id,
+                    },
+                  });
+                }
               }}
               id={task.id}
             />
