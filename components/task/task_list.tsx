@@ -23,7 +23,6 @@ interface TaskItemProps {
   };
   dueDate: string;
   status: string;
-  onPressRemark?: () => void;
   task_list?: any;
   id: string;
   user_id?: string;
@@ -36,7 +35,6 @@ const TaskItem: React.FC<TaskItemProps> = ({
   responsibleUser,
   dueDate,
   status,
-  onPressRemark,
   task_list: { name: tasklist_title, id: tasklist_id } = {} as any,
   id,
   user_id,
@@ -154,7 +152,15 @@ const TaskItem: React.FC<TaskItemProps> = ({
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               style={styles.remarkButton}
-              onPress={onPressRemark}
+              onPress={() => {
+                router.push({
+                  pathname: `/tasks/[task_id]/[user_id]/remark_modal`,
+                  params: {
+                    task_id: id,
+                    user_id: user_id,
+                  },
+                });
+              }}
               onPressIn={handlePressIn}
               onPressOut={handlePressOut}
             >

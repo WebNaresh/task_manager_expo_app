@@ -14,7 +14,16 @@ const StackLayout = () => {
       />
       {/* modal */}
       <Stack.Screen
-        name="[task_id]/[user_id]/[tasklist_id]/status_modal"
+        name="[task_id]/[user_id]/remark_modal"
+        options={{
+          presentation: "transparentModal",
+          animation: "none", // Disable popping animation
+          animationTypeForReplace: "push", // Ensure no popping animation
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="[task_id]/[user_id]/[task_list_id]/status_modal"
         options={{
           presentation: "transparentModal",
           animation: "none", // Disable popping animation

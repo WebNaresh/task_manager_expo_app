@@ -5,7 +5,7 @@ import NBModal from "@/components/ui/modal";
 import { error_color, success_color } from "@/constants/Colors";
 import { Feather } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { router, useLocalSearchParams } from "expo-router";
 import React from "react";
@@ -49,6 +49,7 @@ const RemarkModal = () => {
         refreshControl={
           <RefreshControl refreshing={isFetching} onRefresh={refetch} />
         }
+        style={{ padding: 20 }}
       >
         <InputForm task_list_id={task_list_id} task_id={task_id} data={data} />
       </ScrollView>
@@ -71,19 +72,34 @@ const InputForm = ({
       taskListId: task_list_id,
     },
   });
+  const query_client = useQueryClient();
 
-  const { handleSubmit } = form;
+  const {
+    handleSubmit,
+    formState: { isDirty },
+    watch,
+  } = form;
+  console.log(`🚀 ~ watch:`, watch());
+
   const onSubmit = handleSubmit((data) => {
     mutate(data);
   });
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: Form) => {
       // axios request to /api/v1/task/{id}/remark
-      const response = await axios.post(`/api/v1/task/${task_id}/remark`, data);
+      const response = await axios.put(
+        `/api/v1/task/${task_id}/tasklist`,
+        data
+      );
       return response.data;
     },
-    onSuccess(data, variables, context) {
+    async onSuccess(data, variables, context) {
       console.log(`🚀 ~ data:`, data);
+
+      await query_client.invalidateQueries({
+        queryKey: ["tasks"],
+      });
+
       Toast.show("Remark added successfully", {
         duration: Toast.durations.SHORT,
         position: Toast.positions.TOP,
@@ -126,6 +142,7 @@ const InputForm = ({
         text="Add Remark"
         onPress={onSubmit}
         isPending={form.formState.isSubmitting || isPending}
+        isDisabled={!isDirty}
       />
     </View>
   );
