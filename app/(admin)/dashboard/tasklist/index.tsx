@@ -2,7 +2,7 @@ import { primary_color } from "@/constants/Colors";
 import { Feather } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import React from "react";
 import {
   RefreshControl,
@@ -45,16 +45,15 @@ export default function TaskManagement() {
             </View>
             <View style={styles.taskActions}>
               <TouchableOpacity
-                onPress={() => console.log("Edit", task.id)}
+                onPress={() => {
+                  router.push({
+                    pathname: "/dashboard/tasklist/[task_list_id]",
+                    params: { task_list_id: task.id },
+                  });
+                }}
                 style={styles.actionButton}
               >
                 <Feather name="edit-2" size={18} color="#666" />
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => console.log("Delete", task.id)}
-                style={styles.actionButton}
-              >
-                <Feather name="trash-2" size={18} color="#666" />
               </TouchableOpacity>
             </View>
           </View>

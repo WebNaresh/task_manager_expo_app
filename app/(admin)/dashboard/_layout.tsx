@@ -12,6 +12,15 @@ const RootLayout = () => {
       />
       <Stack.Screen name="client/index" options={{ title: "Client's" }} />
       <Stack.Screen name="tasklist/index" options={{ title: "Task List" }} />
+      <Stack.Screen
+        name="tasklist/[task_list_id]/index"
+        options={{
+          presentation: "transparentModal",
+          animation: "none", // Disable popping animation
+          animationTypeForReplace: "push", // Ensure no popping animation
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 };
