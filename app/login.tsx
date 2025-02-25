@@ -33,7 +33,7 @@ const LoginScreen = () => {
   const { handleSubmit } = form;
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { token } = useAuth();
+  const { token, user } = useAuth();
 
   const mutation = useMutation({
     mutationFn: async (data: form_schema_types) => {
@@ -44,6 +44,7 @@ const LoginScreen = () => {
       return response.data;
     },
     async onSuccess(data, variables, context) {
+      console.log(`🚀 ~ data:`, data);
       await AsyncStorage.setItem("token", data.token);
 
       Toast.show(`Welcome, ${data?.name}`, {
@@ -78,7 +79,11 @@ const LoginScreen = () => {
   };
 
   if (token !== null) {
-    return <Redirect href={"/(admin)/dashboard"} />;
+    if (user?.role === "admin") {
+      return <Redirect href={"/(admin)/dashboard"} />;
+    } else {
+      return <Redirect href="/(rm)/dashboard/index" />;
+    }
   }
 
   return (
