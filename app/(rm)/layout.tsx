@@ -12,7 +12,7 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="dashboard"
+        name="dashboard/index"
         options={{
           title: "Dashboard",
           tabBarIcon: (props) => (
@@ -21,7 +21,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="tasks"
+        name="tasks/index"
         options={{
           title: "Tasks",
           tabBarIcon: (props) => (

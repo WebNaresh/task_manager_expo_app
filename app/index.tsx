@@ -12,11 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from "react-native-reanimated";
+import { useSharedValue } from "react-native-reanimated";
 import { Path, Svg } from "react-native-svg";
 
 const { width } = Dimensions.get("window");
@@ -83,20 +79,33 @@ const features = [
 ];
 
 const OnboardingItem = ({ item }: { item: any }) => {
+  const handleGetStarted = () => {
+    // Navigate to the main app screen or show login/signup
+    console.log("Get Started pressed");
+  };
+
   return (
     <View style={styles.itemContainer}>
       <View style={styles.iconContainer}>{item.icon}</View>
       <Text style={styles.title}>{item.title}</Text>
       <Text style={styles.description}>{item.description}</Text>
+      <View style={styles.footer}>
+        <Link href={"/login"} asChild>
+          <TouchableOpacity style={styles.button} onPress={handleGetStarted}>
+            <Text style={styles.buttonText}>Get Started</Text>
+          </TouchableOpacity>
+        </Link>
+      </View>
     </View>
   );
 };
 
 export default function App() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const scrollX = useSharedValue(0);
+  const scrollX = useSharedValue(0); // Correctly typed as a shared value
   const flatListRef = useRef(null);
-  const { token } = useAuth();
+  const { token, user } = useAuth();
+  console.log(`🚀 ~ user:`, user);
 
   const onViewableItemsChanged = useRef(
     ({ viewableItems }: { viewableItems: any }) => {
@@ -110,19 +119,8 @@ export default function App() {
     itemVisiblePercentThreshold: 50,
   }).current;
 
-  const animatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateX: withSpring(scrollX.value) }],
-    };
-  });
-
   const handleScroll = (event: any) => {
-    scrollX.value = event.nativeEvent.contentOffset.x;
-  };
-
-  const handleGetStarted = () => {
-    // Navigate to the main app screen or show login/signup
-    console.log("Get Started pressed");
+    scrollX.value = event.nativeEvent.contentOffset.x; // Correctly accessing the shared value
   };
 
   if (token !== null) {
@@ -160,14 +158,6 @@ export default function App() {
           />
         ))}
       </View>
-
-      <Animated.View style={[styles.footer, animatedStyle]}>
-        <Link href={"/login"} asChild>
-          <TouchableOpacity style={styles.button} onPress={handleGetStarted}>
-            <Text style={styles.buttonText}>Get Started</Text>
-          </TouchableOpacity>
-        </Link>
-      </Animated.View>
     </SafeAreaView>
   );
 }

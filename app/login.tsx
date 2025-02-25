@@ -25,8 +25,8 @@ const LoginScreen = () => {
   const form = useForm<form_schema_types>({
     resolver: zodResolver(form_schema),
     defaultValues: {
-      email: "john.doe@example.com",
-      password: "pass@123",
+      email: "jane.smith.official@example.com",
+      password: "password123",
     },
     reValidateMode: "onChange",
   });
@@ -82,7 +82,7 @@ const LoginScreen = () => {
     if (user?.role === "admin") {
       return <Redirect href={"/(admin)/dashboard"} />;
     } else {
-      return <Redirect href="/(rm)/dashboard/index" />;
+      return <Redirect href="/(rm)/dashboard" />;
     }
   }
 
