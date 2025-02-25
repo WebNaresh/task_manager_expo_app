@@ -95,21 +95,21 @@ const TaskDashboard: React.FC = () => {
       title: "Total Tasks",
       value: stat?.totalTaskCount.toString() ?? "0",
       color: "#4285F4",
-      link: "/(admin)/dashboard/tasklist",
+      link: "/(admin)/tasks?task_type=all",
     },
     {
       icon: "alert",
       title: "No Updates",
       value: stat?.taskWithNoUpdatesCount.toString() ?? "0",
       color: "#FFA000",
-      link: "/(admin)/dashboard/tasklist",
+      link: "/(admin)/tasks?task_type=no_updates",
     },
     {
       icon: "clock-alert",
       title: "Delayed",
       value: stat?.delayedTaskCount.toString() ?? "0",
       color: "#DB4437",
-      link: "/(admin)/dashboard/tasklist",
+      link: "/(admin)/tasks?task_type=delayed",
     },
     {
       icon: "account-group",
@@ -123,7 +123,7 @@ const TaskDashboard: React.FC = () => {
       title: "Completed",
       value: stat?.completedTaskCount.toString() ?? "0",
       color: "#0F9D58",
-      link: "/(admin)/dashboard/tasklist",
+      link: "/(admin)/tasks?task_type=completed",
     },
     {
       icon: "format-list-bulleted",

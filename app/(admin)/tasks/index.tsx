@@ -57,6 +57,7 @@ const Tasks: React.FC = () => {
     { id: "delayed", label: "Delayed" },
     { id: "no_updates", label: "No Updates" },
     { id: "priority", label: "Priority" },
+    { id: "completed", label: "Completed" },
   ];
 
   const { data, refetch, isFetching } = useQuery({
