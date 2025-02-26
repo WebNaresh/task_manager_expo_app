@@ -68,10 +68,13 @@ const RelationshipManagersList = () => {
         }
       >
         {data.map((manager: any) => {
-          const progress = Math.floor(
-            (manager?.assignedTasks?.filter(
-              (task: any) => task?.status === "COMPLETED"
-            )?.length ?? 0 / manager?.assignedTasks?.length) * 100
+          const progress = Math.min(
+            Math.floor(
+              (manager?.assignedTasks?.filter(
+                (task: any) => task?.status === "COMPLETED"
+              )?.length ?? 0 / manager?.assignedTasks?.length) * 100
+            ),
+            100
           );
           return (
             <View key={manager.id} style={styles.managerCard}>
