@@ -13,12 +13,45 @@ import {
 } from "react-native";
 
 interface Task {
-  id: number;
+  id: string;
   title: string;
-  time: string;
-  assignee: string;
-  status: "In Progress" | "Pending" | "Completed";
-  statusColor: string;
+  description: string;
+  dueDate: string;
+  status: "PENDING" | "IN_PROGRESS" | "COMPLETED";
+  assignedById: string;
+  responsibleUserId: string;
+  clientId: string;
+  taskListId: string;
+  priorityId: string;
+  createdAt: string;
+  updatedAt: string;
+  client: {
+    id: string;
+    name: string;
+    email: string;
+    phone: string;
+    role: string;
+    disabled: boolean;
+    isActive: boolean;
+    createdAt: string;
+    updatedAt: string;
+  };
+  priority: {
+    id: string;
+    number: number;
+    color: string;
+    name: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+  taskList: {
+    id: string;
+    name: string;
+    description: string;
+    is_visible_to_rm: boolean;
+    createdAt: string;
+    updatedAt: string;
+  };
 }
 
 interface StatusCardProps {
@@ -31,33 +64,6 @@ interface StatusCardProps {
 interface TaskItemProps {
   task: Task;
 }
-
-const tasks: Task[] = [
-  {
-    id: 1,
-    title: "Client Portfolio Review",
-    time: "10:00 AM",
-    assignee: "John Smith",
-    status: "In Progress",
-    statusColor: "#4B6BFB",
-  },
-  {
-    id: 2,
-    title: "Investment Strategy Meeting",
-    time: "2:30 PM",
-    assignee: "John Smith",
-    status: "Pending",
-    statusColor: "#FB923C",
-  },
-  {
-    id: 3,
-    title: "Client Documentation Update",
-    time: "4:00 PM",
-    assignee: "John Smith",
-    status: "Completed",
-    statusColor: "#22C55E",
-  },
-];
 
 const TaskScreen: React.FC = () => {
   const { user } = useAuth();
@@ -75,6 +81,19 @@ const TaskScreen: React.FC = () => {
     },
     enabled: !!rm_id,
   });
+
+  const { data: tasks, isFetching: isFetchingTasks } = useQuery({
+    queryKey: ["manager-tasks"],
+    queryFn: async () => {
+      const response = await axios.get(`/api/v1/task/top3tasks/${rm_id}`);
+      console.log(`🚀 ~ response.data:`, response.data);
+
+      return response.data;
+    },
+    initialData: [],
+    enabled: !!rm_id,
+  });
+
   return (
     <ScrollView
       style={styles.container}
@@ -100,7 +119,7 @@ const TaskScreen: React.FC = () => {
       <Text style={styles.sectionTitle}>Today's Tasks</Text>
 
       <View style={styles.tasksList}>
-        {tasks.map((task) => (
+        {tasks.map((task: any) => (
           <TaskItem key={task.id} task={task} />
         ))}
       </View>
@@ -160,11 +179,14 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }) => (
   <View style={styles.taskItem}>
     <View style={styles.taskContent}>
       <View style={styles.dotContainer}>
-        <View style={styles.dot} />
+        <View style={[styles.dot, { backgroundColor: task.priority.color }]} />
       </View>
       <View style={styles.taskDetails}>
         <Text style={styles.taskTitle}>{task.title}</Text>
-        <Text style={styles.taskTime}>{task.time}</Text>
+        <Text style={styles.taskDescription}>{task.description}</Text>
+        <Text style={styles.taskTime}>
+          {new Date(task.dueDate).toLocaleDateString()}
+        </Text>
       </View>
       <View style={styles.taskRight}>
         <Image
@@ -173,13 +195,16 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }) => (
           }}
           style={styles.avatar}
         />
-        <Text style={styles.assigneeName}>{task.assignee}</Text>
+        <Text style={styles.assigneeName}>{task.client.name}</Text>
       </View>
     </View>
     <View
-      style={[styles.statusBadge, { backgroundColor: `${task.statusColor}20` }]}
+      style={[
+        styles.statusBadge,
+        { backgroundColor: `${task.priority.color}20` },
+      ]}
     >
-      <Text style={[styles.statusText, { color: task.statusColor }]}>
+      <Text style={[styles.statusText, { color: task.priority.color }]}>
         {task.status}
       </Text>
     </View>
@@ -268,6 +293,11 @@ const styles = StyleSheet.create({
   taskTitle: {
     fontSize: 16,
     fontWeight: "500",
+    marginBottom: 4,
+  },
+  taskDescription: {
+    fontSize: 14,
+    color: "#64748B",
     marginBottom: 4,
   },
   taskTime: {
