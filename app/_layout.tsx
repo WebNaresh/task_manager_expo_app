@@ -14,6 +14,7 @@ import { useColorScheme } from "@/components/useColorScheme";
 import { base_url } from "@/constants/config";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import axios from "axios";
+import { StatusBar } from "expo-status-bar";
 import { RootSiblingParent } from "react-native-root-siblings";
 
 export { ErrorBoundary } from "expo-router";
@@ -55,6 +56,11 @@ function RootLayoutNav() {
   return (
     <QueryClientProvider client={query_client}>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        <StatusBar
+          backgroundColor="transparent"
+          style={colorScheme === "dark" ? "light" : "dark"}
+          translucent
+        />
         <RootSiblingParent>
           <Stack>
             <Stack.Screen name="index" options={{ headerShown: false }} />
