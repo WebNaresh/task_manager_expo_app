@@ -124,7 +124,13 @@ export default function App() {
   };
 
   if (token !== null) {
-    return <Redirect href={"/(admin)/dashboard"} />;
+    console.log(`🚀 ~ user?.role:`, user?.role);
+
+    if (user?.role === "ADMIN") {
+      return <Redirect href={"/(admin)/dashboard"} />;
+    } else {
+      return <Redirect href="/(manager)/dashboard" />;
+    }
   }
 
   return (

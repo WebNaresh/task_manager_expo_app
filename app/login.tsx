@@ -43,8 +43,7 @@ const LoginScreen = () => {
       const response = await axios.post("/api/v1/auth/login", data);
       return response.data;
     },
-    async onSuccess(data, variables, context) {
-      console.log(`🚀 ~ data:`, data);
+    async onSuccess(data, _variables, _context) {
       await AsyncStorage.setItem("token", data.token);
 
       Toast.show(`Welcome, ${data?.name}`, {
@@ -79,10 +78,12 @@ const LoginScreen = () => {
   };
 
   if (token !== null) {
-    if (user?.role === "admin") {
+    console.log(`🚀 ~ user?.role:`, user?.role);
+
+    if (user?.role === "ADMIN") {
       return <Redirect href={"/(admin)/dashboard"} />;
     } else {
-      return <Redirect href="/(rm)/dashboard" />;
+      return <Redirect href="/(manager)/dashboard" />;
     }
   }
 
