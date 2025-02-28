@@ -9,7 +9,7 @@ import axios from "axios";
 import { useRouter } from "expo-router";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, useColorScheme } from "react-native";
 import Toast from "react-native-root-toast";
 import { z } from "zod";
 
@@ -27,6 +27,11 @@ const form_schema = z.object({
 type Form = z.infer<typeof form_schema>;
 
 const TaskListModal = () => {
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === "dark";
+  const backgroundColor = isDarkMode ? "#121212" : "#fff";
+  const textColor = isDarkMode ? "#fff" : "#000";
+
   const form = useForm<Form>({
     resolver: zodResolver(form_schema),
     mode: "onChange",
@@ -84,12 +89,10 @@ const TaskListModal = () => {
   return (
     <NBModal>
       <View
-        style={{
-          padding: 20,
-          backgroundColor: "white",
-          borderRadius: 10,
-          width: "100%",
-        }}
+        style={[
+          styles.container,
+          { backgroundColor, borderRadius: 10, width: "100%" },
+        ]}
       >
         <NBTextInput
           placeholder="Enter Name"
@@ -100,7 +103,7 @@ const TaskListModal = () => {
             <Feather
               name="list"
               size={24}
-              color="black"
+              color={textColor}
               style={{ marginRight: 10 }}
             />
           }
@@ -114,7 +117,7 @@ const TaskListModal = () => {
             <Feather
               name="align-left"
               size={24}
-              color="black"
+              color={textColor}
               style={{ marginRight: 10 }}
             />
           }
@@ -132,4 +135,8 @@ const TaskListModal = () => {
 
 export default TaskListModal;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+  },
+});

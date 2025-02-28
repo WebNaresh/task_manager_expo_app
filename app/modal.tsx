@@ -8,7 +8,7 @@ import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { router } from "expo-router";
 import { useForm } from "react-hook-form";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, useColorScheme } from "react-native";
 import Toast from "react-native-root-toast";
 import { z } from "zod";
 
@@ -26,6 +26,9 @@ const form_schema = z.object({
 type form_type = z.infer<typeof form_schema>;
 
 export default function PriorityForm() {
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === "dark";
+
   const form = useForm<form_type>({
     resolver: zodResolver(form_schema),
     defaultValues: {
@@ -53,7 +56,7 @@ export default function PriorityForm() {
         hideOnPress: true,
         backgroundColor: success_color,
       });
-      router.navigate("/(admin)/index");
+      router.back();
     },
     onError(error, variables, context) {
       console.log(`🚀 ~ error:`, error);
@@ -77,7 +80,7 @@ export default function PriorityForm() {
 
   return (
     <NBModal>
-      <View style={styles.container}>
+      <View style={[styles.container, isDarkMode && styles.containerDark]}>
         <NBTextInput
           name="name"
           form={form}
@@ -85,7 +88,7 @@ export default function PriorityForm() {
             <Ionicons
               name="flag-outline"
               size={20}
-              color="#666"
+              color={isDarkMode ? "#ccc" : "#666"}
               style={styles.icon}
             />
           }
@@ -100,7 +103,7 @@ export default function PriorityForm() {
             <Ionicons
               name="stats-chart-outline"
               size={20}
-              color="#666"
+              color={isDarkMode ? "#ccc" : "#666"}
               style={styles.icon}
             />
           }
@@ -114,7 +117,7 @@ export default function PriorityForm() {
             <Ionicons
               name="color-palette-outline"
               size={20}
-              color="#666"
+              color={isDarkMode ? "#ccc" : "#666"}
               style={styles.icon}
             />
           }
@@ -136,6 +139,9 @@ const styles = StyleSheet.create({
     width: "100%",
     padding: 20,
   },
+  containerDark: {
+    backgroundColor: "#121212",
+  },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -145,6 +151,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#e2e2e2",
   },
+  inputContainerDark: {
+    backgroundColor: "#444",
+  },
   icon: {
     padding: 10,
   },
@@ -153,6 +162,10 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingRight: 12,
     fontSize: 16,
+    color: "black",
+  },
+  inputDark: {
+    color: "white",
   },
   button: {
     backgroundColor: "#6366f1",

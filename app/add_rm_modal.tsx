@@ -9,7 +9,7 @@ import axios from "axios";
 import { useRouter } from "expo-router";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, useColorScheme, View } from "react-native";
 import Toast from "react-native-root-toast";
 import { z } from "zod";
 
@@ -32,10 +32,10 @@ const Modal = () => {
     reValidateMode: "onChange",
   });
   const router = useRouter();
-
   const queryClient = useQueryClient();
-
   const { handleSubmit } = form;
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === "dark";
 
   const onSubmit = (data: form_schema_types) => {
     console.log(data);
@@ -61,7 +61,7 @@ const Modal = () => {
         hideOnPress: true,
         backgroundColor: success_color,
       });
-      router.push("/(admin)/index/manager");
+      router.back();
     },
     onError(error, variables, context) {
       if (axios.isAxiosError(error)) {
@@ -80,8 +80,8 @@ const Modal = () => {
 
   return (
     <NBModal>
-      <View style={{ padding: 16 }}>
-        <Text style={{ fontSize: 24, fontWeight: "bold", marginBottom: 16 }}>
+      <View style={[styles.container, isDarkMode && styles.containerDark]}>
+        <Text style={[styles.title, isDarkMode && styles.titleDark]}>
           Add RM
         </Text>
         <NBTextInput
@@ -117,4 +117,21 @@ const Modal = () => {
 
 export default Modal;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  container: {
+    padding: 16,
+    backgroundColor: "white",
+  },
+  containerDark: {
+    backgroundColor: "black",
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 16,
+    color: "black",
+  },
+  titleDark: {
+    color: "white",
+  },
+});

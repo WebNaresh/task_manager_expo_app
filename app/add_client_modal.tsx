@@ -9,7 +9,7 @@ import axios from "axios";
 import { useRouter } from "expo-router";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, useColorScheme } from "react-native";
 import Toast from "react-native-root-toast";
 import { z } from "zod";
 
@@ -21,6 +21,11 @@ const form_schema = z.object({
 type form_type = z.infer<typeof form_schema>;
 
 const AddClientModal = () => {
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === "dark";
+  const backgroundColor = isDarkMode ? "#121212" : "#fff";
+  const textColor = isDarkMode ? "#fff" : "#000";
+
   const form = useForm<form_type>({
     resolver: zodResolver(form_schema),
     defaultValues: {
@@ -80,20 +85,20 @@ const AddClientModal = () => {
 
   return (
     <NBModal>
-      <View style={{ padding: 20 }}>
+      <View style={[styles.container, { backgroundColor }]}>
         <NBTextInput
           form={form}
           name="name"
           placeholder="Enter name"
           type="text"
-          icon={<Ionicons name="person" size={24} color="black" />}
+          icon={<Ionicons name="person" size={24} color={textColor} />}
         />
         <NBTextInput
           form={form}
           name="email"
           placeholder="Enter email"
           type="text"
-          icon={<Ionicons name="mail" size={24} color="black" />}
+          icon={<Ionicons name="mail" size={24} color={textColor} />}
         />
         <NBButton
           onPress={handleSubmit(onSubmit)}
@@ -107,4 +112,8 @@ const AddClientModal = () => {
 
 export default AddClientModal;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+  },
+});
