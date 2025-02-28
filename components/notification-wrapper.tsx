@@ -17,6 +17,8 @@ const NotificationWrapper = (props: Props) => {
         `/api/v1/auth/update-user-status/${user?.id}`,
         data
       );
+      console.log(`🚀 ~ response:`, response.data);
+
       return response.data;
     },
   });

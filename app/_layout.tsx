@@ -10,6 +10,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import "react-native-reanimated";
 
+import NotificationWrapper from "@/components/notification-wrapper";
 import { useColorScheme } from "@/components/useColorScheme";
 import { base_url } from "@/constants/config";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -56,56 +57,59 @@ function RootLayoutNav() {
   return (
     <QueryClientProvider client={query_client}>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <StatusBar
-          backgroundColor="transparent"
-          style={colorScheme === "dark" ? "light" : "dark"}
-          translucent
-        />
-        <RootSiblingParent>
-          <Stack>
-            <Stack.Screen name="index" options={{ headerShown: false }} />
-            <Stack.Screen name="login" options={{ headerShown: false }} />
-            <Stack.Screen name="(admin)" options={{ headerShown: false }} />
-            <Stack.Screen name="(manager)" options={{ headerShown: false }} />
+        <NotificationWrapper>
+          {" "}
+          <StatusBar
+            backgroundColor="transparent"
+            style={colorScheme === "dark" ? "light" : "dark"}
+            translucent
+          />
+          <RootSiblingParent>
+            <Stack>
+              <Stack.Screen name="index" options={{ headerShown: false }} />
+              <Stack.Screen name="login" options={{ headerShown: false }} />
+              <Stack.Screen name="(admin)" options={{ headerShown: false }} />
+              <Stack.Screen name="(manager)" options={{ headerShown: false }} />
 
-            <Stack.Screen
-              name="modal"
-              options={{
-                presentation: "transparentModal",
-                animation: "none", // Disable popping animation
-                animationTypeForReplace: "push", // Ensure no popping animation
-                headerShown: false,
-              }}
-            />
-            <Stack.Screen
-              name="add_rm_modal"
-              options={{
-                presentation: "transparentModal",
-                animation: "none", // Disable popping animation
-                animationTypeForReplace: "push", // Ensure no popping animation
-                headerShown: false,
-              }}
-            />
-            <Stack.Screen
-              name="add_client_modal"
-              options={{
-                presentation: "transparentModal",
-                animation: "none", // Disable popping animation
-                animationTypeForReplace: "push", // Ensure no popping animation
-                headerShown: false,
-              }}
-            />
-            <Stack.Screen
-              name="add_tasklist_modal"
-              options={{
-                presentation: "transparentModal",
-                animation: "none", // Disable popping animation
-                animationTypeForReplace: "push", // Ensure no popping animation
-                headerShown: false,
-              }}
-            />
-          </Stack>
-        </RootSiblingParent>
+              <Stack.Screen
+                name="modal"
+                options={{
+                  presentation: "transparentModal",
+                  animation: "none", // Disable popping animation
+                  animationTypeForReplace: "push", // Ensure no popping animation
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="add_rm_modal"
+                options={{
+                  presentation: "transparentModal",
+                  animation: "none", // Disable popping animation
+                  animationTypeForReplace: "push", // Ensure no popping animation
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="add_client_modal"
+                options={{
+                  presentation: "transparentModal",
+                  animation: "none", // Disable popping animation
+                  animationTypeForReplace: "push", // Ensure no popping animation
+                  headerShown: false,
+                }}
+              />
+              <Stack.Screen
+                name="add_tasklist_modal"
+                options={{
+                  presentation: "transparentModal",
+                  animation: "none", // Disable popping animation
+                  animationTypeForReplace: "push", // Ensure no popping animation
+                  headerShown: false,
+                }}
+              />
+            </Stack>
+          </RootSiblingParent>
+        </NotificationWrapper>
       </ThemeProvider>
     </QueryClientProvider>
   );
