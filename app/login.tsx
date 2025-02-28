@@ -10,7 +10,14 @@ import axios from "axios";
 import { Redirect, useRouter } from "expo-router";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  useColorScheme,
+} from "react-native";
 import Toast from "react-native-root-toast";
 import { z } from "zod";
 
@@ -22,6 +29,76 @@ const form_schema = z.object({
 type form_schema_types = z.infer<typeof form_schema>;
 
 const LoginScreen = () => {
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === "dark";
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: isDarkMode ? "#000000" : "#FFFFFF",
+    },
+    scrollContainer: {
+      flexGrow: 1,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    content: {
+      width: "100%",
+      paddingHorizontal: 24,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    logoContainer: {
+      marginBottom: 32,
+    },
+    logo: {
+      width: 80,
+      height: 80,
+      borderRadius: 20,
+      backgroundColor: primary_color,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    title: {
+      fontSize: 32,
+      fontWeight: "bold",
+      color: isDarkMode ? "#FFFFFF" : "#000000",
+      marginBottom: 8,
+    },
+    subtitle: {
+      fontSize: 16,
+      color: "#A0A0A0",
+      marginBottom: 48,
+    },
+    inputContainer: {
+      width: "100%",
+      gap: 16,
+      marginBottom: 16,
+    },
+    inputWrapper: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: isDarkMode ? "#333333" : "#F5F5F5",
+      borderRadius: 12,
+      paddingHorizontal: 16,
+      height: 56,
+    },
+    input: {
+      flex: 1,
+      fontSize: 16,
+      color: isDarkMode ? "#FFFFFF" : "#000000",
+      marginLeft: 12,
+    },
+    eyeIcon: {
+      padding: 4,
+    },
+    forgotPassword: {
+      color: primary_color,
+      fontSize: 14,
+      marginBottom: 24,
+    },
+  });
+
   const form = useForm<form_schema_types>({
     resolver: zodResolver(form_schema),
     defaultValues: {
@@ -140,72 +217,5 @@ const LoginScreen = () => {
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  content: {
-    width: "100%",
-    paddingHorizontal: 24,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logoContainer: {
-    marginBottom: 32,
-  },
-  logo: {
-    width: 80,
-    height: 80,
-    borderRadius: 20,
-    backgroundColor: primary_color,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: "#000000",
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "#A0A0A0",
-    marginBottom: 48,
-  },
-  inputContainer: {
-    width: "100%",
-    gap: 16,
-    marginBottom: 16,
-  },
-  inputWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#F5F5F5",
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    height: 56,
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    color: "#000000",
-    marginLeft: 12,
-  },
-  eyeIcon: {
-    padding: 4,
-  },
-  forgotPassword: {
-    color: primary_color,
-    fontSize: 14,
-    marginBottom: 24,
-  },
-});
 
 export default LoginScreen;

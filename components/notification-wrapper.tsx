@@ -1,5 +1,5 @@
 import useAuth from "@/hooks/useAuth";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import React from "react";
 import { AppState } from "react-native";
@@ -24,18 +24,22 @@ const NotificationWrapper = (props: Props) => {
   });
   const query_client = useQueryClient();
 
-  console.log(
-    `🚀 ~ file: _layout.tsx ~ line 158 ~ RootLayoutNav ~ colorScheme`,
-    AppState.addEventListener("change", (nextAppState) => {
-      console.log("App State: ", nextAppState);
-      if (nextAppState === "active") {
-        query_client.refetchQueries();
-        mutate({ isActive: true });
-      } else {
-        mutate({ isActive: false });
-      }
-    })
-  );
+  const { data: _data } = useQuery({
+    queryKey: ["user-status", user?.id],
+    queryFn: async () => {
+      AppState.addEventListener("change", (nextAppState) => {
+        console.log("App State: ", nextAppState);
+        if (nextAppState === "active") {
+          query_client.refetchQueries();
+          mutate({ isActive: true });
+        } else {
+          mutate({ isActive: false });
+        }
+      });
+      return { isActive: true };
+    },
+    enabled: !!user,
+  });
   return <>{props.children}</>;
 };
 
