@@ -7,11 +7,26 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  useColorScheme,
 } from "react-native";
 import { NBTextInputProps } from "../text-input";
 
 const NBDateInputField = (props: NBTextInputProps) => {
   const [show, setShow] = useState(false);
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === "dark";
+
+  const dynamicStyles = StyleSheet.create({
+    inputWrapper: {
+      backgroundColor: isDarkMode ? "#333333" : "#F5F5F5",
+    },
+    input: {
+      color: isDarkMode ? "#FFFFFF" : "#000000",
+    },
+    errorText: {
+      color: "red",
+    },
+  });
 
   const handleDateChange = (event: any, selectedDate: Date | undefined) => {
     setShow(false);
@@ -27,10 +42,10 @@ const NBDateInputField = (props: NBTextInputProps) => {
       render={({ field: { onChange, onBlur, value } }) => (
         <View style={styles.inputContainer}>
           <TouchableOpacity onPress={() => setShow(true)}>
-            <View style={styles.inputWrapper}>
+            <View style={[styles.inputWrapper, dynamicStyles.inputWrapper]}>
               {props.icon}
               <TextInput
-                style={styles.input}
+                style={[styles.input, dynamicStyles.input]}
                 placeholder={props.placeholder}
                 placeholderTextColor="#A0A0A0"
                 value={value}
@@ -51,16 +66,8 @@ const NBDateInputField = (props: NBTextInputProps) => {
               }}
             />
           )}
-          <View
-            style={{
-              flexDirection: "row",
-              height: "auto",
-              width: "100%",
-              overflow: "hidden",
-              marginHorizontal: 16,
-            }}
-          >
-            <Text style={styles.errorText}>
+          <View style={styles.errorContainer}>
+            <Text style={dynamicStyles.errorText}>
               {props.form.formState.errors[props.name]?.message?.toString()}
             </Text>
           </View>
@@ -79,7 +86,6 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F5F5F5",
     borderRadius: 12,
     paddingHorizontal: 16,
     height: 56,
@@ -87,11 +93,16 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    color: "#000000",
     marginLeft: 12,
   },
+  errorContainer: {
+    flexDirection: "row",
+    height: "auto",
+    width: "100%",
+    overflow: "hidden",
+    marginHorizontal: 16,
+  },
   errorText: {
-    color: "red",
     fontSize: 12,
     marginTop: 4,
     height: 20,

@@ -8,6 +8,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  useColorScheme,
 } from "react-native";
 import { NBTextInputProps } from "../text-input";
 
@@ -29,6 +30,32 @@ const COLORS = [
 const NBColorInput = (props: NBTextInputProps) => {
   const [selectedColor, setSelectedColor] = useState("#4B6BFB");
   const [modalVisible, setModalVisible] = useState(false);
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === "dark";
+
+  const dynamicStyles = StyleSheet.create({
+    inputWrapper: {
+      backgroundColor: isDarkMode ? "#333333" : "#F5F5F5",
+    },
+    input: {
+      color: isDarkMode ? "#FFFFFF" : "#000000",
+    },
+    errorText: {
+      color: "red",
+    },
+    modalContent: {
+      backgroundColor: isDarkMode ? "#333333" : "white",
+    },
+    modalTitle: {
+      color: isDarkMode ? "#FFFFFF" : "#000000",
+    },
+    confirmButton: {
+      backgroundColor: isDarkMode ? "#4B6BFB" : "#4B6BFB",
+    },
+    confirmText: {
+      color: isDarkMode ? "#FFFFFF" : "#FFFFFF",
+    },
+  });
 
   const handleColorSelect = (color: string, onChange: any) => {
     setSelectedColor(color);
@@ -41,10 +68,10 @@ const NBColorInput = (props: NBTextInputProps) => {
       control={props.form.control}
       render={({ field: { onChange, onBlur, value } }) => (
         <View style={styles.inputContainer}>
-          <View style={styles.inputWrapper}>
+          <View style={[styles.inputWrapper, dynamicStyles.inputWrapper]}>
             {props.icon}
             <TextInput
-              style={styles.input}
+              style={[styles.input, dynamicStyles.input]}
               placeholder={props.placeholder}
               placeholderTextColor="#A0A0A0"
               value={value}
@@ -62,7 +89,7 @@ const NBColorInput = (props: NBTextInputProps) => {
             />
           </View>
           <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>
+            <Text style={dynamicStyles.errorText}>
               {props.form.formState.errors[props.name]?.message?.toString()}
             </Text>
           </View>
@@ -72,8 +99,10 @@ const NBColorInput = (props: NBTextInputProps) => {
               style={styles.modalOverlay}
               onPress={() => setModalVisible(false)}
             >
-              <View style={styles.modalContent}>
-                <Text style={styles.modalTitle}>Select profile color</Text>
+              <View style={[styles.modalContent, dynamicStyles.modalContent]}>
+                <Text style={[styles.modalTitle, dynamicStyles.modalTitle]}>
+                  Select profile color
+                </Text>
 
                 <View style={styles.previewContainer}>
                   <View
@@ -97,13 +126,15 @@ const NBColorInput = (props: NBTextInputProps) => {
                 </View>
 
                 <TouchableOpacity
-                  style={styles.confirmButton}
+                  style={[styles.confirmButton, dynamicStyles.confirmButton]}
                   onPress={() => {
                     onChange(selectedColor);
                     setModalVisible(false);
                   }}
                 >
-                  <Text style={styles.confirmText}>Confirm</Text>
+                  <Text style={[styles.confirmText, dynamicStyles.confirmText]}>
+                    Confirm
+                  </Text>
                 </TouchableOpacity>
               </View>
             </Pressable>
@@ -123,7 +154,6 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F5F5F5",
     borderRadius: 12,
     paddingHorizontal: 16,
     height: 56,
@@ -131,7 +161,6 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    color: "#000000",
     marginLeft: 12,
   },
   colorPreview: {
@@ -148,7 +177,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
   },
   errorText: {
-    color: "red",
     fontSize: 12,
     marginTop: 4,
     height: 20,
@@ -159,7 +187,6 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   modalContent: {
-    backgroundColor: "white",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
@@ -200,13 +227,11 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   confirmButton: {
-    backgroundColor: "#4B6BFB",
     borderRadius: 12,
     padding: 16,
     alignItems: "center",
   },
   confirmText: {
-    color: "white",
     fontSize: 16,
     fontWeight: "600",
   },

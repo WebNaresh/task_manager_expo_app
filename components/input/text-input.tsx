@@ -1,6 +1,12 @@
 import React from "react";
 import { Controller, UseFormReturn } from "react-hook-form";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  useColorScheme,
+} from "react-native";
 import NBColorInput from "./_components/color-input";
 import NBDateInputField from "./_components/date-input"; // Import the new date input component
 import NBPasswordInputField from "./_components/password-input";
@@ -19,6 +25,21 @@ export type NBTextInputProps = {
 };
 
 const NBTextInput = (props: NBTextInputProps) => {
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === "dark";
+
+  const dynamicStyles = StyleSheet.create({
+    inputWrapper: {
+      backgroundColor: isDarkMode ? "#333333" : "#F5F5F5",
+    },
+    input: {
+      color: isDarkMode ? "#FFFFFF" : "#000000",
+    },
+    errorText: {
+      color: "red",
+    },
+  });
+
   if (props.type === "password") {
     return <NBPasswordInputField {...props} />;
   }
@@ -48,10 +69,10 @@ const NBTextInput = (props: NBTextInputProps) => {
       control={props.form.control}
       render={({ field: { onChange, onBlur, value } }) => (
         <View style={styles.inputContainer}>
-          <View style={styles.inputWrapper}>
+          <View style={[styles.inputWrapper, dynamicStyles.inputWrapper]}>
             {props.icon}
             <TextInput
-              style={styles.input}
+              style={[styles.input, dynamicStyles.input]}
               placeholder={props.placeholder}
               placeholderTextColor="#A0A0A0"
               value={value}
@@ -61,16 +82,8 @@ const NBTextInput = (props: NBTextInputProps) => {
               autoCapitalize={props.autoCapitalize} // Ensure autoCapitalize is passed
             />
           </View>
-          <View
-            style={{
-              flexDirection: "row",
-              height: "auto",
-              width: "100%",
-              overflow: "hidden",
-              marginHorizontal: 16,
-            }}
-          >
-            <Text style={styles.errorText}>
+          <View style={styles.errorContainer}>
+            <Text style={dynamicStyles.errorText}>
               {props.form.formState.errors[props.name]?.message?.toString()}
             </Text>
           </View>
@@ -89,7 +102,6 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F5F5F5",
     borderRadius: 12,
     paddingHorizontal: 16,
     height: 56,
@@ -97,11 +109,16 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    color: "#000000",
     marginLeft: 12,
   },
+  errorContainer: {
+    flexDirection: "row",
+    height: "auto",
+    width: "100%",
+    overflow: "hidden",
+    marginHorizontal: 16,
+  },
   errorText: {
-    color: "red",
     fontSize: 12,
     marginTop: 4,
     height: 20,

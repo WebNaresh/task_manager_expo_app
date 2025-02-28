@@ -1,16 +1,37 @@
 import React from "react";
 import { Controller } from "react-hook-form";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+  useColorScheme,
+} from "react-native";
 import { NBTextInputProps } from "../text-input";
 
 const NBTextAreaInputField = (props: NBTextInputProps) => {
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === "dark";
+
+  const dynamicStyles = StyleSheet.create({
+    inputWrapper: {
+      backgroundColor: isDarkMode ? "#333333" : "#F5F5F5",
+    },
+    input: {
+      color: isDarkMode ? "#FFFFFF" : "#000000",
+    },
+    errorText: {
+      color: "red",
+    },
+  });
+
   return (
     <Controller
       name={props.name}
       control={props.form.control}
       render={({ field: { onChange, onBlur, value } }) => (
         <View style={styles.inputContainer}>
-          <View style={styles.inputWrapper}>
+          <View style={[styles.inputWrapper, dynamicStyles.inputWrapper]}>
             <View
               style={{
                 paddingTop: 8,
@@ -19,7 +40,7 @@ const NBTextAreaInputField = (props: NBTextInputProps) => {
               {props.icon}
             </View>
             <TextInput
-              style={styles.input}
+              style={[styles.input, dynamicStyles.input]}
               placeholder={props.placeholder}
               placeholderTextColor="#A0A0A0"
               value={value}
@@ -29,16 +50,8 @@ const NBTextAreaInputField = (props: NBTextInputProps) => {
               numberOfLines={8}
             />
           </View>
-          <View
-            style={{
-              flexDirection: "row",
-              height: "auto",
-              width: "100%",
-              overflow: "hidden",
-              marginHorizontal: 16,
-            }}
-          >
-            <Text style={styles.errorText}>
+          <View style={styles.errorContainer}>
+            <Text style={dynamicStyles.errorText}>
               {props.form.formState.errors[props.name]?.message?.toString()}
             </Text>
           </View>
@@ -57,7 +70,6 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: "row",
     alignItems: "flex-start",
-    backgroundColor: "#F5F5F5",
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 8,
@@ -65,13 +77,18 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    color: "#000000",
     marginLeft: 12,
     textAlignVertical: "top",
     height: 100,
   },
+  errorContainer: {
+    flexDirection: "row",
+    height: "auto",
+    width: "100%",
+    overflow: "hidden",
+    marginHorizontal: 16,
+  },
   errorText: {
-    color: "red",
     fontSize: 12,
     marginTop: 4,
     height: 20,

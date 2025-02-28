@@ -9,7 +9,12 @@ import axios, { isAxiosError } from "axios";
 import { useRouter } from "expo-router";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { RefreshControl, ScrollView, StyleSheet } from "react-native";
+import {
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  useColorScheme,
+} from "react-native";
 import Toast from "react-native-root-toast";
 import { z } from "zod";
 
@@ -59,6 +64,9 @@ type Props = {
 };
 
 const AddTaskForm = (props: Props) => {
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === "dark";
+
   const form = useForm<Form>({
     resolver: zodResolver(form_schema),
     defaultValues: {
@@ -123,7 +131,10 @@ const AddTaskForm = (props: Props) => {
 
   return (
     <ScrollView
-      contentContainerStyle={{ paddingBottom: 26 }}
+      contentContainerStyle={[
+        { paddingBottom: 26 },
+        isDarkMode && styles.darkContainer,
+      ]}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
@@ -133,21 +144,39 @@ const AddTaskForm = (props: Props) => {
         name="title"
         placeholder="Enter task title"
         type="text"
-        icon={<Feather name="clipboard" size={24} color="black" />}
+        icon={
+          <Feather
+            name="clipboard"
+            size={24}
+            color={isDarkMode ? "white" : "black"}
+          />
+        }
       />
       <NBTextInput
         form={form}
         name="description"
         placeholder="Enter description"
         type="textarea"
-        icon={<Feather name="file-text" size={24} color="black" />}
+        icon={
+          <Feather
+            name="file-text"
+            size={24}
+            color={isDarkMode ? "white" : "black"}
+          />
+        }
       />
       <NBTextInput
         form={form}
         name="taskListId"
         placeholder="Enter tasklist"
         type="select"
-        icon={<Feather name="list" size={24} color="black" />}
+        icon={
+          <Feather
+            name="list"
+            size={24}
+            color={isDarkMode ? "white" : "black"}
+          />
+        }
         options={props.tasklists.map((tasklist) => ({
           label: tasklist.name,
           value: tasklist.id,
@@ -158,14 +187,26 @@ const AddTaskForm = (props: Props) => {
         name="dueDate"
         placeholder="Enter due date"
         type="date"
-        icon={<Feather name="calendar" size={24} color="black" />}
+        icon={
+          <Feather
+            name="calendar"
+            size={24}
+            color={isDarkMode ? "white" : "black"}
+          />
+        }
       />
       <NBTextInput
         form={form}
         name="responsibleUserId"
         placeholder="Enter assigned RM"
         type="select"
-        icon={<Feather name="user" size={24} color="black" />}
+        icon={
+          <Feather
+            name="user"
+            size={24}
+            color={isDarkMode ? "white" : "black"}
+          />
+        }
         options={props.managers.map((manager) => ({
           label: manager.name,
           value: manager.id,
@@ -176,7 +217,13 @@ const AddTaskForm = (props: Props) => {
         name="clientId"
         placeholder="Enter client"
         type="select"
-        icon={<Feather name="briefcase" size={24} color="black" />}
+        icon={
+          <Feather
+            name="briefcase"
+            size={24}
+            color={isDarkMode ? "white" : "black"}
+          />
+        }
         options={props.clients.map((client) => ({
           label: client.name,
           value: client.id,
@@ -187,7 +234,13 @@ const AddTaskForm = (props: Props) => {
         name="priorityId"
         placeholder="Enter priority"
         type="select"
-        icon={<Feather name="star" size={24} color="black" />}
+        icon={
+          <Feather
+            name="star"
+            size={24}
+            color={isDarkMode ? "white" : "black"}
+          />
+        }
         options={props.priorities.map((priority) => ({
           label: priority.name,
           value: priority.id,
@@ -205,4 +258,8 @@ const AddTaskForm = (props: Props) => {
 
 export default AddTaskForm;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  darkContainer: {
+    backgroundColor: "#000",
+  },
+});

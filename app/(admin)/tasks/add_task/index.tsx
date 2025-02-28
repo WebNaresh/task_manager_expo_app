@@ -4,10 +4,13 @@ import useAuth from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import React from "react";
-import { ScrollView, StyleSheet, Task } from "react-native";
+import { ScrollView, StyleSheet, Task, useColorScheme } from "react-native";
 import { PriorityData } from "../../dashboard";
 
 export default function TaskCreateScreen() {
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === "dark";
+
   const { data: tasklists, isFetching: isTaskListFetching } = useQuery({
     queryKey: ["tasklist"],
     queryFn: async () => {
@@ -47,7 +50,7 @@ export default function TaskCreateScreen() {
   });
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={[styles.container, isDarkMode && styles.darkContainer]}>
       {(isClientFetching ||
         isManagerFetching ||
         isTaskListFetching ||
@@ -72,5 +75,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     padding: 16,
+  },
+  darkContainer: {
+    backgroundColor: "#000",
   },
 });

@@ -8,6 +8,7 @@ import {
   StyleSheet,
   View,
   type ViewStyle,
+  useColorScheme,
 } from "react-native";
 
 const { width } = Dimensions.get("window");
@@ -19,6 +20,8 @@ interface SkeletonItemProps {
 }
 
 const TaskCreateScreenSkeleton: React.FC = () => {
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === "dark";
   const shimmerAnimation = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -50,7 +53,9 @@ const TaskCreateScreenSkeleton: React.FC = () => {
 
     return {
       transform: [{ translateX }],
-      backgroundColor: "rgba(255, 255, 255, 0.5)",
+      backgroundColor: isDarkMode
+        ? "rgba(255, 255, 255, 0.2)"
+        : "rgba(255, 255, 255, 0.5)",
     };
   };
 
@@ -64,7 +69,7 @@ const TaskCreateScreenSkeleton: React.FC = () => {
   );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, isDarkMode && styles.darkContainer]}>
       <SkeletonItem height={40} width={width} marginBottom={16} />
       <SkeletonItem height={100} width={width} marginBottom={16} />
       <SkeletonItem height={50} width={width} marginBottom={16} />
@@ -83,6 +88,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     padding: 16,
     width: "100%",
+  },
+  darkContainer: {
+    backgroundColor: "#000",
   },
   skeletonItem: {
     backgroundColor: "#E1E9EE",
