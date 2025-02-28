@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "TaskGo",
-    "slug": "TaskGo",
+    "name": "app-v2",
+    "slug": "app-v2",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
