@@ -4,7 +4,7 @@ import NBModal from "@/components/ui/modal";
 import { error_color, success_color } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { router, useGlobalSearchParams } from "expo-router";
 import { useForm } from "react-hook-form";
@@ -27,18 +27,20 @@ type form_type = z.infer<typeof form_schema>;
 
 export default function UpdatePriorityFrom() {
   const colorScheme = useColorScheme();
+  const query_client = useQueryClient();
   const isDarkMode = colorScheme === "dark";
   const params = useGlobalSearchParams<{
     number: string;
     color: string;
     name: string;
+    priority_id: string;
   }>();
   console.log(`🚀 ~ params:`, params);
 
   const form = useForm<form_type>({
     resolver: zodResolver(form_schema),
     defaultValues: {
-      number: params.number ? parseInt(params.number, 10) : 0,
+      number: (params.number as any) ?? 0,
       color: params.color ?? "",
       name: params.name ?? "",
     },
@@ -49,11 +51,16 @@ export default function UpdatePriorityFrom() {
 
   const mutation = useMutation({
     mutationFn: async (data: form_type) => {
-      const response = await axios.post("/api/v1/priority", data);
-      console.log(`🚀 ~ response:`, response);
+      const response = await axios.patch(
+        `/api/v1/priority/${params.priority_id}`,
+        data
+      );
       return response.data;
     },
-    onSuccess(data, variables, context) {
+    async onSuccess(data, variables, context) {
+      await query_client.invalidateQueries({
+        queryKey: ["priority"],
+      });
       Toast.show(`Priority added`, {
         duration: Toast.durations.LONG,
         position: Toast.positions.TOP,
@@ -67,6 +74,11 @@ export default function UpdatePriorityFrom() {
     onError(error, variables, context) {
       console.log(`🚀 ~ error:`, error);
       if (axios.isAxiosError(error)) {
+        console.log(
+          `🚀 ~ error.response?.data.message:`,
+          error.response?.data.message
+        );
+
         Toast.show(error.response?.data.message, {
           duration: Toast.durations.LONG,
           position: Toast.positions.TOP,
@@ -133,7 +145,7 @@ export default function UpdatePriorityFrom() {
         <NBButton
           onPress={handleSubmit(onSubmit)}
           isPending={mutation.isPending}
-          text="Add Priority"
+          text="Update Priority"
         />
       </View>
     </NBModal>
