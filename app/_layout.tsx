@@ -15,6 +15,7 @@ import { base_url } from "@/constants/config";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import axios from "axios";
 import { StatusBar } from "expo-status-bar";
+import { AppState } from "react-native";
 import { RootSiblingParent } from "react-native-root-siblings";
 
 export { ErrorBoundary } from "expo-router";
@@ -52,6 +53,13 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
   const query_client = new QueryClient();
   axios.defaults.baseURL = base_url;
+
+  console.log(
+    `🚀 ~ file: _layout.tsx ~ line 158 ~ RootLayoutNav ~ colorScheme`,
+    AppState.addEventListener("change", (nextAppState) => {
+      console.log("App State: ", nextAppState);
+    })
+  );
 
   return (
     <QueryClientProvider client={query_client}>
