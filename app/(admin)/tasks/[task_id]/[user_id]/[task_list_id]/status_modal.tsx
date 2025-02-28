@@ -10,7 +10,13 @@ import axios from "axios";
 import { router, useLocalSearchParams } from "expo-router";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
+import {
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  View,
+  useColorScheme,
+} from "react-native";
 import Toast from "react-native-root-toast";
 import { z } from "zod";
 
@@ -43,13 +49,16 @@ const RemarkModal = () => {
   });
   console.log(`🚀 ~ data:`, data);
 
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === "dark";
+
   return (
     <NBModal>
       <ScrollView
         refreshControl={
           <RefreshControl refreshing={isFetching} onRefresh={refetch} />
         }
-        style={{ padding: 20 }}
+        style={[styles.container, isDarkMode && styles.containerDark]}
       >
         <InputForm task_list_id={task_list_id} task_id={task_id} data={data} />
       </ScrollView>
@@ -139,7 +148,7 @@ const InputForm = ({
       />
 
       <NBButton
-        text="Add Remark"
+        text="Update List"
         onPress={onSubmit}
         isPending={form.formState.isSubmitting || isPending}
         isDisabled={!isDirty}
@@ -150,4 +159,12 @@ const InputForm = ({
 
 export default RemarkModal;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+    backgroundColor: "white",
+  },
+  containerDark: {
+    backgroundColor: "black",
+  },
+});

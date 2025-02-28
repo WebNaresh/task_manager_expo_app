@@ -14,6 +14,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  useColorScheme,
 } from "react-native";
 import Toast from "react-native-root-toast";
 
@@ -70,6 +71,8 @@ interface TaskListChange {
 const TaskDetailScreen: React.FC = () => {
   const { task_id: taskId } = useLocalSearchParams<{ task_id: string }>();
   const queryClient = useQueryClient();
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === "dark";
   const {
     data: task,
     isFetching: loading,
@@ -136,8 +139,12 @@ const TaskDetailScreen: React.FC = () => {
 
   if (error) {
     return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>Something went wrong</Text>
+      <View
+        style={[styles.errorContainer, isDarkMode && styles.errorContainerDark]}
+      >
+        <Text style={[styles.errorText, isDarkMode && styles.errorTextDark]}>
+          Something went wrong
+        </Text>
         <TouchableOpacity style={styles.retryButton} onPress={() => retry()}>
           <Text style={styles.retryButtonText}>Retry</Text>
         </TouchableOpacity>
@@ -146,19 +153,31 @@ const TaskDetailScreen: React.FC = () => {
   }
 
   if (!task) {
-    return <Text>No task data available.</Text>;
+    return (
+      <Text style={[styles.noTaskText, isDarkMode && styles.noTaskTextDark]}>
+        No task data available.
+      </Text>
+    );
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>{task.title}</Text>
+    <ScrollView style={[styles.container, isDarkMode && styles.containerDark]}>
+      <View style={[styles.header, isDarkMode && styles.headerDark]}>
+        <Text style={[styles.title, isDarkMode && styles.titleDark]}>
+          {task.title}
+        </Text>
         <View
           style={[
             styles.statusTag,
             {
               backgroundColor:
-                task.status === "PENDING" ? "#FFF9E7" : "#E8F5E9",
+                task.status === "PENDING"
+                  ? isDarkMode
+                    ? "#4A4A4A"
+                    : "#FFF9E7"
+                  : isDarkMode
+                  ? "#2E7D32"
+                  : "#E8F5E9",
             },
           ]}
         >
@@ -173,13 +192,25 @@ const TaskDetailScreen: React.FC = () => {
         </View>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Description</Text>
-        <Text style={styles.description}>{task.description}</Text>
+      <View style={[styles.section, isDarkMode && styles.sectionDark]}>
+        <Text
+          style={[styles.sectionTitle, isDarkMode && styles.sectionTitleDark]}
+        >
+          Description
+        </Text>
+        <Text
+          style={[styles.description, isDarkMode && styles.descriptionDark]}
+        >
+          {task.description}
+        </Text>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Priority</Text>
+      <View style={[styles.section, isDarkMode && styles.sectionDark]}>
+        <Text
+          style={[styles.sectionTitle, isDarkMode && styles.sectionTitleDark]}
+        >
+          Priority
+        </Text>
         <View
           style={[styles.priorityTag, { backgroundColor: task.priority.color }]}
         >
@@ -187,62 +218,107 @@ const TaskDetailScreen: React.FC = () => {
         </View>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Due Date</Text>
+      <View style={[styles.section, isDarkMode && styles.sectionDark]}>
+        <Text
+          style={[styles.sectionTitle, isDarkMode && styles.sectionTitleDark]}
+        >
+          Due Date
+        </Text>
         <View style={styles.infoRow}>
           <Feather name="calendar" size={16} color="#666" />
-          <Text style={styles.infoText}>{formatDate(task.dueDate)}</Text>
+          <Text style={[styles.infoText, isDarkMode && styles.infoTextDark]}>
+            {formatDate(task.dueDate)}
+          </Text>
         </View>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Responsible User</Text>
+      <View style={[styles.section, isDarkMode && styles.sectionDark]}>
+        <Text
+          style={[styles.sectionTitle, isDarkMode && styles.sectionTitleDark]}
+        >
+          Responsible User
+        </Text>
         <View style={styles.infoRow}>
           <Feather name="user" size={16} color="#666" />
-          <Text style={styles.infoText}>{task.responsibleUser.name}</Text>
+          <Text style={[styles.infoText, isDarkMode && styles.infoTextDark]}>
+            {task.responsibleUser.name}
+          </Text>
         </View>
         <View style={styles.infoRow}>
           <Feather name="mail" size={16} color="#666" />
-          <Text style={styles.infoText}>{task.responsibleUser.email}</Text>
+          <Text style={[styles.infoText, isDarkMode && styles.infoTextDark]}>
+            {task.responsibleUser.email}
+          </Text>
         </View>
         <View style={styles.infoRow}>
           <Feather name="briefcase" size={16} color="#666" />
-          <Text style={styles.infoText}>{task.responsibleUser.role}</Text>
+          <Text style={[styles.infoText, isDarkMode && styles.infoTextDark]}>
+            {task.responsibleUser.role}
+          </Text>
         </View>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Task List</Text>
-        <Text style={styles.infoText}>{task.taskList.name}</Text>
-        <Text style={styles.description}>{task.taskList.description}</Text>
+      <View style={[styles.section, isDarkMode && styles.sectionDark]}>
+        <Text
+          style={[styles.sectionTitle, isDarkMode && styles.sectionTitleDark]}
+        >
+          Task List
+        </Text>
+        <Text style={[styles.infoText, isDarkMode && styles.infoTextDark]}>
+          {task.taskList.name}
+        </Text>
+        <Text
+          style={[styles.description, isDarkMode && styles.descriptionDark]}
+        >
+          {task.taskList.description}
+        </Text>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Additional Information</Text>
+      <View style={[styles.section, isDarkMode && styles.sectionDark]}>
+        <Text
+          style={[styles.sectionTitle, isDarkMode && styles.sectionTitleDark]}
+        >
+          Additional Information
+        </Text>
         <View style={styles.infoRow}>
           <Feather name="hash" size={16} color="#666" />
-          <Text style={styles.infoText}>Task ID: {task.id}</Text>
+          <Text style={[styles.infoText, isDarkMode && styles.infoTextDark]}>
+            Task ID: {task.id}
+          </Text>
         </View>
         <View style={styles.infoRow}>
           <Feather name="clock" size={16} color="#666" />
-          <Text style={styles.infoText}>
+          <Text style={[styles.infoText, isDarkMode && styles.infoTextDark]}>
             Created: {formatDate(task.createdAt)}
           </Text>
         </View>
         <View style={styles.infoRow}>
           <Feather name="edit" size={16} color="#666" />
-          <Text style={styles.infoText}>
+          <Text style={[styles.infoText, isDarkMode && styles.infoTextDark]}>
             Updated: {formatDate(task.updatedAt)}
           </Text>
         </View>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Task List Changes</Text>
+      <View style={[styles.section, isDarkMode && styles.sectionDark]}>
+        <Text
+          style={[styles.sectionTitle, isDarkMode && styles.sectionTitleDark]}
+        >
+          Task List Changes
+        </Text>
         {task.taskListChanges.map((change: any) => (
           <View key={change.id} style={styles.changeItem}>
-            <Text style={styles.changeDescription}>{change.description}</Text>
-            <Text style={styles.changeInfo}>
+            <Text
+              style={[
+                styles.changeDescription,
+                isDarkMode && styles.changeDescriptionDark,
+              ]}
+            >
+              {change.description}
+            </Text>
+            <Text
+              style={[styles.changeInfo, isDarkMode && styles.changeInfoDark]}
+            >
               {change.type} - {new Date(change.changedAt).toLocaleString()}
             </Text>
           </View>
@@ -358,17 +434,27 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f5f5f5",
   },
+  containerDark: {
+    backgroundColor: "#121212",
+  },
   header: {
     backgroundColor: "#fff",
     padding: 20,
     borderBottomWidth: 1,
     borderBottomColor: "#e0e0e0",
   },
+  headerDark: {
+    backgroundColor: "#1E1E1E",
+    borderBottomColor: "#333",
+  },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     color: "#333",
     marginBottom: 10,
+  },
+  titleDark: {
+    color: "#fff",
   },
   statusTag: {
     alignSelf: "flex-start",
@@ -386,16 +472,25 @@ const styles = StyleSheet.create({
     marginTop: 10,
     borderRadius: 8,
   },
+  sectionDark: {
+    backgroundColor: "#1E1E1E",
+  },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "600",
     color: "#333",
     marginBottom: 10,
   },
+  sectionTitleDark: {
+    color: "#fff",
+  },
   description: {
     fontSize: 16,
     color: "#666",
     lineHeight: 24,
+  },
+  descriptionDark: {
+    color: "#ccc",
   },
   priorityTag: {
     alignSelf: "flex-start",
@@ -417,6 +512,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#333",
     marginLeft: 10,
+  },
+  infoTextDark: {
+    color: "#ccc",
   },
   actionButtons: {
     flexDirection: "row",
@@ -454,11 +552,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 20,
   },
+  errorContainerDark: {
+    backgroundColor: "#121212",
+  },
   errorText: {
     fontSize: 18,
     color: "#ff0000",
     textAlign: "center",
     marginBottom: 20,
+  },
+  errorTextDark: {
+    color: "#ff6666",
   },
   retryButton: {
     backgroundColor: "#2196F3",
@@ -471,15 +575,28 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
+  noTaskText: {
+    fontSize: 16,
+    color: "#333",
+  },
+  noTaskTextDark: {
+    color: "#ccc",
+  },
   changeItem: {
     marginBottom: 12,
   },
   changeDescription: {
     fontSize: 16,
   },
+  changeDescriptionDark: {
+    color: "#ccc",
+  },
   changeInfo: {
     fontSize: 14,
     color: "#666",
+  },
+  changeInfoDark: {
+    color: "#999",
   },
 });
 

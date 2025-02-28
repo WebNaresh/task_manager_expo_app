@@ -9,7 +9,7 @@ import axios from "axios";
 import { router, useLocalSearchParams } from "expo-router";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, useColorScheme } from "react-native";
 import Toast from "react-native-root-toast";
 import { z } from "zod";
 
@@ -81,19 +81,29 @@ const RemarkModal = () => {
     },
   });
 
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === "dark";
+
   return (
     <NBModal>
       <View
-        style={{
-          padding: 20,
-        }}
+        style={[
+          styles.container,
+          { backgroundColor: isDarkMode ? "#121212" : "#fff" },
+        ]}
       >
         <NBTextInput
           type="textarea"
           placeholder="Type your remark here"
           form={form}
           name="description"
-          icon={<Feather name="message-circle" size={24} color="black" />}
+          icon={
+            <Feather
+              name="message-circle"
+              size={24}
+              color={isDarkMode ? "white" : "black"}
+            />
+          }
         />
         <NBButton
           text="Add Remark"
@@ -107,4 +117,8 @@ const RemarkModal = () => {
 
 export default RemarkModal;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+  },
+});
