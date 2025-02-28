@@ -132,9 +132,6 @@ export default function ProfileSetup() {
 
   const { mutate } = useMutation({
     mutationFn: async (data: FormValues) => {
-      await query_client.invalidateQueries({
-        queryKey: ["token"],
-      });
       let body = {};
       if (data.password && data.password.length > 0) {
         body = {
@@ -157,6 +154,9 @@ export default function ProfileSetup() {
     },
     async onSuccess(data, variables, context) {
       await AsyncStorage.setItem("token", data.token);
+      await query_client.invalidateQueries({
+        queryKey: ["token"],
+      });
 
       Toast.show(data?.message, {
         duration: Toast.durations.LONG,
