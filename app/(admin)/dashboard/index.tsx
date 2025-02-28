@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { Href, Link } from "expo-router";
+import { type Href, Link } from "expo-router";
 import type React from "react";
 import {
   ActivityIndicator,
@@ -10,6 +10,7 @@ import {
   StyleSheet,
   Text,
   View,
+  useColorScheme,
 } from "react-native";
 
 interface StatCardProps {
@@ -24,6 +25,7 @@ interface PriorityItemProps {
   name: string;
   color: string;
   number: number;
+  id: string; // Add id for identifying which priority to edit
 }
 
 export interface PriorityData {
@@ -51,27 +53,87 @@ const StatCard: React.FC<StatCardProps> = ({
   value,
   color,
   link,
-}) => (
-  <Link href={link as any} style={[styles.card, { backgroundColor: "white" }]}>
-    <View style={[]}>
-      <MaterialCommunityIcons name={icon} size={24} color={color} />
-      <Text style={styles.value}>{value}</Text>
-      <Text style={styles.title}>{title}</Text>
+}) => {
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === "dark";
+
+  return (
+    <Link
+      href={link as any}
+      style={[styles.card, isDarkMode && styles.cardDark]}
+    >
+      <View style={[]}>
+        <MaterialCommunityIcons name={icon} size={24} color={color} />
+        <Text style={[styles.value, isDarkMode && styles.valueDark]}>
+          {value}
+        </Text>
+        <Text style={[styles.title, isDarkMode && styles.titleDark]}>
+          {title}
+        </Text>
+      </View>
+    </Link>
+  );
+};
+
+const PriorityItem: React.FC<PriorityItemProps> = ({
+  name,
+  color,
+  number,
+  id,
+}) => {
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === "dark";
+
+  return (
+    <View style={[styles.priorityRow, isDarkMode && styles.priorityRowDark]}>
+      <Text
+        style={[styles.priorityName, isDarkMode && styles.priorityNameDark]}
+      >
+        {name}
+      </Text>
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          gap: 12,
+        }}
+      >
+        <View style={styles.colorSection}>
+          <View style={[styles.colorBar, { backgroundColor: color }]} />
+        </View>
+        <Text
+          style={[
+            styles.priorityNumber,
+            isDarkMode && styles.priorityNumberDark,
+          ]}
+        >
+          {number}
+        </Text>
+      </View>
+
+      <Link
+        href={
+          {
+            pathname: "/modal",
+            params: { id, action: "edit" },
+          } as any
+        }
+        style={[styles.editButton, isDarkMode && styles.editButtonDark]}
+      >
+        <MaterialCommunityIcons
+          name="pencil"
+          size={18}
+          color={isDarkMode ? "#8AB4F8" : "#4285F4"}
+        />
+      </Link>
     </View>
-  </Link>
-);
-const PriorityItem: React.FC<PriorityItemProps> = ({ name, color, number }) => (
-  <View style={styles.priorityRow}>
-    <Text style={styles.priorityName}>{name}</Text>
-    <Text style={styles.priorityNumber}>{number}</Text>
-    <View style={styles.colorSection}>
-      <Text style={styles.colorLabel}>Color</Text>
-      <View style={[styles.colorBar, { backgroundColor: color }]} />
-    </View>
-  </View>
-);
+  );
+};
 
 const TaskDashboard: React.FC = () => {
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === "dark";
+
   const { data, isLoading, isError, refetch } = useQuery<PriorityData[]>({
     queryKey: ["priority"],
     queryFn: async () => {
@@ -146,7 +208,7 @@ const TaskDashboard: React.FC = () => {
       refreshControl={
         <RefreshControl refreshing={isLoading} onRefresh={refetch} />
       }
-      style={styles.container}
+      style={[styles.container, isDarkMode && styles.containerDark]}
     >
       <View style={styles.statSection}>
         <View style={styles.statGrid}>
@@ -156,10 +218,25 @@ const TaskDashboard: React.FC = () => {
         </View>
       </View>
 
-      <View style={styles.prioritySection}>
+      <View
+        style={[
+          styles.prioritySection,
+          isDarkMode && styles.prioritySectionDark,
+        ]}
+      >
         <View style={styles.priorityHeader}>
-          <Text style={styles.priorityTitle}>Priorities</Text>
-          <Link href={"/modal"} style={styles.addPriority}>
+          <Text
+            style={[
+              styles.priorityTitle,
+              isDarkMode && styles.priorityTitleDark,
+            ]}
+          >
+            Priorities
+          </Text>
+          <Link
+            href={"/modal"}
+            style={[styles.addPriority, isDarkMode && styles.addPriorityDark]}
+          >
             Add Priority
           </Link>
         </View>
@@ -171,11 +248,14 @@ const TaskDashboard: React.FC = () => {
             style={styles.loader}
           />
         ) : isError ? (
-          <Text style={styles.errorText}>Error loading priorities</Text>
+          <Text style={[styles.errorText, isDarkMode && styles.errorTextDark]}>
+            Error loading priorities
+          </Text>
         ) : (
           data?.map((priority) => (
             <PriorityItem
               key={priority.id}
+              id={priority.id}
               name={priority.name}
               color={priority.color}
               number={priority.number}
@@ -192,6 +272,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F5F5F5",
   },
+  containerDark: {
+    backgroundColor: "#121212",
+  },
   statSection: {
     padding: 16,
   },
@@ -206,6 +289,9 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 12,
   },
+  prioritySectionDark: {
+    backgroundColor: "#1E1E1E",
+  },
   priorityHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -216,9 +302,15 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
   },
+  priorityTitleDark: {
+    color: "white",
+  },
   addPriority: {
     color: "#4285F4",
     fontSize: 16,
+  },
+  addPriorityDark: {
+    color: "#8AB4F8",
   },
   priorityRow: {
     flexDirection: "row",
@@ -227,14 +319,22 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#f0f0f0",
   },
+  priorityRowDark: {
+    borderBottomColor: "#333",
+  },
   priorityName: {
     flex: 1,
     fontSize: 16,
   },
+  priorityNameDark: {
+    color: "white",
+  },
   priorityNumber: {
     fontSize: 16,
     fontWeight: "600",
-    marginRight: 16,
+  },
+  priorityNumberDark: {
+    color: "white",
   },
   colorSection: {
     flexDirection: "row",
@@ -244,9 +344,12 @@ const styles = StyleSheet.create({
     marginRight: 8,
     color: "#666",
   },
+  colorLabelDark: {
+    color: "#B0B0B0",
+  },
   colorBar: {
-    width: 100,
-    height: 8,
+    width: 50,
+    height: 24,
     borderRadius: 4,
   },
   loader: {
@@ -256,6 +359,9 @@ const styles = StyleSheet.create({
     color: "#DB4437",
     textAlign: "center",
     padding: 16,
+  },
+  errorTextDark: {
+    color: "#CF6679",
   },
   card: {
     width: "48%",
@@ -267,6 +373,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
+    backgroundColor: "white",
   },
   value: {
     fontSize: 24,
@@ -277,6 +384,22 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
     marginTop: 4,
+  },
+  cardDark: {
+    backgroundColor: "#1E1E1E",
+  },
+  valueDark: {
+    color: "white",
+  },
+  titleDark: {
+    color: "#B0B0B0",
+  },
+  editButton: {
+    padding: 8,
+    marginLeft: 8,
+  },
+  editButtonDark: {
+    color: "#8AB4F8",
   },
 });
 

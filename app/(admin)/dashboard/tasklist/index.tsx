@@ -11,6 +11,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  useColorScheme,
 } from "react-native";
 
 export interface Task {
@@ -29,8 +30,11 @@ export default function TaskManagement() {
     initialData: [],
   });
 
+  const scheme = useColorScheme();
+  const isDarkMode = scheme === "dark";
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, isDarkMode && styles.darkContainer]}>
       <ScrollView
         style={styles.taskList}
         refreshControl={
@@ -38,10 +42,24 @@ export default function TaskManagement() {
         }
       >
         {data.map((task) => (
-          <View key={task.id} style={styles.taskItem}>
+          <View
+            key={task.id}
+            style={[styles.taskItem, isDarkMode && styles.darkTaskItem]}
+          >
             <View style={styles.taskContent}>
-              <Text style={styles.taskTitle}>{task.name}</Text>
-              <Text style={styles.taskDescription}>{task.description}</Text>
+              <Text
+                style={[styles.taskTitle, isDarkMode && styles.darkTaskTitle]}
+              >
+                {task.name}
+              </Text>
+              <Text
+                style={[
+                  styles.taskDescription,
+                  isDarkMode && styles.darkTaskDescription,
+                ]}
+              >
+                {task.description}
+              </Text>
             </View>
             <View style={styles.taskActions}>
               <TouchableOpacity
@@ -53,7 +71,11 @@ export default function TaskManagement() {
                 }}
                 style={styles.actionButton}
               >
-                <Feather name="edit-2" size={18} color="#666" />
+                <Feather
+                  name="edit-2"
+                  size={18}
+                  color={isDarkMode ? "#ccc" : "#666"}
+                />
               </TouchableOpacity>
             </View>
           </View>
@@ -72,6 +94,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+  },
+  darkContainer: {
+    backgroundColor: "#000",
   },
   header: {
     flexDirection: "row",
@@ -103,6 +128,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#f0f0f0",
   },
+  darkTaskItem: {
+    borderBottomColor: "#333",
+  },
   taskContent: {
     flex: 1,
     paddingRight: 16,
@@ -112,10 +140,16 @@ const styles = StyleSheet.create({
     color: "#000",
     marginBottom: 4,
   },
+  darkTaskTitle: {
+    color: "#fff",
+  },
   taskDescription: {
     fontSize: 14,
     color: "#666",
     lineHeight: 20,
+  },
+  darkTaskDescription: {
+    color: "#ccc",
   },
   taskActions: {
     flexDirection: "row",

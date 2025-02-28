@@ -9,7 +9,13 @@ import axios, { isAxiosError } from "axios";
 import { router, useLocalSearchParams } from "expo-router";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
+import {
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  View,
+  useColorScheme,
+} from "react-native";
 import Toast from "react-native-root-toast";
 import { z } from "zod";
 
@@ -39,12 +45,14 @@ const EditTaskListModal = () => {
     },
   });
   console.log(`🚀 ~ data:`, data);
+
+  const scheme = useColorScheme();
+  const isDarkMode = scheme === "dark";
+
   return (
     <NBModal>
       <ScrollView
-        style={{
-          padding: 20,
-        }}
+        style={[{ padding: 20 }, isDarkMode && styles.darkScrollView]}
         refreshControl={
           <RefreshControl refreshing={isFetching} onRefresh={refetch} />
         }
@@ -142,4 +150,8 @@ const InputForm = ({
   );
 };
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  darkScrollView: {
+    backgroundColor: "#000",
+  },
+});

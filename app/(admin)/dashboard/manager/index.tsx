@@ -14,6 +14,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  useColorScheme,
 } from "react-native";
 
 const StatusBadge = ({ status }: { status: boolean }) => {
@@ -55,8 +56,13 @@ const RelationshipManagersList = () => {
     refetch();
   }, [refetch]);
 
+  const scheme = useColorScheme();
+  const isDarkMode = scheme === "dark";
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, isDarkMode && styles.darkContainer]}
+    >
       <ScrollView
         style={styles.scrollView}
         refreshControl={
@@ -77,7 +83,10 @@ const RelationshipManagersList = () => {
             100
           );
           return (
-            <View key={manager.id} style={styles.managerCard}>
+            <View
+              key={manager.id}
+              style={[styles.managerCard, isDarkMode && styles.darkManagerCard]}
+            >
               <View style={styles.managerInfo}>
                 <Image
                   source={{
@@ -88,16 +97,37 @@ const RelationshipManagersList = () => {
                   style={styles.avatar}
                 />
                 <View style={styles.textContainer}>
-                  <Text style={styles.managerName}>{manager.name}</Text>
-                  <Text style={styles.managerTitle}>{manager.email}</Text>
-                  <Text style={styles.tasks}>
+                  <Text
+                    style={[
+                      styles.managerName,
+                      isDarkMode && styles.darkManagerName,
+                    ]}
+                  >
+                    {manager.name}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.managerTitle,
+                      isDarkMode && styles.darkManagerTitle,
+                    ]}
+                  >
+                    {manager.email}
+                  </Text>
+                  <Text style={[styles.tasks, isDarkMode && styles.darkTasks]}>
                     {manager?.assignedTasks?.length} Tasks
                   </Text>
                   <ProgressBar percentage={progress} />
                 </View>
                 <View style={styles.rightContent}>
                   <StatusBadge status={manager.isActive} />
-                  <Text style={styles.percentage}>{progress} %</Text>
+                  <Text
+                    style={[
+                      styles.percentage,
+                      isDarkMode && styles.darkPercentage,
+                    ]}
+                  >
+                    {progress} %
+                  </Text>
                 </View>
               </View>
             </View>
@@ -117,6 +147,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+  },
+  darkContainer: {
+    backgroundColor: "#000",
   },
   header: {
     flexDirection: "row",
@@ -143,6 +176,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#e0e0e0",
   },
+  darkManagerCard: {
+    borderBottomColor: "#333",
+  },
   managerInfo: {
     flexDirection: "row",
     alignItems: "center",
@@ -160,15 +196,24 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
+  darkManagerName: {
+    color: "#fff",
+  },
   managerTitle: {
     fontSize: 14,
     color: "#666",
     marginTop: 2,
   },
+  darkManagerTitle: {
+    color: "#ccc",
+  },
   tasks: {
     fontSize: 14,
     color: "#666",
     marginTop: 4,
+  },
+  darkTasks: {
+    color: "#ccc",
   },
   rightContent: {
     alignItems: "flex-end",
@@ -187,6 +232,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
     marginTop: 4,
+  },
+  darkPercentage: {
+    color: "#ccc",
   },
   progressBarContainer: {
     height: 4,

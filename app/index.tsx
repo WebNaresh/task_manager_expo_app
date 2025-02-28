@@ -136,7 +136,7 @@ export default function App() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerText}>Task Master</Text>
+        <Text style={styles.headerText}>Glory Prime</Text>
       </View>
 
       <FlatList
@@ -181,6 +181,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "bold",
     color: "#007AFF",
+    marginTop: 40,
   },
   itemContainer: {
     width,

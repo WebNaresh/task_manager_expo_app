@@ -9,6 +9,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  useColorScheme,
 } from "react-native";
 
 interface TaskItemProps {
@@ -41,6 +42,55 @@ const TaskItem: React.FC<TaskItemProps> = ({
 }) => {
   const router = useRouter();
   const scaleAnim = React.useRef(new Animated.Value(1)).current;
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === "dark";
+
+  const dynamicStyles = StyleSheet.create({
+    taskItem: {
+      backgroundColor: isDarkMode ? "#333" : "#FFFFFF",
+      borderRadius: 16,
+      padding: 20,
+      marginVertical: 10,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    taskTitle: {
+      fontSize: 18,
+      fontWeight: "600",
+      color: isDarkMode ? "#fff" : "#333333",
+      flex: 1,
+      marginRight: 8,
+    },
+    taskDescription: {
+      color: isDarkMode ? "#ccc" : "#666666",
+      fontSize: 14,
+      lineHeight: 20,
+    },
+    avatar: {
+      backgroundColor: isDarkMode ? "#555" : "#E0E0E0",
+    },
+    avatarText: {
+      color: isDarkMode ? "#fff" : "#333333",
+    },
+    userName: {
+      color: isDarkMode ? "#fff" : "#333333",
+    },
+    timeContainer: {
+      backgroundColor: isDarkMode ? "#444" : "#F0F0F0",
+    },
+    timeText: {
+      color: isDarkMode ? "#ccc" : "#666666",
+    },
+    remarkButton: {
+      backgroundColor: isDarkMode ? "#555" : "#F5F5F5",
+    },
+    remarkButtonText: {
+      color: isDarkMode ? "#ccc" : "#666666",
+    },
+  });
 
   const formatDateTime = (dateString: string) => {
     const date = new Date(dateString);
@@ -75,7 +125,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
     <Link href={`/tasks/${id}`} style={{ width: "100%", paddingVertical: 10 }}>
       <Animated.View
         style={[
-          styles.taskItem,
+          dynamicStyles.taskItem,
           {
             transform: [{ scale: scaleAnim }],
             width: "100%",
@@ -86,7 +136,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
         <View style={styles.taskContent}>
           <View style={styles.taskItemHeader}>
             <Text
-              style={styles.taskTitle}
+              style={dynamicStyles.taskTitle}
               numberOfLines={1}
               ellipsizeMode="tail"
             >
@@ -124,7 +174,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
             </View>
           </View>
           <Text
-            style={styles.taskDescription}
+            style={dynamicStyles.taskDescription}
             numberOfLines={2}
             ellipsizeMode="tail"
           >
@@ -132,32 +182,34 @@ const TaskItem: React.FC<TaskItemProps> = ({
           </Text>
           <View style={styles.taskFooter}>
             <View style={styles.userInfo}>
-              <View style={styles.avatar}>
-                <Text style={styles.avatarText}>
+              <View style={[styles.avatar, dynamicStyles.avatar]}>
+                <Text style={dynamicStyles.avatarText}>
                   {responsibleUser.name.charAt(0)}
                 </Text>
               </View>
-              <Text style={styles.userName}>{responsibleUser.name}</Text>
+              <Text style={dynamicStyles.userName}>{responsibleUser.name}</Text>
             </View>
-            <View style={styles.timeContainer}>
+            <View style={[styles.timeContainer, dynamicStyles.timeContainer]}>
               <Feather
                 name="calendar"
                 size={14}
                 color="#666666"
                 style={styles.calendarIcon}
               />
-              <Text style={styles.timeText}>{formatDateTime(dueDate)}</Text>
+              <Text style={dynamicStyles.timeText}>
+                {formatDateTime(dueDate)}
+              </Text>
             </View>
           </View>
           <View style={styles.buttonContainer}>
             <TouchableOpacity
-              style={styles.remarkButton}
+              style={[styles.remarkButton, dynamicStyles.remarkButton]}
               onPress={() => {
                 router.push({
                   pathname: `/tasks/[task_id]/[user_id]/remark_modal`,
                   params: {
                     task_id: id,
-                    user_id: user_id,
+                    user_id: user_id as string,
                   },
                 });
               }}
@@ -168,9 +220,9 @@ const TaskItem: React.FC<TaskItemProps> = ({
                 name="message-square"
                 size={16}
                 color="#666666"
-                style={styles.buttonIcon}
+                style={[styles.buttonIcon, dynamicStyles.remarkButtonText]}
               />
-              <Text style={styles.remarkButtonText}>Remark</Text>
+              <Text style={dynamicStyles.remarkButtonText}>Remark</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.taskListButton}
@@ -179,7 +231,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
                   pathname: `/tasks/[task_id]/[user_id]/[task_list_id]/status_modal`,
                   params: {
                     task_id: id,
-                    user_id: user_id,
+                    user_id: user_id as string,
                     task_list_id: tasklist_id,
                   },
                 });

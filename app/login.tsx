@@ -26,7 +26,7 @@ const LoginScreen = () => {
     resolver: zodResolver(form_schema),
     defaultValues: {
       email: "john.doe@example.com",
-      password: "pass@123",
+      password: "password123",
     },
     reValidateMode: "onChange",
   });

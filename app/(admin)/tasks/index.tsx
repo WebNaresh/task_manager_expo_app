@@ -17,6 +17,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  useColorScheme,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -109,24 +110,116 @@ const Tasks: React.FC = () => {
     await refetch();
   };
 
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === "dark";
+
+  const dynamicStyles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: isDarkMode ? "#000" : "#fff",
+    },
+    title: {
+      fontSize: 28,
+      fontWeight: "bold",
+      color: isDarkMode ? "#fff" : "#000",
+    },
+    datePickerButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      padding: 12,
+      backgroundColor: isDarkMode ? "#333" : "#f5f5f5",
+      borderRadius: 8,
+      marginHorizontal: 16,
+      marginBottom: 12,
+    },
+    datePickerButtonText: {
+      marginLeft: 8,
+      fontSize: 14,
+      color: isDarkMode ? "#ccc" : "#666",
+    },
+    dateRangeContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: 12,
+      backgroundColor: isDarkMode ? "#333" : "#f5f5f5",
+      marginHorizontal: 16,
+      borderRadius: 8,
+      marginBottom: 12,
+    },
+    dateText: {
+      fontSize: 14,
+      color: isDarkMode ? "#ccc" : "#666",
+    },
+    filterChip: {
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 8,
+      backgroundColor: isDarkMode ? "#444" : "#f5f5f5",
+      marginRight: 8,
+      minWidth: 90,
+      alignSelf: "center",
+      height: 36,
+      justifyContent: "center",
+    },
+    filterText: {
+      color: isDarkMode ? "#ccc" : "#666",
+      textAlign: "center",
+      fontSize: 16,
+    },
+    activeFilterChip: {
+      backgroundColor: primary_color,
+    },
+    activeFilterText: {
+      color: "#fff",
+    },
+    taskList: {
+      flex: 1,
+      paddingHorizontal: 16,
+    },
+    fab: {
+      position: "absolute",
+      bottom: 16,
+      right: 16,
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      backgroundColor: primary_color,
+      justifyContent: "center",
+      alignItems: "center",
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.8,
+      shadowRadius: 2,
+      elevation: 5,
+    },
+    fabText: {
+      color: "#fff",
+      fontSize: 24,
+      fontWeight: "bold",
+    },
+  });
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={dynamicStyles.container}>
       <View style={styles.taskHeader}>
-        <Text style={styles.title}>Tasks</Text>
+        <Text style={dynamicStyles.title}>Tasks</Text>
       </View>
       {!showDateRange ? (
         <TouchableOpacity
-          style={styles.datePickerButton}
+          style={dynamicStyles.datePickerButton}
           onPress={handleDateRangePress}
         >
           <Feather name="calendar" size={20} color="#666" />
-          <Text style={styles.datePickerButtonText}>Select Date Range</Text>
+          <Text style={dynamicStyles.datePickerButtonText}>
+            Select Date Range
+          </Text>
         </TouchableOpacity>
       ) : (
-        <View style={styles.dateRangeContainer}>
+        <View style={dynamicStyles.dateRangeContainer}>
           <View style={styles.dateRangeContent}>
-            <Text style={styles.dateText}>{formatDate(startDate)}</Text>
-            <Text style={styles.dateText}>{formatDate(endDate)}</Text>
+            <Text style={dynamicStyles.dateText}>{formatDate(startDate)}</Text>
+            <Text style={dynamicStyles.dateText}>{formatDate(endDate)}</Text>
           </View>
           <TouchableOpacity style={styles.closeButton} onPress={clearDateRange}>
             <Feather name="x" size={20} color="#666" />
@@ -163,8 +256,9 @@ const Tasks: React.FC = () => {
           <TouchableOpacity
             key={filter.id}
             style={[
-              styles.filterChip,
-              filter.id === searchParams.task_type && styles.activeFilterChip,
+              dynamicStyles.filterChip,
+              filter.id === searchParams.task_type &&
+                dynamicStyles.activeFilterChip,
             ]}
             onPress={() => {
               router.setParams({ task_type: filter.id as task_filter });
@@ -172,8 +266,9 @@ const Tasks: React.FC = () => {
           >
             <Text
               style={[
-                styles.filterText,
-                filter.id === searchParams.task_type && styles.activeFilterText,
+                dynamicStyles.filterText,
+                filter.id === searchParams.task_type &&
+                  dynamicStyles.activeFilterText,
               ]}
             >
               {filter.label}
@@ -183,7 +278,7 @@ const Tasks: React.FC = () => {
       </ScrollView>
 
       <ScrollView
-        style={styles.taskList}
+        style={dynamicStyles.taskList}
         refreshControl={
           <RefreshControl refreshing={isFetching} onRefresh={onRefresh} />
         }
@@ -207,8 +302,8 @@ const Tasks: React.FC = () => {
       </ScrollView>
 
       <Link href={"/(admin)/tasks/add_task"} asChild>
-        <TouchableOpacity style={styles.fab}>
-          <Text style={styles.fabText}>+</Text>
+        <TouchableOpacity style={dynamicStyles.fab}>
+          <Text style={dynamicStyles.fabText}>+</Text>
         </TouchableOpacity>
       </Link>
     </SafeAreaView>

@@ -13,15 +13,35 @@ export default function Header(props: BottomTabHeaderProps) {
     return <Redirect href={"/login"} />;
   }
 
+  const isDarkMode = colorScheme === "dark";
+
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: Colors[colorScheme ?? "light"].background },
+        isDarkMode && styles.darkMode,
+      ]}
+    >
       <View style={styles.textContainer}>
         <Text
-          style={[styles.title, { color: Colors[colorScheme ?? "light"].text }]}
+          style={[
+            styles.title,
+            { color: Colors[colorScheme ?? "light"].text },
+            isDarkMode && styles.darkModeText,
+          ]}
         >
           {user?.name}
         </Text>
-        <Text style={[styles.subtitle]}>Welcome back, {user?.name}</Text>
+        <Text
+          style={[
+            styles.subtitle,
+            { color: Colors[colorScheme ?? "light"].text },
+            isDarkMode && styles.darkModeText,
+          ]}
+        >
+          Welcome back, {user?.name}
+        </Text>
       </View>
       <Image
         source={{
@@ -62,5 +82,12 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 24,
     marginLeft: 16,
+  },
+  darkMode: {
+    backgroundColor: "#121212",
+    borderBottomColor: "#333",
+  },
+  darkModeText: {
+    color: "white",
   },
 });

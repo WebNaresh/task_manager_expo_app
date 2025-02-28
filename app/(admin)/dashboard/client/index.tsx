@@ -14,6 +14,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  useColorScheme,
 } from "react-native";
 
 const StatusBadge = ({ status }: { status: boolean }) => {
@@ -47,8 +48,13 @@ const ClientList = () => {
     refetch();
   }, [refetch]);
 
+  const scheme = useColorScheme();
+  const isDarkMode = scheme === "dark";
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, isDarkMode && styles.darkContainer]}
+    >
       <ScrollView
         style={styles.scrollView}
         refreshControl={
@@ -66,7 +72,10 @@ const ClientList = () => {
             )?.length ?? 0 / client?.assignedTasks?.length) * 100
           );
           return (
-            <View key={client.id} style={styles.clientCard}>
+            <View
+              key={client.id}
+              style={[styles.clientCard, isDarkMode && styles.darkClientCard]}
+            >
               <View style={styles.clientInfo}>
                 <Image
                   source={{
@@ -77,8 +86,22 @@ const ClientList = () => {
                   style={styles.avatar}
                 />
                 <View style={styles.textContainer}>
-                  <Text style={styles.clientName}>{client.name}</Text>
-                  <Text style={styles.clientTitle}>{client.email}</Text>
+                  <Text
+                    style={[
+                      styles.clientName,
+                      isDarkMode && styles.darkClientName,
+                    ]}
+                  >
+                    {client.name}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.clientTitle,
+                      isDarkMode && styles.darkClientTitle,
+                    ]}
+                  >
+                    {client.email}
+                  </Text>
                 </View>
                 <View style={styles.rightContent}>
                   <StatusBadge status={client.isActive} />
@@ -101,6 +124,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+  },
+  darkContainer: {
+    backgroundColor: "#000",
   },
   header: {
     flexDirection: "row",
@@ -127,6 +153,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#e0e0e0",
   },
+  darkClientCard: {
+    borderBottomColor: "#333",
+  },
   clientInfo: {
     flexDirection: "row",
     alignItems: "center",
@@ -144,10 +173,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
+  darkClientName: {
+    color: "#fff",
+  },
   clientTitle: {
     fontSize: 14,
     color: "#666",
     marginTop: 2,
+  },
+  darkClientTitle: {
+    color: "#ccc",
   },
   tasks: {
     fontSize: 14,
