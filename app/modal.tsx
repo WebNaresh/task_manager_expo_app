@@ -4,7 +4,7 @@ import NBModal from "@/components/ui/modal";
 import { error_color, success_color } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { router } from "expo-router";
 import { useForm } from "react-hook-form";
@@ -28,6 +28,7 @@ type form_type = z.infer<typeof form_schema>;
 export default function PriorityForm() {
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === "dark";
+  const query_client = useQueryClient();
 
   const form = useForm<form_type>({
     resolver: zodResolver(form_schema),
@@ -56,6 +57,11 @@ export default function PriorityForm() {
         hideOnPress: true,
         backgroundColor: success_color,
       });
+
+      query_client.invalidateQueries({
+        queryKey: ["priority"],
+      });
+
       router.back();
     },
     onError(error, variables, context) {
