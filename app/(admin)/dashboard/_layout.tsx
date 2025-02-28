@@ -21,6 +21,15 @@ const RootLayout = () => {
           headerShown: false,
         }}
       />
+      <Stack.Screen
+        name="[priority_id]/index"
+        options={{
+          presentation: "transparentModal",
+          animation: "none", // Disable popping animation
+          animationTypeForReplace: "push", // Ensure no popping animation
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 };

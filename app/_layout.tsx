@@ -58,7 +58,6 @@ function RootLayoutNav() {
     <QueryClientProvider client={query_client}>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <NotificationWrapper>
-          {" "}
           <StatusBar
             backgroundColor="transparent"
             style={colorScheme === "dark" ? "light" : "dark"}

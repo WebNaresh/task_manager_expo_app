@@ -112,12 +112,7 @@ const PriorityItem: React.FC<PriorityItemProps> = ({
       </View>
 
       <Link
-        href={
-          {
-            pathname: "/modal",
-            params: { id, action: "edit" },
-          } as any
-        }
+        href={`/(admin)/dashboard/${id}?number=${number}&name=${name}&color=${color}`}
         style={[styles.editButton, isDarkMode && styles.editButtonDark]}
       >
         <MaterialCommunityIcons
