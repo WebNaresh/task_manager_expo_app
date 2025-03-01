@@ -41,7 +41,6 @@ const AddClientModal = () => {
     mutationFn: async (data: form_type) => {
       // /api/v1/client
       const response = await axios.post("/api/v1/client", data);
-      console.log(`🚀 ~ response:`, response.data);
       return response.data;
     },
     async onSuccess(data, variables, context) {
@@ -59,7 +58,6 @@ const AddClientModal = () => {
       router.back();
     },
     onError(error, variables, context) {
-      console.log(`🚀 ~ error:`, error);
       if (axios.isAxiosError(error)) {
         const message = error?.response?.data?.message;
         if (message) {
@@ -79,7 +77,6 @@ const AddClientModal = () => {
   const { handleSubmit } = form;
 
   const onSubmit = (data: form_type) => {
-    console.log(data);
     mutate(data);
   };
 

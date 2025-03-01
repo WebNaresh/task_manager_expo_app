@@ -77,7 +77,6 @@ const EditTaskForm = (props: Props) => {
   const query_client = useQueryClient();
 
   const { handleSubmit, formState, reset } = form;
-  console.log(`🚀 ~ formState.errors:`, formState.errors);
 
   const [refreshing, setRefreshing] = React.useState(false);
 
@@ -95,7 +94,6 @@ const EditTaskForm = (props: Props) => {
     mutationFn: async (data: Form) => {
       //  axios request here /api/v1/task
       const response = await axios.post("/api/v1/task", data);
-      console.log(`🚀 ~ response:`, response);
       return response.data;
     },
     onSuccess(data, variables, context) {
@@ -120,7 +118,6 @@ const EditTaskForm = (props: Props) => {
       }
     },
   });
-  console.log(`🚀 ~ isPending:`, isPending);
 
   return (
     <ScrollView

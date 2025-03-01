@@ -52,11 +52,9 @@ const TaskListModal = () => {
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: Form) => {
       const response = await axios.post("/api/v1/tasklist", data);
-      console.log(`🚀 ~ response:`, response);
       return response.data;
     },
     async onSuccess(data, variables, context) {
-      console.log(data);
       router.back();
       Toast.show("Task List Added", {
         duration: Toast.durations.LONG,
@@ -72,7 +70,6 @@ const TaskListModal = () => {
     },
     onError(error, variables, context) {
       if (axios.isAxiosError(error)) {
-        console.log(error.response?.data.message);
         Toast.show(error.response?.data.message, {
           duration: Toast.durations.LONG,
           position: Toast.positions.TOP,
@@ -84,7 +81,6 @@ const TaskListModal = () => {
       }
     },
   });
-  console.log(`🚀 ~ isPending:`, isPending);
 
   return (
     <NBModal>

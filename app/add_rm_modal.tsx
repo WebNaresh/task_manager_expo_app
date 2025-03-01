@@ -25,9 +25,9 @@ const Modal = () => {
   const form = useForm<form_schema_types>({
     resolver: zodResolver(from_schema),
     defaultValues: {
-      name: "Naresh",
-      email: "email@gmail.com",
-      password: "pass@123",
+      name: "",
+      email: "",
+      password: "",
     },
     reValidateMode: "onChange",
   });
@@ -38,7 +38,6 @@ const Modal = () => {
   const isDarkMode = colorScheme === "dark";
 
   const onSubmit = (data: form_schema_types) => {
-    console.log(data);
     mutate(data);
   };
 
@@ -65,7 +64,6 @@ const Modal = () => {
     },
     onError(error, variables, context) {
       if (axios.isAxiosError(error)) {
-        console.log(`🚀 ~ error:`, error.response?.data?.message);
         Toast.show(error.response?.data?.message, {
           duration: Toast.durations.LONG,
           position: Toast.positions.TOP,

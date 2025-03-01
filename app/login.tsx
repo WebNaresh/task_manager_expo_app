@@ -102,10 +102,20 @@ const LoginScreen = () => {
   const form = useForm<form_schema_types>({
     resolver: zodResolver(form_schema),
     defaultValues: {
-      email: "john.doe@example.com",
-      password: "password123",
+      email: "sammed@gmail.com",
+      password: "Pass@123",
     },
     reValidateMode: "onChange",
+  });
+  const { mutate } = useMutation({
+    mutationFn: async (data: { isActive: boolean }) => {
+      const response = await axios.put(
+        `/api/v1/auth/update-user-status/${user?.id}`,
+        data
+      );
+
+      return response.data;
+    },
   });
   const { handleSubmit } = form;
   const router = useRouter();
@@ -122,6 +132,11 @@ const LoginScreen = () => {
     },
     async onSuccess(data, _variables, _context) {
       await AsyncStorage.setItem("token", data.token);
+      await queryClient.invalidateQueries({
+        queryKey: ["token"],
+      });
+
+      mutate({ isActive: true });
 
       Toast.show(`Welcome, ${data?.name}`, {
         duration: Toast.durations.LONG,
@@ -131,12 +146,15 @@ const LoginScreen = () => {
         hideOnPress: true,
         backgroundColor: success_color,
       });
+
+      if (data.role === "RM") {
+        router.push("/(manager)/dashboard");
+        return;
+      }
       router.push("/(admin)/dashboard");
     },
     onError(error, variables, context) {
-      console.log(`🚀 ~ error:`, error);
       if (axios.isAxiosError(error)) {
-        console.log(`🚀 ~ error.response:`, error.response?.data.message);
         Toast.show(error.response?.data.message, {
           duration: Toast.durations.LONG,
           position: Toast.positions.TOP,
@@ -148,15 +166,12 @@ const LoginScreen = () => {
       }
     },
   });
-  console.log(mutation.isPending);
 
   const onSubmit = (data: form_schema_types) => {
     mutation.mutate(data);
   };
 
   if (token !== null) {
-    console.log(`🚀 ~ user?.role:`, user?.role);
-
     if (user?.role === "ADMIN") {
       return <Redirect href={"/(admin)/dashboard"} />;
     } else {

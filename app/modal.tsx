@@ -45,7 +45,6 @@ export default function PriorityForm() {
   const mutation = useMutation({
     mutationFn: async (data: form_type) => {
       const response = await axios.post("/api/v1/priority", data);
-      console.log(`🚀 ~ response:`, response);
       return response.data;
     },
     onSuccess(data, variables, context) {
@@ -65,7 +64,6 @@ export default function PriorityForm() {
       router.back();
     },
     onError(error, variables, context) {
-      console.log(`🚀 ~ error:`, error);
       if (axios.isAxiosError(error)) {
         Toast.show(error.response?.data.message, {
           duration: Toast.durations.LONG,
@@ -80,7 +78,6 @@ export default function PriorityForm() {
   });
 
   const onSubmit = (data: form_type) => {
-    console.log(data);
     mutation.mutate(data);
   };
 

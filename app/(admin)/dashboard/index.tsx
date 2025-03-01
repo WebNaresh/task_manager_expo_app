@@ -137,7 +137,7 @@ const TaskDashboard: React.FC = () => {
     },
   });
 
-  const { data: stat } = useQuery({
+  const { data: stat, refetch: stat_refetch } = useQuery({
     queryKey: ["stat"],
     queryFn: async () => {
       const response = await axios.get("/api/v1/task/dashboard/statistics");
@@ -201,7 +201,13 @@ const TaskDashboard: React.FC = () => {
   return (
     <ScrollView
       refreshControl={
-        <RefreshControl refreshing={isLoading} onRefresh={refetch} />
+        <RefreshControl
+          refreshing={isLoading}
+          onRefresh={() => {
+            stat_refetch();
+            refetch();
+          }}
+        />
       }
       style={[styles.container, isDarkMode && styles.containerDark]}
     >

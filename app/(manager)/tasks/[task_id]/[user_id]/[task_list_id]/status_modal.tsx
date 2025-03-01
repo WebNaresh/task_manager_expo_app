@@ -29,9 +29,6 @@ const RemarkModal = () => {
     task_id: string;
     task_list_id: string;
   }>();
-  console.log(`🚀 ~ task_id:`, task_id);
-
-  console.log(`🚀 ~ user_id:`, user_id);
 
   const { data, isFetching, refetch } = useQuery({
     queryKey: ["tasklist"],
@@ -41,7 +38,6 @@ const RemarkModal = () => {
     },
     initialData: [],
   });
-  console.log(`🚀 ~ data:`, data);
 
   return (
     <NBModal>
@@ -79,7 +75,6 @@ const InputForm = ({
     formState: { isDirty },
     watch,
   } = form;
-  console.log(`🚀 ~ watch:`, watch());
 
   const onSubmit = handleSubmit((data) => {
     mutate(data);
@@ -94,8 +89,6 @@ const InputForm = ({
       return response.data;
     },
     async onSuccess(data, variables, context) {
-      console.log(`🚀 ~ data:`, data);
-
       await query_client.invalidateQueries({
         queryKey: ["tasks"],
       });
@@ -112,7 +105,6 @@ const InputForm = ({
       router.back();
     },
     onError(error, variables, context) {
-      console.log(`🚀 ~ error:`, error);
       Toast.show("Error adding remark", {
         duration: Toast.durations.SHORT,
         position: Toast.positions.TOP,

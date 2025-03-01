@@ -44,7 +44,6 @@ const Tasks: React.FC = () => {
   const [showDateRange, setShowDateRange] = useState(false);
 
   const { user } = useAuth();
-  console.log(`🚀 ~ user:`, user);
 
   const searchParams = useLocalSearchParams<{ task_type: task_filter }>();
   const router = useRouter();
@@ -68,7 +67,6 @@ const Tasks: React.FC = () => {
       params.append("task_type", searchParams.task_type);
       params.append("start_date", startDate.toISOString());
       params.append("end_date", endDate.toISOString());
-      console.log(`🚀 ~ params:`, params);
       const response = await axios.get("/api/v1/task", {
         params,
       });

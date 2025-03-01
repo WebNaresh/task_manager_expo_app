@@ -52,10 +52,6 @@ const RelationshipManagersList = () => {
     initialData: [],
   });
 
-  const onRefresh = React.useCallback(() => {
-    refetch();
-  }, [refetch]);
-
   const scheme = useColorScheme();
   const isDarkMode = scheme === "dark";
 
@@ -68,7 +64,7 @@ const RelationshipManagersList = () => {
         refreshControl={
           <RefreshControl
             refreshing={isFetching}
-            onRefresh={onRefresh}
+            onRefresh={refetch}
             colors={[primary_color]}
           />
         }

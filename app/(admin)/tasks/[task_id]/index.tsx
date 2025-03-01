@@ -86,7 +86,6 @@ const TaskDetailScreen: React.FC = () => {
     },
     enabled: !!taskId,
   });
-  console.log(`🚀 ~ task:`, task);
 
   const { mutate } = useMutation({
     mutationFn: async (status: "PENDING" | "COMPLETED") => {

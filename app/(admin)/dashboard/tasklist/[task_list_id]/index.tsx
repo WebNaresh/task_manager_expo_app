@@ -34,7 +34,6 @@ type Form = z.infer<typeof form_schema>;
 
 const EditTaskListModal = () => {
   const { task_list_id } = useLocalSearchParams<{ task_list_id: string }>();
-  console.log(`🚀 ~ task_list_id:`, task_list_id);
 
   const { data, isFetching, refetch } = useQuery({
     queryKey: ["tasklist", task_list_id],
@@ -44,7 +43,6 @@ const EditTaskListModal = () => {
       return response.data;
     },
   });
-  console.log(`🚀 ~ data:`, data);
 
   const scheme = useColorScheme();
   const isDarkMode = scheme === "dark";
@@ -97,7 +95,6 @@ const InputForm = ({
       return response.data;
     },
     async onSuccess(data, variables, context) {
-      console.log(`🚀 ~ data:`, data);
       await queryClient.invalidateQueries({
         queryKey: ["tasklist", task_list_id],
       });

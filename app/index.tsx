@@ -81,7 +81,6 @@ const features = [
 const OnboardingItem = ({ item }: { item: any }) => {
   const handleGetStarted = () => {
     // Navigate to the main app screen or show login/signup
-    console.log("Get Started pressed");
   };
 
   return (
@@ -105,7 +104,6 @@ export default function App() {
   const scrollX = useSharedValue(0); // Correctly typed as a shared value
   const flatListRef = useRef(null);
   const { token, user } = useAuth();
-  console.log(`🚀 ~ user:`, user);
 
   const onViewableItemsChanged = useRef(
     ({ viewableItems }: { viewableItems: any }) => {
@@ -124,8 +122,6 @@ export default function App() {
   };
 
   if (token !== null) {
-    console.log(`🚀 ~ user?.role:`, user?.role);
-
     if (user?.role === "ADMIN") {
       return <Redirect href={"/(admin)/dashboard"} />;
     } else {

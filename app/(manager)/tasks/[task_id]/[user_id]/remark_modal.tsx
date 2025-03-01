@@ -31,9 +31,6 @@ const RemarkModal = () => {
     user_id: string;
     task_id: string;
   }>();
-  console.log(`🚀 ~ task_id:`, task_id);
-
-  console.log(`🚀 ~ user_id:`, user_id);
 
   const form = useForm<Form>({
     resolver: zodResolver(form_schema),
@@ -55,7 +52,6 @@ const RemarkModal = () => {
       return response.data;
     },
     onSuccess(data, variables, context) {
-      console.log(`🚀 ~ data:`, data);
       Toast.show("Remark added successfully", {
         duration: Toast.durations.SHORT,
         position: Toast.positions.TOP,
@@ -68,7 +64,6 @@ const RemarkModal = () => {
       router.back();
     },
     onError(error, variables, context) {
-      console.log(`🚀 ~ error:`, error);
       Toast.show("Error adding remark", {
         duration: Toast.durations.SHORT,
         position: Toast.positions.TOP,

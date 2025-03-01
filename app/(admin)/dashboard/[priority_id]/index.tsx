@@ -35,7 +35,6 @@ export default function UpdatePriorityFrom() {
     name: string;
     priority_id: string;
   }>();
-  console.log(`🚀 ~ params:`, params);
 
   const form = useForm<form_type>({
     resolver: zodResolver(form_schema),
@@ -72,13 +71,7 @@ export default function UpdatePriorityFrom() {
       router.back();
     },
     onError(error, variables, context) {
-      console.log(`🚀 ~ error:`, error);
       if (axios.isAxiosError(error)) {
-        console.log(
-          `🚀 ~ error.response?.data.message:`,
-          error.response?.data.message
-        );
-
         Toast.show(error.response?.data.message, {
           duration: Toast.durations.LONG,
           position: Toast.positions.TOP,
@@ -92,7 +85,6 @@ export default function UpdatePriorityFrom() {
   });
 
   const onSubmit = (data: form_type) => {
-    console.log(data);
     mutation.mutate(data);
   };
 

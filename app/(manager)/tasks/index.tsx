@@ -30,7 +30,6 @@ interface FilterOption {
 
 const Tasks: React.FC = () => {
   const { user } = useAuth();
-  console.log(`🚀 ~ user:`, user);
 
   const router = useRouter();
 
@@ -39,7 +38,6 @@ const Tasks: React.FC = () => {
     queryFn: async () => {
       const params = new URLSearchParams();
       params.append("rm_id", user?.id as string);
-      console.log(`🚀 ~ params:`, params);
       const response = await axios.get("/api/v1/task", {
         params,
       });

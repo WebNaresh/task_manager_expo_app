@@ -169,9 +169,7 @@ export default function ProfileSetup() {
       // router.push("/(manager)");
     },
     onError(error, variables, context) {
-      console.log(`🚀 ~ error:`, error);
       if (axios.isAxiosError(error)) {
-        console.log(`🚀 ~ error.response:`, error.response?.data.message);
         Toast.show(error.response?.data.message, {
           duration: Toast.durations.LONG,
           position: Toast.positions.TOP,
@@ -181,6 +179,16 @@ export default function ProfileSetup() {
           backgroundColor: error_color,
         });
       }
+    },
+  });
+  const { mutate: logout_mutate } = useMutation({
+    mutationFn: async (data: { isActive: boolean }) => {
+      const response = await axios.put(
+        `/api/v1/auth/update-user-status/${user?.id}`,
+        data
+      );
+
+      return response.data;
     },
   });
 
@@ -194,8 +202,9 @@ export default function ProfileSetup() {
         text: "Logout",
         onPress: async () => {
           // Handle logout logic here
-          console.log("User logged out");
           await AsyncStorage.removeItem("token");
+          logout_mutate({ isActive: false });
+
           router.navigate("/login");
         },
         style: "destructive",

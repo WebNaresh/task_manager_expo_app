@@ -10,6 +10,7 @@ import {
   StyleSheet,
   Text,
   View,
+  useColorScheme,
 } from "react-native";
 
 interface Task {
@@ -59,13 +60,50 @@ interface StatusCardProps {
   count: string;
   backgroundColor: string;
   isLoading: boolean;
+  theme: ThemeType;
 }
 
 interface TaskItemProps {
   task: Task;
+  theme: ThemeType;
 }
 
+// Define theme colors
+interface ThemeColors {
+  background: string;
+  card: string;
+  text: string;
+  secondaryText: string;
+  border: string;
+  skeleton: string;
+}
+
+type ThemeType = "light" | "dark";
+
+const themes: Record<ThemeType, ThemeColors> = {
+  light: {
+    background: "#F8FAFC",
+    card: "white",
+    text: "#0F172A",
+    secondaryText: "#64748B",
+    border: "#E2E8F0",
+    skeleton: "rgba(255,255,255,0.3)",
+  },
+  dark: {
+    background: "#000000", // Pure black to match header/footer
+    card: "#121212", // Dark card that works with black background
+    text: "#FFFFFF",
+    secondaryText: "#A0A0A0",
+    border: "#2C2C2C",
+    skeleton: "rgba(255,255,255,0.2)",
+  },
+};
+
 const TaskScreen: React.FC = () => {
+  const colorScheme = useColorScheme() as ThemeType;
+  const theme = colorScheme === "dark" ? "dark" : "light";
+  const colors = themes[theme];
+
   const { user } = useAuth();
   const rm_id = user?.id;
 
@@ -75,7 +113,6 @@ const TaskScreen: React.FC = () => {
       const response = await axios.get(
         `/api/v1/task/dashboard/statistics/${rm_id}`
       );
-      console.log(`🚀 ~ response.data:`, response.data);
 
       return response.data;
     },
@@ -86,7 +123,6 @@ const TaskScreen: React.FC = () => {
     queryKey: ["manager-tasks"],
     queryFn: async () => {
       const response = await axios.get(`/api/v1/task/top3tasks/${rm_id}`);
-      console.log(`🚀 ~ response.data:`, response.data);
 
       return response.data;
     },
@@ -96,9 +132,13 @@ const TaskScreen: React.FC = () => {
 
   return (
     <ScrollView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: colors.background }]}
       refreshControl={
-        <RefreshControl refreshing={isFetching} onRefresh={refetch} />
+        <RefreshControl
+          refreshing={isFetching}
+          onRefresh={refetch}
+          tintColor={colors.text} // Ensure the refresh indicator matches the theme
+        />
       }
     >
       <View style={styles.statusCards}>
@@ -107,20 +147,24 @@ const TaskScreen: React.FC = () => {
           count={data?.totalTaskCount}
           backgroundColor="#A78BFA"
           isLoading={isFetching}
+          theme={theme}
         />
         <StatusCard
           title="No-Update Tasks"
           count={data?.taskWithNoUpdatesCount}
           backgroundColor="#4B6BFB"
           isLoading={isFetching}
+          theme={theme}
         />
       </View>
 
-      <Text style={styles.sectionTitle}>Today's Tasks</Text>
+      <Text style={[styles.sectionTitle, { color: colors.text }]}>
+        Today's Tasks
+      </Text>
 
       <View style={styles.tasksList}>
         {tasks.map((task: any) => (
-          <TaskItem key={task.id} task={task} />
+          <TaskItem key={task.id} task={task} theme={theme} />
         ))}
       </View>
     </ScrollView>
@@ -132,8 +176,10 @@ const StatusCard: React.FC<StatusCardProps> = ({
   count,
   backgroundColor,
   isLoading,
+  theme,
 }) => {
   const fadeAnim = useRef(new Animated.Value(0.3)).current;
+  const colors = themes[theme];
 
   useEffect(() => {
     if (isLoading) {
@@ -175,46 +221,64 @@ const StatusCard: React.FC<StatusCardProps> = ({
   );
 };
 
-const TaskItem: React.FC<TaskItemProps> = ({ task }) => (
-  <View style={styles.taskItem}>
-    <View style={styles.taskContent}>
-      <View style={styles.dotContainer}>
-        <View style={[styles.dot, { backgroundColor: task.priority.color }]} />
+const TaskItem: React.FC<TaskItemProps> = ({ task, theme }) => {
+  const colors = themes[theme];
+
+  return (
+    <View style={[styles.taskItem, { backgroundColor: colors.card }]}>
+      <View style={styles.taskContent}>
+        <View style={styles.dotContainer}>
+          <View
+            style={[styles.dot, { backgroundColor: task.priority.color }]}
+          />
+        </View>
+        <View style={styles.taskDetails}>
+          <Text style={[styles.taskTitle, { color: colors.text }]}>
+            {task.title}
+          </Text>
+          <Text
+            style={[styles.taskDescription, { color: colors.secondaryText }]}
+          >
+            {task.description}
+          </Text>
+          <Text style={[styles.taskTime, { color: colors.secondaryText }]}>
+            {new Date(task.dueDate).toLocaleDateString()}
+          </Text>
+        </View>
+        <View style={styles.taskRight}>
+          <Image
+            source={{
+              uri: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+            }}
+            style={[styles.avatar, { backgroundColor: colors.border }]}
+          />
+          <Text style={[styles.assigneeName, { color: colors.secondaryText }]}>
+            {task.client.name}
+          </Text>
+        </View>
       </View>
-      <View style={styles.taskDetails}>
-        <Text style={styles.taskTitle}>{task.title}</Text>
-        <Text style={styles.taskDescription}>{task.description}</Text>
-        <Text style={styles.taskTime}>
-          {new Date(task.dueDate).toLocaleDateString()}
+      <View
+        style={[
+          styles.statusBadge,
+          {
+            backgroundColor:
+              theme === "dark"
+                ? `${task.priority.color}30` // Slightly more opaque in dark mode for better visibility
+                : `${task.priority.color}20`,
+          },
+        ]}
+      >
+        <Text style={[styles.statusText, { color: task.priority.color }]}>
+          {task.status}
         </Text>
       </View>
-      <View style={styles.taskRight}>
-        <Image
-          source={{
-            uri: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-          }}
-          style={styles.avatar}
-        />
-        <Text style={styles.assigneeName}>{task.client.name}</Text>
-      </View>
     </View>
-    <View
-      style={[
-        styles.statusBadge,
-        { backgroundColor: `${task.priority.color}20` },
-      ]}
-    >
-      <Text style={[styles.statusText, { color: task.priority.color }]}>
-        {task.status}
-      </Text>
-    </View>
-  </View>
-);
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8FAFC",
     padding: 16,
   },
   statusCards: {
@@ -267,7 +331,6 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   taskItem: {
-    backgroundColor: "white",
     borderRadius: 16,
     padding: 16,
     gap: 12,
@@ -284,7 +347,6 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#FB923C",
   },
   taskDetails: {
     flex: 1,
@@ -297,12 +359,10 @@ const styles = StyleSheet.create({
   },
   taskDescription: {
     fontSize: 14,
-    color: "#64748B",
     marginBottom: 4,
   },
   taskTime: {
     fontSize: 14,
-    color: "#64748B",
   },
   taskRight: {
     alignItems: "center",
@@ -312,11 +372,9 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: "#E2E8F0",
   },
   assigneeName: {
     fontSize: 12,
-    color: "#64748B",
   },
   statusBadge: {
     alignSelf: "flex-start",
