@@ -73,7 +73,6 @@ const InputForm = ({
   const {
     handleSubmit,
     formState: { isDirty },
-    watch,
   } = form;
 
   const onSubmit = handleSubmit((data) => {
@@ -129,9 +128,8 @@ const InputForm = ({
         }))}
         icon={<Feather name="list" size={24} color="black" />}
       />
-
       <NBButton
-        text="Add Remark"
+        text="Update Status"
         onPress={onSubmit}
         isPending={form.formState.isSubmitting || isPending}
         isDisabled={!isDirty}
