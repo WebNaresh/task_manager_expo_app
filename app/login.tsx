@@ -102,8 +102,8 @@ const LoginScreen = () => {
   const form = useForm<form_schema_types>({
     resolver: zodResolver(form_schema),
     defaultValues: {
-      email: "sammed@gmail.com",
-      password: "Pass@123",
+      email: "",
+      password: "",
     },
     reValidateMode: "onChange",
   });
