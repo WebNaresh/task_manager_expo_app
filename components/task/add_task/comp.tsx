@@ -70,8 +70,8 @@ const AddTaskForm = (props: Props) => {
   const form = useForm<Form>({
     resolver: zodResolver(form_schema),
     defaultValues: {
-      title: "First",
-      description: "First Description",
+      title: "",
+      description: "",
       dueDate: "",
       taskListId: "",
       responsibleUserId: "",
