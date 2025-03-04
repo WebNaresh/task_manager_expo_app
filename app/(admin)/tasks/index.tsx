@@ -39,10 +39,6 @@ interface FilterOption {
   label: string;
 }
 
-/**
- * Function to export task data to Excel
- * @param {Array} tasks - Array of task objects to export
- */
 const exportTasksToExcel = async (tasks: any) => {
   try {
     // Format the data for Excel
