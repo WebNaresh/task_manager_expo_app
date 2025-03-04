@@ -1,13 +1,15 @@
 import TaskItem from "@/components/task/task_list";
 import { primary_color } from "@/constants/Colors";
 import useAuth from "@/hooks/useAuth";
-import { Feather } from "@expo/vector-icons";
+import { Feather, Ionicons } from "@expo/vector-icons";
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import * as FileSystem from "expo-file-system";
 import { Link, useLocalSearchParams, useRouter } from "expo-router";
+import * as Sharing from "expo-sharing";
 import React, { useEffect, useState } from "react";
 import {
   Platform,
@@ -20,6 +22,7 @@ import {
   useColorScheme,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import * as XLSX from "xlsx";
 
 type task_filter = "all" | "pending" | "no_updates" | "priority";
 
@@ -35,6 +38,61 @@ interface FilterOption {
   id: string;
   label: string;
 }
+
+/**
+ * Function to export task data to Excel
+ * @param {Array} tasks - Array of task objects to export
+ */
+const exportTasksToExcel = async (tasks: any) => {
+  try {
+    // Format the data for Excel
+    const formattedData = tasks.map((task: any) => ({
+      "Task ID": task.id,
+      Title: task.title,
+      Description: task.description,
+      Priority: task.priority,
+      Status: task.status,
+      "Due Date": task.dueDate
+        ? new Date(task.dueDate).toLocaleDateString()
+        : "",
+      "Responsible User": task.responsibleUser?.name || "",
+      "Task List": task.taskList?.name || "",
+    }));
+
+    // Create a worksheet
+    const worksheet = XLSX.utils.json_to_sheet(formattedData);
+
+    // Create a workbook
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Tasks");
+
+    // Generate Excel file
+    const wbout = XLSX.write(workbook, { type: "base64", bookType: "xlsx" });
+
+    // Define file path for saving
+    const fileName = `tasks_${new Date().toISOString().split("T")[0]}.xlsx`;
+    const fileUri = `${FileSystem.documentDirectory}${fileName}`;
+
+    // Write the file
+    await FileSystem.writeAsStringAsync(fileUri, wbout, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+
+    // Share the file
+    await Sharing.shareAsync(fileUri, {
+      mimeType:
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      dialogTitle: "Export Tasks",
+      UTI: "com.microsoft.excel.xlsx",
+    });
+
+    console.log("Excel file has been exported successfully");
+    return true;
+  } catch (error) {
+    console.error("Error exporting to Excel:", error);
+    return false;
+  }
+};
 
 const Tasks: React.FC = () => {
   const [startDate, setStartDate] = useState(new Date());
@@ -176,11 +234,8 @@ const Tasks: React.FC = () => {
       paddingHorizontal: 16,
     },
     fab: {
-      position: "absolute",
-      bottom: 16,
-      right: 16,
-      width: 56,
       height: 56,
+      width: 56,
       borderRadius: 28,
       backgroundColor: primary_color,
       justifyContent: "center",
@@ -299,11 +354,29 @@ const Tasks: React.FC = () => {
         })}
       </ScrollView>
 
-      <Link href={"/(admin)/tasks/add_task"} asChild>
-        <TouchableOpacity style={dynamicStyles.fab}>
-          <Text style={dynamicStyles.fabText}>+</Text>
+      <View
+        style={{
+          position: "absolute",
+          bottom: 16,
+          right: 26,
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          gap: 12,
+        }}
+      >
+        <TouchableOpacity
+          style={dynamicStyles.fab}
+          onPress={() => exportTasksToExcel(data)}
+        >
+          <Ionicons name="download" size={24} color="white" />
         </TouchableOpacity>
-      </Link>
+        <Link href={"/(admin)/tasks/add_task"} asChild>
+          <TouchableOpacity style={dynamicStyles.fab}>
+            <Text style={dynamicStyles.fabText}>+</Text>
+          </TouchableOpacity>
+        </Link>
+      </View>
     </SafeAreaView>
   );
 };
