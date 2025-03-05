@@ -53,6 +53,7 @@ const exportTasksToExcel = async (tasks: any) => {
         : "",
       "Responsible User": task.responsibleUser?.name || "",
       "Task List": task.taskList?.name || "",
+      "Client Name": task.client?.name || "", // Added client name
     }));
 
     // Create a worksheet
