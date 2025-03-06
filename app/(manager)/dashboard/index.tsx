@@ -224,13 +224,27 @@ const StatusCard: React.FC<StatusCardProps> = ({
 const TaskItem: React.FC<TaskItemProps> = ({ task, theme }) => {
   const colors = themes[theme];
 
+  // Determine status badge color based on status
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "COMPLETED":
+        return "#FF6B6B";
+      case "PENDING":
+        return "#FF6B6B";
+      case "IN_PROGRESS":
+        return "#4B6BFB";
+      default:
+        return "#64748B";
+    }
+  };
+
+  const statusColor = getStatusColor(task.status);
+
   return (
     <View style={[styles.taskItem, { backgroundColor: colors.card }]}>
       <View style={styles.taskContent}>
         <View style={styles.dotContainer}>
-          <View
-            style={[styles.dot, { backgroundColor: task.priority.color }]}
-          />
+          <View style={styles.dot} />
         </View>
         <View style={styles.taskDetails}>
           <Text style={[styles.taskTitle, { color: colors.text }]}>
@@ -238,39 +252,42 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, theme }) => {
           </Text>
           <Text
             style={[styles.taskDescription, { color: colors.secondaryText }]}
+            numberOfLines={2}
           >
             {task.description}
           </Text>
           <Text style={[styles.taskTime, { color: colors.secondaryText }]}>
             {new Date(task.dueDate).toLocaleDateString()}
           </Text>
+
+          <View style={styles.statusBadgeContainer}>
+            <View
+              style={[
+                styles.statusBadge,
+                { backgroundColor: `${statusColor}20` },
+              ]}
+            >
+              <Text style={[styles.statusText, { color: statusColor }]}>
+                {task.status}
+              </Text>
+            </View>
+          </View>
         </View>
+
         <View style={styles.taskRight}>
           <Image
             source={{
               uri: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
             }}
-            style={[styles.avatar, { backgroundColor: colors.border }]}
+            style={styles.avatar}
           />
           <Text style={[styles.assigneeName, { color: colors.secondaryText }]}>
             {task.client.name}
           </Text>
+          <Text style={[styles.assigneeMore, { color: colors.secondaryText }]}>
+            MORE
+          </Text>
         </View>
-      </View>
-      <View
-        style={[
-          styles.statusBadge,
-          {
-            backgroundColor:
-              theme === "dark"
-                ? `${task.priority.color}30` // Slightly more opaque in dark mode for better visibility
-                : `${task.priority.color}20`,
-          },
-        ]}
-      >
-        <Text style={[styles.statusText, { color: task.priority.color }]}>
-          {task.status}
-        </Text>
       </View>
     </View>
   );
@@ -333,58 +350,77 @@ const styles = StyleSheet.create({
   taskItem: {
     borderRadius: 16,
     padding: 16,
-    gap: 12,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
   },
   taskContent: {
     flexDirection: "row",
-    alignItems: "center",
   },
   dotContainer: {
-    width: 24,
-    alignItems: "center",
+    paddingTop: 4,
+    marginRight: 8,
   },
   dot: {
     width: 8,
     height: 8,
     borderRadius: 4,
+    backgroundColor: "#FF0000",
   },
   taskDetails: {
     flex: 1,
-    marginLeft: 8,
+    paddingRight: 8,
   },
   taskTitle: {
-    fontSize: 16,
-    fontWeight: "500",
+    fontSize: 18,
+    fontWeight: "600",
     marginBottom: 4,
   },
   taskDescription: {
     fontSize: 14,
     marginBottom: 4,
+    color: "#64748B",
+    lineHeight: 20,
   },
   taskTime: {
     fontSize: 14,
+    marginBottom: 8,
   },
   taskRight: {
     alignItems: "center",
-    gap: 4,
+    justifyContent: "center",
   },
   avatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    marginBottom: 4,
   },
   assigneeName: {
     fontSize: 12,
+    textAlign: "center",
+  },
+  assigneeMore: {
+    fontSize: 12,
+    textAlign: "center",
+    fontWeight: "500",
+  },
+  statusBadgeContainer: {
+    marginTop: 4,
   },
   statusBadge: {
     alignSelf: "flex-start",
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
     paddingVertical: 6,
     borderRadius: 100,
   },
   statusText: {
     fontSize: 12,
     fontWeight: "500",
+    textTransform: "capitalize",
   },
 });
 
