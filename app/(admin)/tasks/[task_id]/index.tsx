@@ -338,6 +338,19 @@ const TaskDetailScreen: React.FC = () => {
           <Feather name="edit-2" size={20} color="#fff" />
           <Text style={styles.buttonText}>Edit Task</Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            // Navigate to the delete task screen
+            router.push({
+              pathname: "/tasks/[task_id]/delete",
+              params: { task_id: taskId },
+            });
+          }}
+          style={[styles.button, { backgroundColor: "#FF5252" }]}
+        >
+          <Feather name="trash-2" size={20} color="#fff" />
+          <Text style={styles.buttonText}>Delete Task</Text>
+        </TouchableOpacity>
 
         {task?.status === "PENDING" ? (
           <TouchableOpacity
@@ -516,19 +529,21 @@ const styles = StyleSheet.create({
     color: "#ccc",
   },
   actionButtons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
     padding: 20,
+    gap: 10,
   },
   button: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    padding: 12,
-    borderRadius: 8,
-    flex: 1,
-    marginHorizontal: 5,
-    width: "auto",
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   editButton: {
     backgroundColor: "#2196F3",
@@ -543,7 +558,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "600",
-    marginLeft: 8,
+    marginLeft: 10,
   },
   errorContainer: {
     flex: 1,

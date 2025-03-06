@@ -131,13 +131,6 @@ const LoginScreen = () => {
       return response.data;
     },
     async onSuccess(data, _variables, _context) {
-      await AsyncStorage.setItem("token", data.token);
-      await queryClient.invalidateQueries({
-        queryKey: ["token"],
-      });
-
-      mutate({ isActive: true });
-
       Toast.show(`Welcome, ${data?.name}`, {
         duration: Toast.durations.LONG,
         position: Toast.positions.TOP,
@@ -148,10 +141,32 @@ const LoginScreen = () => {
       });
 
       if (data.role === "RM") {
+        await AsyncStorage.setItem("token", data.token);
+        await queryClient.invalidateQueries({
+          queryKey: ["token"],
+        });
         router.push("/(manager)/dashboard");
-        return;
+      } else if (data.role === "ADMIN") {
+        router.push("/(admin)/dashboard");
+        await AsyncStorage.setItem("token", data.token);
+        await queryClient.invalidateQueries({
+          queryKey: ["token"],
+        });
       }
-      router.push("/(admin)/dashboard");
+
+      mutate({ isActive: true });
+
+      // if data role is other than RM or ADMIN
+      if (data.role !== "RM" && data.role !== "ADMIN") {
+        Toast.show("You are not authorized to login", {
+          duration: Toast.durations.LONG,
+          position: Toast.positions.TOP,
+          shadow: true,
+          animation: true,
+          hideOnPress: true,
+          backgroundColor: error_color,
+        });
+      }
     },
     onError(error, variables, context) {
       if (axios.isAxiosError(error)) {

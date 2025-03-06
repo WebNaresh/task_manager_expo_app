@@ -59,24 +59,26 @@ type Props = {
 };
 
 const EditTaskForm = (props: Props) => {
+  console.log(`🚀 ~ props:`, props);
   const form = useForm<Form>({
     resolver: zodResolver(form_schema),
     defaultValues: {
-      title: props.task.title,
-      description: props.task.description,
-      dueDate: props.task.dueDate,
-      taskListId: props.task.taskListId,
-      responsibleUserId: props.task.responsibleUserId,
+      title: props?.task?.title,
+      description: props?.task?.description,
+      dueDate: props?.task?.dueDate,
+      taskListId: props?.task?.taskListId,
+      responsibleUserId: props?.task?.responsibleUserId,
 
-      clientId: props.task.clientId,
-      priorityId: props.task.priorityId,
-      assignedById: props.task.assigned,
+      clientId: props?.task?.clientId,
+      priorityId: props?.task?.priorityId,
+      assignedById: props?.task?.assignedById,
     },
   });
   const router = useRouter();
   const query_client = useQueryClient();
 
   const { handleSubmit, formState, reset } = form;
+  console.log(formState.errors);
 
   const [refreshing, setRefreshing] = React.useState(false);
 
@@ -146,7 +148,7 @@ const EditTaskForm = (props: Props) => {
         placeholder="Enter tasklist"
         type="select"
         icon={<Feather name="list" size={24} color="black" />}
-        options={props.tasklists.map((tasklist) => ({
+        options={props?.tasklists.map((tasklist) => ({
           label: tasklist.name,
           value: tasklist.id,
         }))}
@@ -164,7 +166,7 @@ const EditTaskForm = (props: Props) => {
         placeholder="Enter assigned RM"
         type="select"
         icon={<Feather name="user" size={24} color="black" />}
-        options={props.managers.map((manager) => ({
+        options={props?.managers.map((manager) => ({
           label: manager.name,
           value: manager.id,
         }))}
@@ -175,7 +177,7 @@ const EditTaskForm = (props: Props) => {
         placeholder="Enter client"
         type="select"
         icon={<Feather name="briefcase" size={24} color="black" />}
-        options={props.clients.map((client) => ({
+        options={props?.clients.map((client) => ({
           label: client.name,
           value: client.id,
         }))}
@@ -186,7 +188,7 @@ const EditTaskForm = (props: Props) => {
         placeholder="Enter priority"
         type="select"
         icon={<Feather name="star" size={24} color="black" />}
-        options={props.priorities.map((priority) => ({
+        options={props?.priorities.map((priority) => ({
           label: priority.name,
           value: priority.id,
         }))}

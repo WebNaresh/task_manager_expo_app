@@ -109,6 +109,7 @@ const Tasks: React.FC = () => {
   }, [searchParams]);
   const filterOptions: FilterOption[] = [
     { id: "all", label: "All Tasks" },
+    { id: "pending", label: "Pending" },
     { id: "delayed", label: "Delayed" },
     { id: "no_updates", label: "No Updates" },
     { id: "priority", label: "Priority" },

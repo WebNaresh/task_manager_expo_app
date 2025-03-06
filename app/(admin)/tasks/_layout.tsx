@@ -12,6 +12,15 @@ const StackLayout = () => {
         name="[task_id]/edit/index"
         options={{ title: "Edit Task" }}
       />
+      <Stack.Screen
+        name="[task_id]/delete/index"
+        options={{
+          presentation: "transparentModal",
+          animation: "none", // Disable popping animation
+          animationTypeForReplace: "push", // Ensure no popping animation
+          headerShown: false,
+        }}
+      />
       {/* modal */}
       <Stack.Screen
         name="[task_id]/[user_id]/remark_modal"
