@@ -79,15 +79,17 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
         <View>
           {/* Header Row */}
           <View style={styles.headerRow}>
+            {/* Add SR header */}
             <View
               style={[
                 styles.headerCell,
                 dynamicStyles.headerCell,
-                { width: 100 },
+                { width: 50 },
               ]}
             >
-              <Text style={dynamicStyles.headerText}>Task List</Text>
+              <Text style={dynamicStyles.headerText}>SR</Text>
             </View>
+
             <View
               style={[
                 styles.headerCell,
@@ -113,9 +115,17 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
                 { width: 120 },
               ]}
             >
-              <Text style={dynamicStyles.headerText}>Assigned To</Text>
+              <Text style={dynamicStyles.headerText}>RM</Text>
             </View>
-
+            <View
+              style={[
+                styles.headerCell,
+                dynamicStyles.headerCell,
+                { width: 100 },
+              ]}
+            >
+              <Text style={dynamicStyles.headerText}>Task List</Text>
+            </View>
             <View
               style={[
                 styles.headerCell,
@@ -137,15 +147,13 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
           </View>
 
           {/* Data Rows */}
-          {tasks.map((task) => (
+          {tasks.map((task, index) => (
             <View key={task.id} style={styles.row}>
-              <View style={[styles.cell, { width: 100 }]}>
-                <Link href={`/tasks/${task.id}`}>
-                  <Text style={dynamicStyles.cellText} numberOfLines={1}>
-                    {task.taskList?.name || "—"}
-                  </Text>
-                </Link>
+              {/* Add SR cell */}
+              <View style={[styles.cell, { width: 50 }]}>
+                <Text style={dynamicStyles.cellText}>{index + 1}</Text>
               </View>
+
               <View style={[styles.cell, { width: 120 }]}>
                 <Text style={dynamicStyles.cellText}>
                   {formatDateTime(task.dueDate)}
@@ -161,7 +169,13 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
                   {task.responsibleUser.name}
                 </Text>
               </View>
-
+              <View style={[styles.cell, { width: 100 }]}>
+                <Link href={`/tasks/${task.id}`}>
+                  <Text style={dynamicStyles.cellText} numberOfLines={1}>
+                    {task.taskList?.name || "—"}
+                  </Text>
+                </Link>
+              </View>
               <View style={[styles.cell, { width: 100 }]}>
                 <View
                   style={[
