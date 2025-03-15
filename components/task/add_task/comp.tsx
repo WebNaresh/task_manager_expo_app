@@ -19,10 +19,7 @@ import Toast from "react-native-root-toast";
 import { z } from "zod";
 
 const form_schema = z.object({
-  title: z
-    .string()
-    .trim()
-    .min(3, { message: "Task title must be at least 3 characters long" }),
+  title: z.string().trim(),
   description: z
     .string()
     .trim()
@@ -85,6 +82,8 @@ const AddTaskForm = (props: Props) => {
 
   const { handleSubmit, formState, reset } = form;
 
+  console.log(`🚀 ~ formState`, formState.errors);
+
   const [refreshing, setRefreshing] = React.useState(false);
 
   const onRefresh = React.useCallback(() => {
@@ -94,13 +93,16 @@ const AddTaskForm = (props: Props) => {
   }, [reset]);
 
   const onSubmit = (data: Form) => {
+    console.log(`🚀 ~ data:`, data);
     mutate(data);
   };
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (data: Form) => {
       //  axios request here /api/v1/task
+      console.log(`🚀 ~ data:`, data);
       const response = await axios.post("/api/v1/task", data);
+      console.log(`🚀 ~ response:`, response.data);
       return response.data;
     },
     onSuccess(data, variables, context) {
@@ -136,19 +138,6 @@ const AddTaskForm = (props: Props) => {
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
     >
-      <NBTextInput
-        form={form}
-        name="title"
-        placeholder="Enter task title"
-        type="text"
-        icon={
-          <Feather
-            name="clipboard"
-            size={24}
-            color={isDarkMode ? "white" : "black"}
-          />
-        }
-      />
       <NBTextInput
         form={form}
         name="description"

@@ -130,13 +130,6 @@ const EditTaskForm = (props: Props) => {
     >
       <NBTextInput
         form={form}
-        name="title"
-        placeholder="Enter task title"
-        type="text"
-        icon={<Feather name="clipboard" size={24} color="black" />}
-      />
-      <NBTextInput
-        form={form}
         name="description"
         placeholder="Enter description"
         type="textarea"

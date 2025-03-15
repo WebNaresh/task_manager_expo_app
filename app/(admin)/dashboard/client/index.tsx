@@ -17,23 +17,6 @@ import {
   useColorScheme,
 } from "react-native";
 
-const StatusBadge = ({ status }: { status: boolean }) => {
-  return (
-    <View
-      style={[
-        styles.statusBadge,
-        { backgroundColor: status ? "#e8f5e9" : "#fff3e0" },
-      ]}
-    >
-      <Text
-        style={[styles.statusText, { color: status ? "#2e7d32" : "#f57c00" }]}
-      >
-        {status ? "Active" : "Inactive"}
-      </Text>
-    </View>
-  );
-};
-
 const ClientList = () => {
   const { data, isFetching, refetch } = useQuery({
     queryKey: ["clients"],
@@ -103,9 +86,7 @@ const ClientList = () => {
                     {client.email}
                   </Text>
                 </View>
-                <View style={styles.rightContent}>
-                  <StatusBadge status={client.isActive} />
-                </View>
+                <View style={styles.rightContent}></View>
               </View>
             </View>
           );

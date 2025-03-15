@@ -1,14 +1,21 @@
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { primary_color } from "@/constants/Colors";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
+import DateTimePicker, {
+  DateTimePickerEvent,
+} from "@react-native-community/datetimepicker";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { type Href, Link } from "expo-router";
 import type React from "react";
+import { useState } from "react";
 import {
   ActivityIndicator,
+  Platform,
   RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
   useColorScheme,
 } from "react-native";
@@ -20,6 +27,13 @@ interface StatCardProps {
   color: string;
   link: Href;
 }
+const formatDate = (date: Date): string => {
+  return date.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+};
 
 interface PriorityItemProps {
   name: string;
@@ -128,6 +142,39 @@ const PriorityItem: React.FC<PriorityItemProps> = ({
 const TaskDashboard: React.FC = () => {
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === "dark";
+  const [startDate, setStartDate] = useState<null | Date>(null);
+  const [endDate, setEndDate] = useState<null | Date>(null);
+  const [showStartPicker, setShowStartPicker] = useState(false);
+  const [showEndPicker, setShowEndPicker] = useState(false);
+  const [showDateRange, setShowDateRange] = useState(false);
+  const onStartDateChange = (
+    _event: DateTimePickerEvent,
+    selectedDate?: Date
+  ) => {
+    setShowStartPicker(false);
+    if (selectedDate) {
+      setStartDate(selectedDate);
+      setShowEndPicker(true); // Show end date picker after selecting start date
+    }
+  };
+
+  const onEndDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+    setShowEndPicker(false);
+    if (selectedDate) {
+      setEndDate(selectedDate);
+      setShowDateRange(true);
+    }
+  };
+
+  const handleDateRangePress = () => {
+    setShowStartPicker(true);
+  };
+
+  const clearDateRange = () => {
+    setShowDateRange(false);
+    setStartDate(new Date());
+    setEndDate(new Date());
+  };
 
   const { data, isLoading, isError, refetch } = useQuery<PriorityData[]>({
     queryKey: ["priority"],
@@ -140,7 +187,9 @@ const TaskDashboard: React.FC = () => {
   const { data: stat, refetch: stat_refetch } = useQuery({
     queryKey: ["stat"],
     queryFn: async () => {
-      const response = await axios.get("/api/v1/task/dashboard/statistics");
+      const response = await axios.get(
+        `/api/v1/task/dashboard/statistics?startDate=${startDate}&endDate=${endDate}`
+      );
       return response.data as ApiResponse;
     },
     initialData: null,
@@ -197,6 +246,91 @@ const TaskDashboard: React.FC = () => {
       link: "/(admin)/dashboard/client",
     },
   ];
+  const dynamicStyles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: isDarkMode ? "#000" : "#fff",
+    },
+    title: {
+      fontSize: 28,
+      fontWeight: "bold",
+      color: isDarkMode ? "#fff" : "#000",
+    },
+    datePickerButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      padding: 12,
+      backgroundColor: isDarkMode ? "#333" : "#ffffff",
+      borderRadius: 8,
+      marginHorizontal: 16,
+      marginBottom: 12,
+      marginTop: 18,
+    },
+    datePickerButtonText: {
+      marginLeft: 8,
+      fontSize: 14,
+      color: isDarkMode ? "#ccc" : "#666",
+    },
+    dateRangeContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      padding: 12,
+      backgroundColor: isDarkMode ? "#333" : "#ffffff",
+      marginHorizontal: 16,
+      borderRadius: 8,
+      marginBottom: 12,
+      marginTop: 18,
+    },
+    dateText: {
+      fontSize: 14,
+      color: isDarkMode ? "#ccc" : "#666",
+    },
+    filterChip: {
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 8,
+      backgroundColor: isDarkMode ? "#444" : "#f5f5f5",
+      marginRight: 8,
+      minWidth: 90,
+      alignSelf: "center",
+      height: 36,
+      justifyContent: "center",
+    },
+    filterText: {
+      color: isDarkMode ? "#ccc" : "#666",
+      textAlign: "center",
+      fontSize: 16,
+    },
+    activeFilterChip: {
+      backgroundColor: primary_color,
+    },
+    activeFilterText: {
+      color: "#fff",
+    },
+    taskList: {
+      flex: 1,
+      paddingHorizontal: 16,
+    },
+    fab: {
+      height: 56,
+      width: 56,
+      borderRadius: 28,
+      backgroundColor: primary_color,
+      justifyContent: "center",
+      alignItems: "center",
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.8,
+      shadowRadius: 2,
+      elevation: 5,
+    },
+    fabText: {
+      color: "#fff",
+      fontSize: 24,
+      fontWeight: "bold",
+    },
+  });
 
   return (
     <ScrollView
@@ -211,6 +345,50 @@ const TaskDashboard: React.FC = () => {
       }
       style={[styles.container, isDarkMode && styles.containerDark]}
     >
+      {!showDateRange ? (
+        <TouchableOpacity
+          style={dynamicStyles.datePickerButton}
+          onPress={handleDateRangePress}
+        >
+          <Feather name="calendar" size={20} color="#666" />
+          <Text style={dynamicStyles.datePickerButtonText}>
+            Select Date Range
+          </Text>
+        </TouchableOpacity>
+      ) : (
+        <View style={dynamicStyles.dateRangeContainer}>
+          <View style={styles.dateRangeContent}>
+            <Text style={dynamicStyles.dateText}>
+              {formatDate(startDate ?? new Date())}
+            </Text>
+            <Text style={dynamicStyles.dateText}>
+              {formatDate(endDate ?? new Date())}
+            </Text>
+          </View>
+          <TouchableOpacity style={styles.closeButton} onPress={clearDateRange}>
+            <Feather name="x" size={20} color="#666" />
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {showStartPicker && (
+        <DateTimePicker
+          value={startDate ?? new Date()}
+          mode="date"
+          display={Platform.OS === "ios" ? "inline" : "default"}
+          onChange={onStartDateChange}
+        />
+      )}
+
+      {showEndPicker && (
+        <DateTimePicker
+          value={endDate ?? new Date()}
+          mode="date"
+          display={Platform.OS === "ios" ? "inline" : "default"}
+          onChange={onEndDateChange}
+          minimumDate={startDate ?? new Date()}
+        />
+      )}
       <View style={styles.statSection}>
         <View style={styles.statGrid}>
           {stats.map((stat, index) => (
@@ -401,6 +579,15 @@ const styles = StyleSheet.create({
   },
   editButtonDark: {
     color: "#8AB4F8",
+  },
+  closeButton: {
+    padding: 4,
+  },
+  dateRangeContent: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginRight: 12,
   },
 });
 
