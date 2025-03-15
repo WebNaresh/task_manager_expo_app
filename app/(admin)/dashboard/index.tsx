@@ -185,7 +185,7 @@ const TaskDashboard: React.FC = () => {
   });
 
   const { data: stat, refetch: stat_refetch } = useQuery({
-    queryKey: ["stat"],
+    queryKey: ["stat", startDate, endDate],
     queryFn: async () => {
       const response = await axios.get(
         `/api/v1/task/dashboard/statistics?startDate=${startDate}&endDate=${endDate}`

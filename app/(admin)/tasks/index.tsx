@@ -1,6 +1,6 @@
-import TaskItem from "@/components/task/task_list";
 import { primary_color } from "@/constants/Colors";
 import useAuth from "@/hooks/useAuth";
+import TaskTable from "@/task-table";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import DateTimePicker, {
   DateTimePickerEvent,
@@ -54,6 +54,7 @@ const exportTasksToExcel = async (tasks: any) => {
       "Responsible User": task.responsibleUser?.name || "",
       "Task List": task.taskList?.name || "",
       "Client Name": task.client?.name || "", // Added client name
+      "Client Status": task.client?.status || "", // Added client status
     }));
 
     // Create a worksheet
@@ -256,6 +257,8 @@ const Tasks: React.FC = () => {
       <View style={styles.taskHeader}>
         <Text style={dynamicStyles.title}>Tasks</Text>
       </View>
+
+      {/* Date range picker UI remains the same */}
       {!showDateRange ? (
         <TouchableOpacity
           style={dynamicStyles.datePickerButton}
@@ -278,6 +281,7 @@ const Tasks: React.FC = () => {
         </View>
       )}
 
+      {/* Date pickers remain the same */}
       {showStartPicker && (
         <DateTimePicker
           value={startDate}
@@ -297,13 +301,14 @@ const Tasks: React.FC = () => {
         />
       )}
 
+      {/* Filter options remain the same */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
         style={styles.filterContainer}
         contentContainerStyle={styles.filterContainerContent}
       >
-        {filterOptions.map((filter, index) => (
+        {filterOptions.map((filter) => (
           <TouchableOpacity
             key={filter.id}
             style={[
@@ -328,30 +333,17 @@ const Tasks: React.FC = () => {
         ))}
       </ScrollView>
 
+      {/* Replace the ScrollView with tasks with our new TaskTable */}
       <ScrollView
         style={dynamicStyles.taskList}
         refreshControl={
           <RefreshControl refreshing={isFetching} onRefresh={onRefresh} />
         }
       >
-        {data.map((task: any) => {
-          return (
-            <TaskItem
-              key={task.id}
-              title={task.title}
-              description={task.description}
-              priority={task?.priority}
-              responsibleUser={task?.responsibleUser}
-              dueDate={task?.dueDate}
-              status={task?.status}
-              task_list={task?.taskList}
-              id={task.id}
-              user_id={user?.id}
-            />
-          );
-        })}
+        <TaskTable tasks={data} user_id={user?.id!} />
       </ScrollView>
 
+      {/* FAB buttons remain the same */}
       <View
         style={{
           position: "absolute",
