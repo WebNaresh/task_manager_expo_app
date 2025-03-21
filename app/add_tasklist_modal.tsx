@@ -31,6 +31,7 @@ const TaskListModal = () => {
   const isDarkMode = colorScheme === "dark";
   const backgroundColor = isDarkMode ? "#121212" : "#fff";
   const textColor = isDarkMode ? "#fff" : "#000";
+  const router = useRouter();
 
   const form = useForm<Form>({
     resolver: zodResolver(form_schema),
@@ -40,10 +41,8 @@ const TaskListModal = () => {
       description: "",
     },
   });
-  const router = useRouter();
   const query_client = useQueryClient();
 
-  // mutation for /api/v1/tasklist
   const { handleSubmit } = form;
   const onSubmit = handleSubmit((data) => {
     mutate(data);
@@ -83,7 +82,7 @@ const TaskListModal = () => {
   });
 
   return (
-    <NBModal>
+    <NBModal onClose={() => router.back()}>
       <View
         style={[
           styles.container,

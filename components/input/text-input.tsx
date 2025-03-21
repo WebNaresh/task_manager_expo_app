@@ -22,6 +22,7 @@ export type NBTextInputProps = {
   icon: React.ReactNode;
   type: "text" | "password" | "color" | "select" | "textarea" | "date"; // Add date type
   options?: { label: string; value: string }[]; // Add options for select type
+  onSelect?: (value: string) => void;
 };
 
 const NBTextInput = (props: NBTextInputProps) => {

@@ -31,11 +31,14 @@ const NBSelectInputField = (props: NBTextInputProps) => {
             <Picker
               selectedValue={value}
               style={[styles.input, dynamicStyles.input]}
-              onValueChange={onChange}
+              onValueChange={(itemValue) => {
+                onChange(itemValue);
+                props.onSelect?.(itemValue);
+              }}
               dropdownIconColor={isDarkMode ? "#FFFFFF" : "#000000"}
               itemStyle={{
                 backgroundColor: isDarkMode ? "#333333" : "#FFFFFF",
-              }} // Changed this line
+              }}
             >
               <Picker.Item label={props.placeholder} value="" enabled={false} />
               {props.options?.map((option) => (

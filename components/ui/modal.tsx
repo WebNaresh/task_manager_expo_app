@@ -1,4 +1,3 @@
-import { useRouter } from "expo-router";
 import { Pressable, StyleSheet } from "react-native";
 import Animated, {
   FadeIn,
@@ -9,37 +8,36 @@ import Animated, {
 
 type NBModalProps = {
   children: React.ReactNode;
+  onClose?: () => void;
 };
 
 export default function NBModal(props: NBModalProps) {
-  const router = useRouter();
   return (
     <Animated.View
       entering={FadeIn}
-      exiting={FadeOut} // Add exiting animation
+      exiting={FadeOut}
       style={{
-        flex: 1,
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: "#00000040",
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "#00000040",
+        zIndex: 1000,
       }}
     >
-      {/* <Link href={props.href as any} asChild> */}
-      <Pressable
-        onPress={() => {
-          router.back();
-        }}
-        style={StyleSheet.absoluteFill}
-      />
-      {/* </Link> */}
+      <Pressable onPress={props.onClose} style={StyleSheet.absoluteFill} />
       <Animated.View
         entering={SlideInDown}
-        exiting={SlideOutUp} // Add exiting animation
+        exiting={SlideOutUp}
         style={{
           width: "90%",
           backgroundColor: "white",
           borderRadius: 12,
           overflow: "hidden",
+          zIndex: 1001,
         }}
       >
         {props.children}

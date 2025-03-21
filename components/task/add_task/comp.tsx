@@ -14,6 +14,7 @@ import {
   ScrollView,
   StyleSheet,
   useColorScheme,
+  View,
 } from "react-native";
 import Toast from "react-native-root-toast";
 import { z } from "zod";
@@ -63,6 +64,7 @@ type Props = {
 const AddTaskForm = (props: Props) => {
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === "dark";
+  const router = useRouter();
 
   const form = useForm<Form>({
     resolver: zodResolver(form_schema),
@@ -77,7 +79,6 @@ const AddTaskForm = (props: Props) => {
       assignedById: props.assignedById,
     },
   });
-  const router = useRouter();
   const query_client = useQueryClient();
 
   const { handleSubmit, formState, reset } = form;
@@ -151,23 +152,39 @@ const AddTaskForm = (props: Props) => {
           />
         }
       />
-      <NBTextInput
-        form={form}
-        name="taskListId"
-        placeholder="Enter tasklist"
-        type="select"
-        icon={
-          <Feather
-            name="list"
-            size={24}
-            color={isDarkMode ? "white" : "black"}
+      <View style={styles.taskListContainer}>
+        <View style={{ flex: 1 }}>
+          <NBTextInput
+            form={form}
+            name="taskListId"
+            placeholder="Enter tasklist"
+            type="select"
+            icon={
+              <Feather
+                name="list"
+                size={24}
+                color={isDarkMode ? "white" : "black"}
+              />
+            }
+            options={[
+              {
+                label: "Add New Tasklist",
+                value: "add_new",
+              },
+              ...props.tasklists.map((tasklist) => ({
+                label: tasklist.name,
+                value: tasklist.id,
+              })),
+            ]}
+            onSelect={(value) => {
+              if (value === "add_new") {
+                form.setValue("taskListId", "");
+                router.push("/add_tasklist_modal");
+              }
+            }}
           />
-        }
-        options={props.tasklists.map((tasklist) => ({
-          label: tasklist.name,
-          value: tasklist.id,
-        }))}
-      />
+        </View>
+      </View>
       <NBTextInput
         form={form}
         name="dueDate"
@@ -210,10 +227,22 @@ const AddTaskForm = (props: Props) => {
             color={isDarkMode ? "white" : "black"}
           />
         }
-        options={props.clients.map((client) => ({
-          label: client.name,
-          value: client.id,
-        }))}
+        options={[
+          {
+            label: "Add New Client",
+            value: "add_new",
+          },
+          ...props.clients.map((client) => ({
+            label: client.name,
+            value: client.id,
+          })),
+        ]}
+        onSelect={(value) => {
+          if (value === "add_new") {
+            form.setValue("clientId", "");
+            router.push("/add_client_modal");
+          }
+        }}
       />
       <NBTextInput
         form={form}
@@ -247,5 +276,9 @@ export default AddTaskForm;
 const styles = StyleSheet.create({
   darkContainer: {
     backgroundColor: "#000",
+  },
+  taskListContainer: {
+    flexDirection: "row",
+    alignItems: "center",
   },
 });

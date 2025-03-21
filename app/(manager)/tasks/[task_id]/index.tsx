@@ -4,7 +4,7 @@ import { error_color, success_color } from "@/constants/Colors";
 import { Feather } from "@expo/vector-icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import type React from "react";
 import { useEffect, useState } from "react";
 import {
@@ -270,6 +270,15 @@ const TaskDetailScreen: React.FC = () => {
             <Text style={styles.buttonText}>Make it Pending</Text>
           </TouchableOpacity>
         )}
+        <TouchableOpacity
+          onPress={() => {
+            router.navigate(`/tasks/${taskId}/delete`);
+          }}
+          style={[styles.button, styles.deleteButton]}
+        >
+          <Feather name="trash-2" size={20} color="#fff" />
+          <Text style={styles.buttonText}>Delete Task</Text>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
@@ -465,6 +474,9 @@ const styles = StyleSheet.create({
   changeInfo: {
     fontSize: 14,
     color: "#666",
+  },
+  deleteButton: {
+    backgroundColor: error_color,
   },
 });
 

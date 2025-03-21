@@ -172,8 +172,8 @@ const TaskDashboard: React.FC = () => {
 
   const clearDateRange = () => {
     setShowDateRange(false);
-    setStartDate(new Date());
-    setEndDate(new Date());
+    setStartDate(null);
+    setEndDate(null);
   };
 
   const { data, isLoading, isError, refetch } = useQuery<PriorityData[]>({

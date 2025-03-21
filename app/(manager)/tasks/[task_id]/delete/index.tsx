@@ -25,8 +25,6 @@ const form_schema = z.object({
     .min(3, { message: "User must be at least 3 characters long" }),
 });
 
-type Form = z.infer<typeof form_schema>;
-
 const DeleteModal = () => {
   const { task_id } = useLocalSearchParams<{
     user_id: string;

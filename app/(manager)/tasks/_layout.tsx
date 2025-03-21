@@ -26,6 +26,15 @@ const StackLayout = () => {
           headerShown: false,
         }}
       />
+      <Stack.Screen
+        name="[task_id]/delete/index"
+        options={{
+          presentation: "transparentModal",
+          animation: "none", // Disable popping animation
+          animationTypeForReplace: "push", // Ensure no popping animation
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 };
