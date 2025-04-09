@@ -1,1 +1,1 @@
-export const base_url = 'https://taskmanagement-4n1x.onrender.com'
+export const base_url = 'https://taskmanagement-kgnz.onrender.com/'
