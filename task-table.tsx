@@ -50,10 +50,36 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === "dark";
   const router = useRouter();
+  const [pressedRow, setPressedRow] = React.useState<string | null>(null);
 
   const dynamicStyles = StyleSheet.create({
+    container: {
+      flex: 1,
+      padding: 0,
+      backgroundColor: isDarkMode ? "#181818" : "#f8f9fa",
+      borderRadius: 14,
+      shadowColor: isDarkMode ? "#000" : "#aaa",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 8,
+      elevation: 3,
+      marginVertical: 12,
+    },
+    headerRow: {
+      flexDirection: "row",
+      marginBottom: 0,
+      borderTopLeftRadius: 14,
+      borderTopRightRadius: 14,
+      overflow: "hidden",
+      backgroundColor: isDarkMode ? "#23272f" : "#fff",
+      zIndex: 2,
+    },
     headerCell: {
-      backgroundColor: isDarkMode ? "#333" : "#f5f5f5",
+      paddingVertical: 14,
+      paddingHorizontal: 10,
+      borderWidth: 0,
+      borderBottomWidth: 2,
+      borderColor: "#e0e0e0",
     },
     headerText: {
       color: isDarkMode ? "#ccc" : "#666",
@@ -61,85 +87,82 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
     cellText: {
       color: isDarkMode ? "#ccc" : "#666",
     },
-    statusContainer: {
-      padding: 4,
-      borderRadius: 4,
+    row: {
+      flexDirection: "row",
+      marginBottom: 0,
+      borderRadius: 0,
+      overflow: "hidden",
+      minHeight: 54,
+      alignItems: "center",
+    },
+    cell: {
+      paddingVertical: 12,
+      paddingHorizontal: 10,
+      borderWidth: 0,
+      borderBottomWidth: 1,
+      borderColor: "#e0e0e0",
+      flexShrink: 1,
+      minWidth: 60,
+      maxWidth: 180,
+    },
+    badge: {
+      borderRadius: 12,
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+      alignSelf: "flex-start",
+      minWidth: 60,
+      alignItems: "center",
+    },
+    badgeText: {
+      fontSize: 12,
+      fontWeight: "700",
+      color: "#fff",
+      textTransform: "capitalize",
     },
     actionButton: {
       padding: 8,
-      borderRadius: 4,
+      borderRadius: 6,
       justifyContent: "center",
       alignItems: "center",
+      marginHorizontal: 2,
+    },
+    actionRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 4,
     },
   });
 
   return (
-    <View style={styles.container}>
+    <View style={[dynamicStyles.container, styles.container]}>
       <ScrollView horizontal showsHorizontalScrollIndicator={true}>
         <View>
           {/* Header Row */}
-          <View style={styles.headerRow}>
+          <View style={[dynamicStyles.headerRow, styles.headerRow]}>
             {/* Add SR header */}
-            <View
-              style={[
-                styles.headerCell,
-                dynamicStyles.headerCell,
-                { width: 50 },
-              ]}
-            >
+            <View style={[dynamicStyles.headerCell, { width: 50 }]}>
               <Text style={dynamicStyles.headerText}>SR</Text>
             </View>
 
-            <View
-              style={[
-                styles.headerCell,
-                dynamicStyles.headerCell,
-                { width: 120 },
-              ]}
-            >
+            <View style={[dynamicStyles.headerCell, { width: 120 }]}>
               <Text style={dynamicStyles.headerText}>Due Date</Text>
             </View>
-            <View
-              style={[
-                styles.headerCell,
-                dynamicStyles.headerCell,
-                { width: 120 },
-              ]}
-            >
+            <View style={[dynamicStyles.headerCell, { width: 120 }]}>
               <Text style={dynamicStyles.headerText}>Client Name</Text>
             </View>
-            <View
-              style={[
-                styles.headerCell,
-                dynamicStyles.headerCell,
-                { width: 120 },
-              ]}
-            >
+            <View style={[dynamicStyles.headerCell, { width: 120 }]}>
               <Text style={dynamicStyles.headerText}>RM</Text>
             </View>
-            <View
-              style={[
-                styles.headerCell,
-                dynamicStyles.headerCell,
-                { width: 100 },
-              ]}
-            >
+            <View style={[dynamicStyles.headerCell, { width: 100 }]}>
               <Text style={dynamicStyles.headerText}>Task List</Text>
             </View>
-            <View
-              style={[
-                styles.headerCell,
-                dynamicStyles.headerCell,
-                { width: 100 },
-              ]}
-            >
+            <View style={[dynamicStyles.headerCell, { width: 100 }]}>
               <Text style={dynamicStyles.headerText}>Status</Text>
             </View>
             <View
               style={[
-                styles.headerCell,
                 dynamicStyles.headerCell,
-                { width: 120 },
+                { width: 120, borderRightWidth: 0 },
               ]}
             >
               <Text style={dynamicStyles.headerText}>Actions</Text>
@@ -148,38 +171,76 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
 
           {/* Data Rows */}
           {tasks.map((task, index) => (
-            <View key={task.id} style={styles.row}>
+            <View
+              key={task.id}
+              style={[
+                dynamicStyles.row,
+                styles.row,
+                {
+                  backgroundColor:
+                    pressedRow === task.id
+                      ? isDarkMode
+                        ? "#2a2a2a"
+                        : "#e6f0fa"
+                      : index % 2 === 0
+                      ? isDarkMode
+                        ? "#23272f"
+                        : "#fff"
+                      : isDarkMode
+                      ? "#1a1d23"
+                      : "#f6f8fa",
+                  borderBottomLeftRadius: index === tasks.length - 1 ? 14 : 0,
+                  borderBottomRightRadius: index === tasks.length - 1 ? 14 : 0,
+                  shadowColor:
+                    pressedRow === task.id ? "#007AFF" : "transparent",
+                  shadowOpacity: pressedRow === task.id ? 0.12 : 0,
+                  shadowRadius: pressedRow === task.id ? 8 : 0,
+                  elevation: pressedRow === task.id ? 2 : 0,
+                },
+              ]}
+              onTouchStart={() => setPressedRow(task.id)}
+              onTouchEnd={() => setPressedRow(null)}
+            >
               {/* Add SR cell */}
-              <View style={[styles.cell, { width: 50 }]}>
+              <View style={[dynamicStyles.cell, { width: 50 }]}>
                 <Text style={dynamicStyles.cellText}>{index + 1}</Text>
               </View>
 
-              <View style={[styles.cell, { width: 120 }]}>
+              <View style={[dynamicStyles.cell, { width: 120 }]}>
                 <Text style={dynamicStyles.cellText}>
                   {formatDateTime(task.dueDate)}
                 </Text>
               </View>
-              <View style={[styles.cell, { width: 120 }]}>
+              <View style={[dynamicStyles.cell, { width: 120 }]}>
                 <Text style={dynamicStyles.cellText} numberOfLines={1}>
                   {task?.client?.name || "—"} {/* Client name cell */}
                 </Text>
               </View>
-              <View style={[styles.cell, { width: 120 }]}>
+              <View style={[dynamicStyles.cell, { width: 120 }]}>
                 <Text style={dynamicStyles.cellText}>
                   {task.responsibleUser.name}
                 </Text>
               </View>
-              <View style={[styles.cell, { width: 100 }]}>
+              <View
+                style={[dynamicStyles.cell, { width: 100, overflow: "hidden" }]}
+              >
                 <Link href={`/tasks/${task.id}`}>
-                  <Text style={dynamicStyles.cellText} numberOfLines={1}>
+                  <Text
+                    style={[
+                      dynamicStyles.cellText,
+                      { flex: 1, display: "flex" },
+                    ]}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
                     {task.taskList?.name || "—"}
                   </Text>
                 </Link>
               </View>
-              <View style={[styles.cell, { width: 100 }]}>
+              <View style={[dynamicStyles.cell, { width: 100 }]}>
                 <View
                   style={[
-                    dynamicStyles.statusContainer,
+                    dynamicStyles.badge,
                     {
                       backgroundColor:
                         task.status === "COMPLETED"
@@ -194,7 +255,7 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
                 >
                   <Text
                     style={[
-                      styles.statusText,
+                      dynamicStyles.badgeText,
                       {
                         color:
                           task.status === "COMPLETED"
@@ -211,8 +272,13 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
                   </Text>
                 </View>
               </View>
-              <View style={[styles.cell, { width: 120 }]}>
-                <View style={styles.actionContainer}>
+              <View
+                style={[
+                  dynamicStyles.cell,
+                  { width: 120, borderRightWidth: 0 },
+                ]}
+              >
+                <View style={dynamicStyles.actionRow}>
                   <TouchableOpacity
                     style={[
                       dynamicStyles.actionButton,
@@ -256,6 +322,26 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
                   >
                     <Feather name="list" size={16} color="#FFFFFF" />
                   </TouchableOpacity>
+
+                  {/* Eye icon for task detail */}
+                  <TouchableOpacity
+                    style={[
+                      dynamicStyles.actionButton,
+                      { backgroundColor: isDarkMode ? "#222" : "#e0e7ef" },
+                    ]}
+                    onPress={() => {
+                      router.push({
+                        pathname: "/tasks/[task_id]",
+                        params: { task_id: task.id },
+                      });
+                    }}
+                  >
+                    <Feather
+                      name="eye"
+                      size={16}
+                      color={isDarkMode ? "#fff" : "#222"}
+                    />
+                  </TouchableOpacity>
                 </View>
               </View>
             </View>
@@ -269,25 +355,34 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    padding: 0,
+    borderRadius: 10,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 2,
   },
   headerRow: {
     flexDirection: "row",
-    marginBottom: 8,
-  },
-  headerCell: {
-    padding: 8,
-    borderWidth: 1,
-    borderColor: "#ddd",
+    marginBottom: 0,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    overflow: "hidden",
   },
   row: {
     flexDirection: "row",
-    marginBottom: 8,
+    marginBottom: 0,
+    borderRadius: 0,
+    overflow: "hidden",
   },
   cell: {
-    padding: 8,
-    borderWidth: 1,
-    borderColor: "#ddd",
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderWidth: 0,
+    borderBottomWidth: 1,
+    borderColor: "#e0e0e0",
+    borderRightWidth: 1,
+    borderRightColor: "#e0e0e0",
   },
   statusText: {
     fontSize: 12,

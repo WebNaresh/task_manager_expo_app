@@ -1,1 +1,1 @@
-export const base_url = 'https://taskmanagement-kgnz.onrender.com/'
+export const base_url = 'http://192.168.76.108:8000/'

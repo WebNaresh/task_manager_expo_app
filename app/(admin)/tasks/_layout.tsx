@@ -7,7 +7,15 @@ const StackLayout = () => {
     <Stack>
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="add_task/index" options={{ headerShown: false }} />
-      <Stack.Screen name="[task_id]/index" options={{ title: "Task Detail" }} />
+      <Stack.Screen
+        name="[task_id]/index"
+        options={({ route }) => {
+          const clientName = (route.params as any)?.clientName;
+          return {
+            title: clientName ? `Task Detail - ${clientName}` : "Task Detail",
+          };
+        }}
+      />
       <Stack.Screen
         name="[task_id]/edit/index"
         options={{ title: "Edit Task" }}

@@ -2,6 +2,7 @@ import { PriorityData } from "@/app/(admin)/dashboard";
 import NBTextInput from "@/components/input/text-input";
 import NBButton from "@/components/ui/button";
 import { error_color, success_color } from "@/constants/Colors";
+import useAuth from "@/hooks/useAuth";
 import { Feather } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -13,6 +14,7 @@ import {
   RefreshControl,
   ScrollView,
   StyleSheet,
+  TouchableOpacity,
   useColorScheme,
   View,
 } from "react-native";
@@ -80,6 +82,7 @@ const AddTaskForm = (props: Props) => {
     },
   });
   const query_client = useQueryClient();
+  const auth = useAuth();
 
   const { handleSubmit, formState, reset } = form;
 
@@ -115,7 +118,11 @@ const AddTaskForm = (props: Props) => {
         position: Toast.positions.TOP,
         backgroundColor: success_color,
       });
-      router.back();
+      if (auth.user?.role === "ADMIN") {
+        router.push("/(admin)/tasks");
+      } else {
+        router.push("/(manager)/tasks");
+      }
     },
     onError(error, variables, context) {
       if (isAxiosError(error)) {
@@ -134,139 +141,159 @@ const AddTaskForm = (props: Props) => {
       contentContainerStyle={[
         { paddingBottom: 26 },
         isDarkMode && styles.darkContainer,
+        styles.formCard,
       ]}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
     >
-      <NBTextInput
-        form={form}
-        name="description"
-        placeholder="Enter description"
-        type="textarea"
-        icon={
-          <Feather
-            name="file-text"
-            size={24}
-            color={isDarkMode ? "white" : "black"}
-          />
-        }
-      />
-      <View style={styles.taskListContainer}>
-        <View style={{ flex: 1 }}>
-          <NBTextInput
-            form={form}
-            name="taskListId"
-            placeholder="Enter tasklist"
-            type="select"
-            icon={
-              <Feather
-                name="list"
-                size={24}
-                color={isDarkMode ? "white" : "black"}
-              />
+      <View style={styles.headerRow}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => {
+            if (auth.user?.role === "ADMIN") {
+              router.push("/(admin)/tasks");
+            } else {
+              router.push("/(manager)/tasks");
             }
-            options={[
-              {
-                label: "Add New Tasklist",
-                value: "add_new",
-              },
-              ...props.tasklists.map((tasklist) => ({
-                label: tasklist.name,
-                value: tasklist.id,
-              })),
-            ]}
-            onSelect={(value) => {
-              if (value === "add_new") {
-                form.setValue("taskListId", "");
-                router.push("/add_tasklist_modal");
-              }
-            }}
+          }}
+        >
+          <Feather
+            name="arrow-left"
+            size={24}
+            color={isDarkMode ? "#fff" : "#222"}
           />
-        </View>
+        </TouchableOpacity>
       </View>
-      <NBTextInput
-        form={form}
-        name="dueDate"
-        placeholder="Enter due date"
-        type="date"
-        icon={
-          <Feather
-            name="calendar"
-            size={24}
-            color={isDarkMode ? "white" : "black"}
-          />
-        }
-      />
-      <NBTextInput
-        form={form}
-        name="responsibleUserId"
-        placeholder="Enter assigned RM"
-        type="select"
-        icon={
-          <Feather
-            name="user"
-            size={24}
-            color={isDarkMode ? "white" : "black"}
-          />
-        }
-        options={props.managers.map((manager) => ({
-          label: manager.name,
-          value: manager.id,
-        }))}
-      />
-      <NBTextInput
-        form={form}
-        name="clientId"
-        placeholder="Enter client"
-        type="select"
-        icon={
-          <Feather
-            name="briefcase"
-            size={24}
-            color={isDarkMode ? "white" : "black"}
-          />
-        }
-        options={[
-          {
-            label: "Add New Client",
-            value: "add_new",
-          },
-          ...props.clients.map((client) => ({
-            label: client.name,
-            value: client.id,
-          })),
-        ]}
-        onSelect={(value) => {
-          if (value === "add_new") {
-            form.setValue("clientId", "");
-            router.push("/add_client_modal");
+      <View style={styles.formContent}>
+        <NBTextInput
+          form={form}
+          name="description"
+          placeholder="Enter description"
+          type="textarea"
+          icon={
+            <Feather
+              name="file-text"
+              size={24}
+              color={isDarkMode ? "white" : "black"}
+            />
           }
-        }}
-      />
-      <NBTextInput
-        form={form}
-        name="priorityId"
-        placeholder="Enter priority"
-        type="select"
-        icon={
-          <Feather
-            name="star"
-            size={24}
-            color={isDarkMode ? "white" : "black"}
-          />
-        }
-        options={props.priorities.map((priority) => ({
-          label: priority.name,
-          value: priority.id,
-        }))}
-      />
-
-      <NBButton
-        text="Create Task"
-        onPress={handleSubmit(onSubmit)}
-        isPending={formState.isSubmitting || isPending}
-      />
+        />
+        <View style={styles.taskListContainer}>
+          <View style={{ flex: 1 }}>
+            <NBTextInput
+              form={form}
+              name="taskListId"
+              placeholder="Enter tasklist"
+              type="select"
+              icon={
+                <Feather
+                  name="list"
+                  size={24}
+                  color={isDarkMode ? "white" : "black"}
+                />
+              }
+              options={[
+                {
+                  label: "Add New Tasklist",
+                  value: "add_new",
+                },
+                ...props.tasklists.map((tasklist) => ({
+                  label: tasklist.name,
+                  value: tasklist.id,
+                })),
+              ]}
+              onSelect={(value) => {
+                if (value === "add_new") {
+                  form.setValue("taskListId", "");
+                  router.push("/add_tasklist_modal");
+                }
+              }}
+            />
+          </View>
+        </View>
+        <NBTextInput
+          form={form}
+          name="dueDate"
+          placeholder="Enter due date"
+          type="date"
+          icon={
+            <Feather
+              name="calendar"
+              size={24}
+              color={isDarkMode ? "white" : "black"}
+            />
+          }
+        />
+        <NBTextInput
+          form={form}
+          name="responsibleUserId"
+          placeholder="Enter assigned RM"
+          type="select"
+          icon={
+            <Feather
+              name="user"
+              size={24}
+              color={isDarkMode ? "white" : "black"}
+            />
+          }
+          options={props.managers.map((manager) => ({
+            label: manager.name,
+            value: manager.id,
+          }))}
+        />
+        <NBTextInput
+          form={form}
+          name="clientId"
+          placeholder="Enter client"
+          type="select"
+          icon={
+            <Feather
+              name="briefcase"
+              size={24}
+              color={isDarkMode ? "white" : "black"}
+            />
+          }
+          options={[
+            {
+              label: "Add New Client",
+              value: "add_new",
+            },
+            ...props.clients.map((client) => ({
+              label: client.name,
+              value: client.id,
+            })),
+          ]}
+          onSelect={(value) => {
+            if (value === "add_new") {
+              form.setValue("clientId", "");
+              router.push("/add_client_modal");
+            }
+          }}
+        />
+        <NBTextInput
+          form={form}
+          name="priorityId"
+          placeholder="Enter priority"
+          type="select"
+          icon={
+            <Feather
+              name="star"
+              size={24}
+              color={isDarkMode ? "white" : "black"}
+            />
+          }
+          options={props.priorities.map((priority) => ({
+            label: priority.name,
+            value: priority.id,
+          }))}
+        />
+        <NBButton
+          text="Create Task"
+          onPress={handleSubmit(onSubmit)}
+          isPending={formState.isSubmitting || isPending}
+        />
+      </View>
     </ScrollView>
   );
 };
@@ -276,6 +303,32 @@ export default AddTaskForm;
 const styles = StyleSheet.create({
   darkContainer: {
     backgroundColor: "#000",
+  },
+  formCard: {
+    backgroundColor: "#fff",
+    borderRadius: 18,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+    margin: 16,
+    padding: 12,
+  },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  backButton: {
+    backgroundColor: "#f2f2f2",
+    borderRadius: 8,
+    padding: 8,
+    marginRight: 8,
+    alignSelf: "flex-start",
+  },
+  formContent: {
+    gap: 16,
   },
   taskListContainer: {
     flexDirection: "row",

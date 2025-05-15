@@ -1,6 +1,6 @@
-import TaskItem from "@/components/task/task_list";
 import { primary_color } from "@/constants/Colors";
 import useAuth from "@/hooks/useAuth";
+import TaskTable from "@/task-table";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { Link, useRouter } from "expo-router";
@@ -63,22 +63,7 @@ const Tasks: React.FC = () => {
           <RefreshControl refreshing={isFetching} onRefresh={onRefresh} />
         }
       >
-        {data.map((task: any) => {
-          return (
-            <TaskItem
-              key={task.id}
-              title={task.title}
-              description={task.description}
-              priority={task?.priority}
-              responsibleUser={task?.responsibleUser}
-              dueDate={task?.dueDate}
-              status={task?.status}
-              task_list={task?.taskList}
-              id={task.id}
-              user_id={user?.id}
-            />
-          );
-        })}
+        <TaskTable tasks={data} user_id={user?.id!} />
       </ScrollView>
 
       <Link href={"/(admin)/tasks/add_task"} asChild>

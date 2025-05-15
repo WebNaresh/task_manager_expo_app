@@ -74,10 +74,23 @@ const StatCard: React.FC<StatCardProps> = ({
   return (
     <Link
       href={link as any}
-      style={[styles.card, isDarkMode && styles.cardDark]}
+      style={[
+        styles.card,
+        isDarkMode && styles.cardDark,
+        { borderWidth: 0, marginBottom: 18 },
+      ]}
     >
-      <View style={[]}>
-        <MaterialCommunityIcons name={icon} size={24} color={color} />
+      <View style={{ alignItems: "center" }}>
+        <View
+          style={{
+            backgroundColor: color + "22",
+            borderRadius: 16,
+            padding: 12,
+            marginBottom: 8,
+          }}
+        >
+          <MaterialCommunityIcons name={icon} size={28} color={color} />
+        </View>
         <Text style={[styles.value, isDarkMode && styles.valueDark]}>
           {value}
         </Text>
@@ -260,11 +273,18 @@ const TaskDashboard: React.FC = () => {
       flexDirection: "row",
       alignItems: "center",
       padding: 12,
-      backgroundColor: isDarkMode ? "#333" : "#ffffff",
-      borderRadius: 8,
+      backgroundColor: isDarkMode ? "#23272f" : "#f9f9fb",
+      borderRadius: 12,
       marginHorizontal: 16,
       marginBottom: 12,
       marginTop: 18,
+      shadowColor: isDarkMode ? "#000" : "#aaa",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.08,
+      shadowRadius: 6,
+      elevation: 2,
+      borderWidth: 1,
+      borderColor: isDarkMode ? "#333" : "#e0e0e0",
     },
     datePickerButtonText: {
       marginLeft: 8,
@@ -456,6 +476,7 @@ const styles = StyleSheet.create({
   },
   statSection: {
     padding: 16,
+    paddingBottom: 0,
   },
   statGrid: {
     flexDirection: "row",
@@ -467,6 +488,11 @@ const styles = StyleSheet.create({
     margin: 16,
     padding: 16,
     borderRadius: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 1,
   },
   prioritySectionDark: {
     backgroundColor: "#1E1E1E",
@@ -476,6 +502,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e0e0e0",
+    paddingBottom: 10,
   },
   priorityTitle: {
     fontSize: 20,
@@ -487,6 +516,12 @@ const styles = StyleSheet.create({
   addPriority: {
     color: "#4285F4",
     fontSize: 16,
+    backgroundColor: "#e3f0ff",
+    paddingHorizontal: 18,
+    paddingVertical: 7,
+    borderRadius: 20,
+    fontWeight: "600",
+    overflow: "hidden",
   },
   addPriorityDark: {
     color: "#8AB4F8",
@@ -497,6 +532,10 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: "#f0f0f0",
+    backgroundColor: "#f7fafd",
+    borderRadius: 8,
+    marginBottom: 8,
+    paddingHorizontal: 8,
   },
   priorityRowDark: {
     borderBottomColor: "#333",

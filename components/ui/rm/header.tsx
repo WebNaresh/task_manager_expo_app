@@ -21,8 +21,13 @@ export default function Header(props: BottomTabHeaderProps) {
         styles.container,
         { backgroundColor: Colors[colorScheme ?? "light"].background },
         isDarkMode && styles.darkMode,
+        styles.card,
       ]}
     >
+      <Image
+        source={require("@/assets/images/icon.png")}
+        style={styles.clientLogo}
+      />
       <View style={styles.textContainer}>
         <Text
           style={[
@@ -38,9 +43,10 @@ export default function Header(props: BottomTabHeaderProps) {
             styles.subtitle,
             { color: Colors[colorScheme ?? "light"].text },
             isDarkMode && styles.darkModeText,
+            styles.welcomeText,
           ]}
         >
-          Welcome back, {user?.name}
+          Welcome back, <Text style={styles.bold}>{user?.name}</Text>
         </Text>
       </View>
       <Image
@@ -65,23 +71,51 @@ const styles = StyleSheet.create({
     borderBottomColor: "#e0e0e0",
     paddingTop: 28,
   },
+  card: {
+    borderRadius: 18,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+    margin: 12,
+    borderWidth: 0,
+  },
   textContainer: {
     flex: 1,
   },
   title: {
     fontSize: 28,
-    fontWeight: "600",
-    marginBottom: 4,
+    fontWeight: "700",
+    marginBottom: 2,
+    letterSpacing: 0.2,
   },
   subtitle: {
     fontSize: 16,
     opacity: 0.7,
   },
+  welcomeText: {
+    fontWeight: "500",
+    fontSize: 17,
+    opacity: 1,
+    marginTop: 2,
+  },
+  bold: {
+    fontWeight: "700",
+  },
+  clientLogo: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    marginRight: 16,
+    backgroundColor: "#f0f0f0",
+  },
   avatar: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    marginLeft: 16,
+    marginLeft: 0,
+    backgroundColor: "#f0f0f0",
   },
   darkMode: {
     backgroundColor: "#121212",
