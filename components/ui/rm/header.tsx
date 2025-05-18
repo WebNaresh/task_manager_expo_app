@@ -8,9 +8,11 @@ import {
   Platform,
   StyleSheet,
   Text,
+  TouchableOpacity,
   useColorScheme,
   View,
 } from "react-native";
+import { showToast } from "../toast";
 
 export default function Header(props: BottomTabHeaderProps) {
   const colorScheme = useColorScheme();
@@ -57,13 +59,20 @@ export default function Header(props: BottomTabHeaderProps) {
           Welcome back, <Text style={styles.bold}>{user?.name}</Text>
         </Text>
       </View>
-      <Image
-        source={{
-          uri: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTG5CPz89vwuDB4H5EsXhkpKz0_koS-0HK0Yg&s",
+      <TouchableOpacity
+        onPress={() => {
+          // toast "logout"
+          showToast("Logout");
         }}
-        style={styles.avatar}
-        resizeMode="cover"
-      />
+      >
+        <Image
+          source={{
+            uri: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTG5CPz89vwuDB4H5EsXhkpKz0_koS-0HK0Yg&s",
+          }}
+          style={styles.avatar}
+          resizeMode="cover"
+        />
+      </TouchableOpacity>
     </View>
   );
 }

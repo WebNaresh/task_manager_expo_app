@@ -172,6 +172,7 @@ const Tasks: React.FC = () => {
     container: {
       flex: 1,
       backgroundColor: isDarkMode ? "#000" : "#fff",
+      height: "100%",
     },
     title: {
       fontSize: 28,
@@ -372,16 +373,12 @@ const Tasks: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
   taskHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingBottom: 16,
   },
   title: {
     fontSize: 28,

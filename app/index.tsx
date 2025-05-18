@@ -2,7 +2,7 @@
 
 import useAuth from "@/hooks/useAuth";
 import { LinearGradient } from "expo-linear-gradient";
-import { Link, Redirect, useRouter } from "expo-router";
+import { Redirect, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -245,24 +245,6 @@ export default function App() {
                   {currentIndex === features.length - 1 ? "Finish" : "Next"}
                 </Text>
               </TouchableOpacity>
-
-              <Link href={"/login"} asChild>
-                <TouchableOpacity
-                  style={[
-                    styles.getStartedButton,
-                    isDarkMode && styles.getStartedButtonDark,
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.getStartedText,
-                      isDarkMode && styles.getStartedTextDark,
-                    ]}
-                  >
-                    Get Started
-                  </Text>
-                </TouchableOpacity>
-              </Link>
             </View>
           )}
         </View>

@@ -132,6 +132,13 @@ const LoginScreen = () => {
       width: "100%",
       gap: 20,
       marginVertical: keyboardVisible ? 16 : 32,
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: isDarkMode
+        ? "rgba(30,34,42,0.8)"
+        : "rgba(255,255,255,0.9)",
     },
     signInButton: {
       width: "100%",
@@ -252,16 +259,15 @@ const LoginScreen = () => {
             showsVerticalScrollIndicator={false}
           >
             <View style={styles.content}>
-              <View style={styles.logoContainer}>
-                <Image
-                  source={require("@/assets/images/icon.png")}
-                  style={styles.logo}
-                  resizeMode="contain"
-                />
-              </View>
-
               <View style={styles.formCardWrapper}>
                 <View style={styles.inputsContainer}>
+                  <View style={styles.logoContainer}>
+                    <Image
+                      source={require("@/assets/images/icon.png")}
+                      style={styles.logo}
+                      resizeMode="contain"
+                    />
+                  </View>
                   <NBTextInput
                     form={form}
                     name="email"
@@ -288,15 +294,15 @@ const LoginScreen = () => {
                     }
                     type="password"
                   />
+                  <NBButton
+                    onPress={handleSubmit(onSubmit)}
+                    isPending={mutation.isPending}
+                    text="Sign In"
+                    style={styles.signInButton}
+                    textStyle={styles.signInButtonText}
+                  />
+                  <Text style={styles.forgotPassword}>Forgot Password?</Text>
                 </View>
-                <NBButton
-                  onPress={handleSubmit(onSubmit)}
-                  isPending={mutation.isPending}
-                  text="Sign In"
-                  style={styles.signInButton}
-                  textStyle={styles.signInButtonText}
-                />
-                <Text style={styles.forgotPassword}>Forgot Password?</Text>
               </View>
             </View>
           </ScrollView>
