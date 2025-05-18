@@ -4,7 +4,9 @@ import {
   ActivityIndicator,
   StyleSheet,
   Text,
+  TextStyle,
   TouchableOpacity,
+  ViewStyle,
 } from "react-native";
 
 type NBButtonProps = {
@@ -13,6 +15,8 @@ type NBButtonProps = {
   onPress: () => void;
   type?: "primary" | "secondary";
   isDisabled?: boolean;
+  style?: ViewStyle;
+  textStyle?: TextStyle;
 };
 
 const NBButton = (props: NBButtonProps) => {
@@ -21,6 +25,7 @@ const NBButton = (props: NBButtonProps) => {
       style={[
         styles.loginButton,
         (props.isPending || props.isDisabled) && styles.disabledButton,
+        props.style,
       ]}
       disabled={props.isPending || props.isDisabled}
       onPress={props.onPress}
@@ -28,7 +33,9 @@ const NBButton = (props: NBButtonProps) => {
       {props.isPending ? (
         <ActivityIndicator size="small" color={text_color} />
       ) : (
-        <Text style={styles.loginButtonText}>{props.text}</Text>
+        <Text style={[styles.loginButtonText, props.textStyle]}>
+          {props.text}
+        </Text>
       )}
     </TouchableOpacity>
   );

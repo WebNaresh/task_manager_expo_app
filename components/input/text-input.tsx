@@ -28,16 +28,33 @@ export type NBTextInputProps = {
 const NBTextInput = (props: NBTextInputProps) => {
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === "dark";
+  const [isFocused, setIsFocused] = React.useState(false);
 
   const dynamicStyles = StyleSheet.create({
     inputWrapper: {
-      backgroundColor: isDarkMode ? "#333333" : "#F5F5F5",
+      backgroundColor: isDarkMode ? "#23272f" : "#F5F5F5",
+      borderColor: isFocused
+        ? isDarkMode
+          ? "#a5b4fc"
+          : "#007AFF"
+        : isDarkMode
+        ? "#333a4d"
+        : "#e0e7ef",
+      borderWidth: 1.5,
+      shadowColor: isDarkMode ? "#000" : "#007AFF",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: isFocused ? 0.18 : 0.08,
+      shadowRadius: isFocused ? 8 : 4,
+      elevation: isFocused ? 4 : 2,
     },
     input: {
       color: isDarkMode ? "#FFFFFF" : "#000000",
     },
     errorText: {
-      color: "red",
+      color: "#e53935",
+      fontWeight: "600",
+      fontSize: 13,
+      marginTop: 2,
     },
   });
 
@@ -70,7 +87,13 @@ const NBTextInput = (props: NBTextInputProps) => {
       control={props.form.control}
       render={({ field: { onChange, onBlur, value } }) => (
         <View style={styles.inputContainer}>
-          <View style={[styles.inputWrapper, dynamicStyles.inputWrapper]}>
+          <View
+            style={[
+              styles.inputWrapper,
+              dynamicStyles.inputWrapper,
+              isFocused && { borderColor: isDarkMode ? "#a5b4fc" : "#007AFF" },
+            ]}
+          >
             {props.icon}
             <TextInput
               style={[styles.input, dynamicStyles.input]}
@@ -78,9 +101,13 @@ const NBTextInput = (props: NBTextInputProps) => {
               placeholderTextColor="#A0A0A0"
               value={value}
               onChangeText={onChange}
-              onBlur={onBlur} // Ensure onBlur is passed
-              keyboardType={props.keyboardType} // Ensure keyboardType is passed
-              autoCapitalize={props.autoCapitalize} // Ensure autoCapitalize is passed
+              onBlur={() => {
+                setIsFocused(false);
+                onBlur();
+              }}
+              onFocus={() => setIsFocused(true)}
+              keyboardType={props.keyboardType}
+              autoCapitalize={props.autoCapitalize}
             />
           </View>
           <View style={styles.errorContainer}>
@@ -103,14 +130,17 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: "row",
     alignItems: "center",
-    borderRadius: 12,
-    paddingHorizontal: 16,
+    borderRadius: 16,
+    paddingHorizontal: 18,
     height: 56,
+    marginBottom: 2,
+    backgroundColor: "transparent",
   },
   input: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 17,
     marginLeft: 12,
+    fontWeight: "500",
   },
   errorContainer: {
     flexDirection: "row",

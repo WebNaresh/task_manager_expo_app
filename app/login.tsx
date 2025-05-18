@@ -2,15 +2,21 @@ import NBTextInput from "@/components/input/text-input";
 import NBButton from "@/components/ui/button";
 import { error_color, primary_color, success_color } from "@/constants/Colors";
 import useAuth from "@/hooks/useAuth";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod"; // Add this import
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import { BlurView } from "expo-blur";
+import { LinearGradient } from "expo-linear-gradient";
 import { Redirect, useRouter } from "expo-router";
 import React from "react";
 import { useForm } from "react-hook-form";
 import {
+  Dimensions,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -20,6 +26,8 @@ import {
 } from "react-native";
 import Toast from "react-native-root-toast";
 import { z } from "zod";
+
+const { width } = Dimensions.get("window");
 
 const form_schema = z.object({
   email: z.string().email(),
@@ -35,67 +43,91 @@ const LoginScreen = () => {
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: isDarkMode ? "#000000" : "#FFFFFF",
+      backgroundColor: isDarkMode ? "#181c24" : "#FFFFFF",
+    },
+    gradientBackground: {
+      flex: 1,
     },
     scrollContainer: {
       flexGrow: 1,
-      justifyContent: "center",
-      alignItems: "center",
     },
     content: {
+      flex: 1,
       width: "100%",
-      paddingHorizontal: 24,
       alignItems: "center",
-      justifyContent: "center",
-    },
-    logoContainer: {
-      marginBottom: 32,
+      justifyContent: "flex-start",
+      paddingTop: 32,
     },
     logo: {
-      width: 80,
-      height: 80,
-      borderRadius: 20,
-      backgroundColor: primary_color,
-      alignItems: "center",
-      justifyContent: "center",
+      width: 120,
+      height: 120,
+      resizeMode: "contain",
+      marginBottom: 24,
+      marginTop: 24,
     },
     title: {
-      fontSize: 32,
+      fontSize: 28,
       fontWeight: "bold",
-      color: isDarkMode ? "#FFFFFF" : "#000000",
+      color: isDarkMode ? "#fff" : "#1a1a1a",
       marginBottom: 8,
+      textAlign: "center",
     },
     subtitle: {
       fontSize: 16,
-      color: "#A0A0A0",
-      marginBottom: 48,
+      color: isDarkMode ? "#b0b8c9" : "#666",
+      marginBottom: 0,
+      textAlign: "center",
     },
-    inputContainer: {
+    formCardWrapper: {
       width: "100%",
-      gap: 16,
-      marginBottom: 16,
-    },
-    inputWrapper: {
-      flexDirection: "row",
       alignItems: "center",
-      backgroundColor: isDarkMode ? "#333333" : "#F5F5F5",
-      borderRadius: 12,
-      paddingHorizontal: 16,
-      height: 56,
+      marginTop: 32,
     },
-    input: {
-      flex: 1,
-      fontSize: 16,
-      color: isDarkMode ? "#FFFFFF" : "#000000",
-      marginLeft: 12,
+    formCard: {
+      width: "100%",
+      maxWidth: 400,
+      borderRadius: 24,
+      padding: 28,
+      backgroundColor: isDarkMode
+        ? "rgba(24,28,36,0.7)"
+        : "rgba(255,255,255,0.7)",
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.15,
+      shadowRadius: 24,
+      elevation: 8,
+      alignItems: "center",
     },
-    eyeIcon: {
-      padding: 4,
+    inputsContainer: {
+      width: "100%",
+      gap: 18,
+      marginBottom: 24,
+    },
+    signInButton: {
+      width: "100%",
+      borderRadius: 16,
+      paddingVertical: 16,
+      marginBottom: 12,
+      backgroundColor: primary_color,
+      shadowColor: primary_color,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.2,
+      shadowRadius: 12,
+      elevation: 4,
+    },
+    signInButtonText: {
+      fontSize: 18,
+      fontWeight: "bold",
+      color: "#fff",
+      letterSpacing: 0.5,
     },
     forgotPassword: {
-      color: primary_color,
-      fontSize: 14,
-      marginBottom: 24,
+      color: isDarkMode ? "#b0b8c9" : primary_color,
+      fontSize: 15,
+      textAlign: "center",
+      marginTop: 4,
+      textDecorationLine: "underline",
+      opacity: 0.85,
     },
   });
 
@@ -196,54 +228,75 @@ const LoginScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        <View style={styles.content}>
-          {/* Logo */}
-          <View style={styles.logoContainer}>
-            <View style={styles.logo}>
-              <Ionicons name="checkmark" size={40} color="#FFFFFF" />
+      <LinearGradient
+        colors={isDarkMode ? ["#181c24", "#23272f"] : ["#f8fafc", "#e0e7ef"]}
+        style={styles.gradientBackground}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={{ flex: 1 }}
+        >
+          <ScrollView
+            contentContainerStyle={styles.scrollContainer}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View style={styles.content}>
+              <Image
+                source={require("@/assets/images/icon.png")}
+                style={styles.logo}
+              />
+              <Text style={styles.title}>Welcome Back</Text>
+              <Text style={styles.subtitle}>
+                Sign in to your Glory Prime Wealth account
+              </Text>
+              <View style={styles.formCardWrapper}>
+                <BlurView
+                  intensity={60}
+                  tint={isDarkMode ? "dark" : "light"}
+                  style={styles.formCard}
+                >
+                  <View style={styles.inputsContainer}>
+                    <NBTextInput
+                      form={form}
+                      name="email"
+                      placeholder="Enter your email"
+                      icon={
+                        <MaterialCommunityIcons
+                          name="email-outline"
+                          size={20}
+                          color={isDarkMode ? "#b0b8c9" : "#666666"}
+                        />
+                      }
+                      type="text"
+                    />
+                    <NBTextInput
+                      form={form}
+                      name="password"
+                      placeholder="Enter your password"
+                      icon={
+                        <MaterialCommunityIcons
+                          name="lock-outline"
+                          size={20}
+                          color={isDarkMode ? "#b0b8c9" : "#666666"}
+                        />
+                      }
+                      type="password"
+                    />
+                  </View>
+                  <NBButton
+                    onPress={handleSubmit(onSubmit)}
+                    isPending={mutation.isPending}
+                    text="Sign In"
+                    style={styles.signInButton}
+                    textStyle={styles.signInButtonText}
+                  />
+                  <Text style={styles.forgotPassword}>Forgot Password?</Text>
+                </BlurView>
+              </View>
             </View>
-          </View>
-
-          {/* Welcome Text */}
-          <Text style={styles.title}>Welcome Back</Text>
-          <Text style={styles.subtitle}>Sign in to Continue</Text>
-
-          {/* Input Fields */}
-          <NBTextInput
-            form={form}
-            name="email"
-            placeholder="eg. admin@gmail.com"
-            icon={
-              <MaterialCommunityIcons
-                name="email-outline"
-                size={20}
-                color="#A0A0A0"
-              />
-            }
-            type="text"
-          />
-          <NBTextInput
-            form={form}
-            name="password"
-            placeholder="Pass@123"
-            icon={
-              <MaterialCommunityIcons
-                name="lock-outline"
-                size={20}
-                color="#A0A0A0"
-              />
-            }
-            type="password"
-          />
-
-          <NBButton
-            onPress={handleSubmit(onSubmit)}
-            isPending={mutation.isPending}
-            text="Login"
-          />
-        </View>
-      </ScrollView>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </LinearGradient>
     </SafeAreaView>
   );
 };

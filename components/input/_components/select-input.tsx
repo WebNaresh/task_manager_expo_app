@@ -7,10 +7,28 @@ import { NBTextInputProps } from "../text-input";
 const NBSelectInputField = (props: NBTextInputProps) => {
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === "dark";
+  const [isFocused, setIsFocused] = React.useState(false);
 
   const dynamicStyles = StyleSheet.create({
     inputWrapper: {
-      backgroundColor: isDarkMode ? "#333333" : "#F5F5F5",
+      backgroundColor: isDarkMode ? "#23272f" : "#F5F5F5",
+      borderColor: isFocused
+        ? isDarkMode
+          ? "#a5b4fc"
+          : "#007AFF"
+        : isDarkMode
+        ? "#333a4d"
+        : "#e0e7ef",
+      borderWidth: 1.5,
+      shadowColor: isDarkMode ? "#000" : "#007AFF",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: isFocused ? 0.18 : 0.08,
+      shadowRadius: isFocused ? 8 : 4,
+      elevation: isFocused ? 4 : 2,
+      borderRadius: 16,
+      paddingHorizontal: 18,
+      height: 56,
+      marginBottom: 2,
     },
     input: {
       color: isDarkMode ? "#FFFFFF" : "#000000",
@@ -32,12 +50,14 @@ const NBSelectInputField = (props: NBTextInputProps) => {
               selectedValue={value}
               style={[styles.input, dynamicStyles.input]}
               onValueChange={(itemValue) => {
+                setIsFocused(true);
                 onChange(itemValue);
                 props.onSelect?.(itemValue);
+                setTimeout(() => setIsFocused(false), 300);
               }}
               dropdownIconColor={isDarkMode ? "#FFFFFF" : "#000000"}
               itemStyle={{
-                backgroundColor: isDarkMode ? "#333333" : "#FFFFFF",
+                backgroundColor: isDarkMode ? "#23272f" : "#FFFFFF",
               }}
             >
               <Picker.Item label={props.placeholder} value="" enabled={false} />

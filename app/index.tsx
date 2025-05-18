@@ -1,9 +1,11 @@
 "use client";
 
 import useAuth from "@/hooks/useAuth";
-import { Link, Redirect } from "expo-router";
-import { useRef, useState } from "react";
+import { LinearGradient } from "expo-linear-gradient";
+import { Link, Redirect, useRouter } from "expo-router";
+import { useEffect, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   Dimensions,
   FlatList,
   SafeAreaView,
@@ -11,8 +13,8 @@ import {
   Text,
   TouchableOpacity,
   View,
+  useColorScheme,
 } from "react-native";
-import { useSharedValue } from "react-native-reanimated";
 import { Path, Svg } from "react-native-svg";
 
 const { width } = Dimensions.get("window");
@@ -21,11 +23,12 @@ const features = [
   {
     id: "1",
     title: "Organize Tasks",
-    description: "Easily create and manage your daily tasks",
+    description:
+      "Easily create and manage your daily tasks with our intuitive interface",
     icon: (
       <Svg
-        width="50"
-        height="50"
+        width="60"
+        height="60"
         viewBox="0 0 24 24"
         fill="none"
         stroke="#007AFF"
@@ -40,11 +43,12 @@ const features = [
   {
     id: "2",
     title: "Set Priorities",
-    description: "Prioritize your tasks to focus on what matters most",
+    description:
+      "Focus on what matters most by organizing tasks based on importance",
     icon: (
       <Svg
-        width="50"
-        height="50"
+        width="60"
+        height="60"
         viewBox="0 0 24 24"
         fill="none"
         stroke="#007AFF"
@@ -60,11 +64,12 @@ const features = [
   {
     id: "3",
     title: "Track Progress",
-    description: "Monitor your productivity and celebrate achievements",
+    description:
+      "Monitor your achievements and stay motivated with visual progress tracking",
     icon: (
       <Svg
-        width="50"
-        height="50"
+        width="60"
+        height="60"
         viewBox="0 0 24 24"
         fill="none"
         stroke="#007AFF"
@@ -79,31 +84,40 @@ const features = [
 ];
 
 const OnboardingItem = ({ item }: { item: any }) => {
-  const handleGetStarted = () => {
-    // Navigate to the main app screen or show login/signup
-  };
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === "dark";
 
   return (
-    <View style={styles.itemContainer}>
-      <View style={styles.iconContainer}>{item.icon}</View>
-      <Text style={styles.title}>{item.title}</Text>
-      <Text style={styles.description}>{item.description}</Text>
-      <View style={styles.footer}>
-        <Link href={"/login"} asChild>
-          <TouchableOpacity style={styles.button} onPress={handleGetStarted}>
-            <Text style={styles.buttonText}>Get Started</Text>
-          </TouchableOpacity>
-        </Link>
+    <View
+      style={[styles.itemContainer, isDarkMode && styles.itemContainerDark]}
+    >
+      <View style={[styles.featureCard, isDarkMode && styles.featureCardDark]}>
+        <View
+          style={[styles.iconContainer, isDarkMode && styles.iconContainerDark]}
+        >
+          {item.icon}
+        </View>
+        <Text style={[styles.title, isDarkMode && styles.titleDark]}>
+          {item.title}
+        </Text>
+        <Text
+          style={[styles.description, isDarkMode && styles.descriptionDark]}
+        >
+          {item.description}
+        </Text>
       </View>
     </View>
   );
 };
 
 export default function App() {
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === "dark";
   const [currentIndex, setCurrentIndex] = useState(0);
-  const scrollX = useSharedValue(0); // Correctly typed as a shared value
-  const flatListRef = useRef(null);
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const flatListRef = useRef<FlatList<any>>(null);
   const { token, user } = useAuth();
+  const router = useRouter();
 
   const onViewableItemsChanged = useRef(
     ({ viewableItems }: { viewableItems: any }) => {
@@ -117,9 +131,38 @@ export default function App() {
     itemVisiblePercentThreshold: 50,
   }).current;
 
-  const handleScroll = (event: any) => {
-    scrollX.value = event.nativeEvent.contentOffset.x; // Correctly accessing the shared value
+  const handleNextSlide = () => {
+    if (currentIndex < features.length - 1) {
+      flatListRef.current?.scrollToIndex({
+        index: currentIndex + 1,
+        animated: true,
+      });
+    } else {
+      setIsRedirecting(true);
+      setTimeout(() => {
+        router.replace("/login");
+      }, 2000);
+    }
   };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (currentIndex < features.length - 1) {
+        flatListRef.current?.scrollToIndex({
+          index: currentIndex + 1,
+          animated: true,
+        });
+      } else if (currentIndex === features.length - 1) {
+        clearInterval(interval);
+        setIsRedirecting(true);
+        setTimeout(() => {
+          router.replace("/login");
+        }, 2000);
+      }
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [currentIndex]);
 
   if (token !== null) {
     if (user?.role === "ADMIN") {
@@ -130,108 +173,281 @@ export default function App() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Glory Prime</Text>
-      </View>
+    <LinearGradient
+      colors={isDarkMode ? ["#181c24", "#23272f"] : ["#e0e7ff", "#fff"]}
+      style={{ flex: 1 }}
+    >
+      <SafeAreaView
+        style={[styles.container, isDarkMode && styles.containerDark]}
+      >
+        <View style={styles.header}>
+          <Text
+            style={[styles.headerText, isDarkMode && styles.headerTextDark]}
+          >
+            Glory Prime
+          </Text>
+        </View>
+        <FlatList
+          ref={flatListRef}
+          data={features}
+          renderItem={({ item }) => <OnboardingItem item={item} />}
+          keyExtractor={(item) => item.id}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          pagingEnabled
+          onViewableItemsChanged={onViewableItemsChanged}
+          viewabilityConfig={viewabilityConfig}
+          contentContainerStyle={{ justifyContent: "center" }}
+          initialScrollIndex={0}
+        />
 
-      <FlatList
-        ref={flatListRef}
-        data={features}
-        renderItem={({ item }) => <OnboardingItem item={item} />}
-        keyExtractor={(item) => item.id}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        pagingEnabled
-        onScroll={handleScroll}
-        onViewableItemsChanged={onViewableItemsChanged}
-        viewabilityConfig={viewabilityConfig}
-        contentContainerStyle={{ justifyContent: "center" }}
-      />
+        <View style={styles.bottomContainer}>
+          <View style={styles.paginationContainer}>
+            {features.map((_, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.paginationDot,
+                  index === currentIndex && styles.paginationDotActive,
+                  isDarkMode &&
+                    index === currentIndex &&
+                    styles.paginationDotActiveDark,
+                ]}
+              />
+            ))}
+          </View>
 
-      <View style={styles.paginationContainer}>
-        {features.map((_, index) => (
-          <View
-            key={index}
-            style={[
-              styles.paginationDot,
-              index === currentIndex && styles.paginationDotActive,
-            ]}
-          />
-        ))}
-      </View>
-    </SafeAreaView>
+          {isRedirecting ? (
+            <View style={styles.redirectingContainer}>
+              <ActivityIndicator color={isDarkMode ? "#a5b4fc" : "#007AFF"} />
+              <Text
+                style={[
+                  styles.redirectingText,
+                  isDarkMode && styles.redirectingTextDark,
+                ]}
+              >
+                Redirecting to login...
+              </Text>
+            </View>
+          ) : (
+            <View style={styles.buttonsContainer}>
+              <TouchableOpacity
+                style={[styles.nextButton, isDarkMode && styles.nextButtonDark]}
+                onPress={handleNextSlide}
+              >
+                <Text
+                  style={[
+                    styles.nextButtonText,
+                    isDarkMode && styles.nextButtonTextDark,
+                  ]}
+                >
+                  {currentIndex === features.length - 1 ? "Finish" : "Next"}
+                </Text>
+              </TouchableOpacity>
+
+              <Link href={"/login"} asChild>
+                <TouchableOpacity
+                  style={[
+                    styles.getStartedButton,
+                    isDarkMode && styles.getStartedButtonDark,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.getStartedText,
+                      isDarkMode && styles.getStartedTextDark,
+                    ]}
+                  >
+                    Get Started
+                  </Text>
+                </TouchableOpacity>
+              </Link>
+            </View>
+          )}
+        </View>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "transparent",
+  },
+  containerDark: {
+    backgroundColor: "transparent",
   },
   header: {
     paddingVertical: 20,
     alignItems: "center",
   },
   headerText: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: "bold",
     color: "#007AFF",
     marginTop: 40,
+    letterSpacing: 1,
+  },
+  headerTextDark: {
+    color: "#a5b4fc",
+    textShadowColor: "rgba(165, 180, 252, 0.3)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   itemContainer: {
     width,
     alignItems: "center",
     padding: 20,
     justifyContent: "center",
+    backgroundColor: "transparent",
+  },
+  itemContainerDark: {
+    backgroundColor: "transparent",
+  },
+  featureCard: {
+    backgroundColor: "#fff",
+    borderRadius: 24,
+    padding: 32,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 24,
+    elevation: 8,
+    marginBottom: 40,
+    width: width * 0.85,
+    transform: [{ scale: 1 }],
+  },
+  featureCardDark: {
+    backgroundColor: "#23272f",
+    shadowColor: "#000",
+    borderColor: "rgba(165, 180, 252, 0.1)",
+    borderWidth: 1,
   },
   iconContainer: {
-    marginBottom: 20,
+    marginBottom: 24,
+    padding: 16,
+    backgroundColor: "rgba(0, 122, 255, 0.1)",
+    borderRadius: 20,
+  },
+  iconContainerDark: {
+    backgroundColor: "rgba(165, 180, 252, 0.1)",
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
-    marginBottom: 10,
+    marginBottom: 16,
     textAlign: "center",
+    color: "#1a1a1a",
+  },
+  titleDark: {
+    color: "#a5b4fc",
   },
   description: {
     fontSize: 16,
     textAlign: "center",
     color: "#666",
     paddingHorizontal: 20,
+    lineHeight: 24,
   },
-  paginationContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 20,
+  descriptionDark: {
+    color: "#b0b8c9",
   },
-  paginationDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: "#ccc",
-    marginHorizontal: 5,
-  },
-  paginationDotActive: {
-    backgroundColor: "#007AFF",
-  },
-  footer: {
+  bottomContainer: {
     position: "absolute",
-    bottom: 50,
+    bottom: 40,
     left: 0,
     right: 0,
     alignItems: "center",
   },
-  button: {
+  paginationContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginBottom: 30,
+  },
+  paginationDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "rgba(0, 122, 255, 0.2)",
+    marginHorizontal: 5,
+  },
+  paginationDotActive: {
     backgroundColor: "#007AFF",
-    paddingHorizontal: 40,
+    width: 24,
+    borderRadius: 8,
+  },
+  paginationDotActiveDark: {
+    backgroundColor: "#a5b4fc",
+  },
+  buttonsContainer: {
+    width: "100%",
+    paddingHorizontal: 20,
+    gap: 15,
+  },
+  nextButton: {
+    backgroundColor: "rgba(0, 122, 255, 0.1)",
     paddingVertical: 15,
     borderRadius: 25,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
   },
-  buttonText: {
+  nextButtonDark: {
+    backgroundColor: "rgba(165, 180, 252, 0.1)",
+  },
+  nextButtonText: {
+    color: "#007AFF",
+    fontSize: 16,
+    fontWeight: "600",
+    letterSpacing: 0.5,
+  },
+  nextButtonTextDark: {
+    color: "#a5b4fc",
+  },
+  getStartedButton: {
+    backgroundColor: "#007AFF",
+    paddingVertical: 15,
+    borderRadius: 25,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#007AFF",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  getStartedButtonDark: {
+    backgroundColor: "#a5b4fc",
+    shadowColor: "#a5b4fc",
+  },
+  getStartedText: {
     color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
+    fontSize: 16,
+    fontWeight: "600",
+    letterSpacing: 0.5,
+  },
+  getStartedTextDark: {
+    color: "#23272f",
+  },
+  redirectingContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(0, 122, 255, 0.1)",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    marginTop: 10,
+  },
+  redirectingText: {
+    marginLeft: 8,
+    color: "#007AFF",
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  redirectingTextDark: {
+    color: "#a5b4fc",
   },
 });

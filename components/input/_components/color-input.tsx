@@ -32,10 +32,28 @@ const NBColorInput = (props: NBTextInputProps) => {
   const [modalVisible, setModalVisible] = useState(false);
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === "dark";
+  const [isFocused, setIsFocused] = useState(false);
 
   const dynamicStyles = StyleSheet.create({
     inputWrapper: {
-      backgroundColor: isDarkMode ? "#333333" : "#F5F5F5",
+      backgroundColor: isDarkMode ? "#23272f" : "#F5F5F5",
+      borderColor: isFocused
+        ? isDarkMode
+          ? "#a5b4fc"
+          : "#007AFF"
+        : isDarkMode
+        ? "#333a4d"
+        : "#e0e7ef",
+      borderWidth: 1.5,
+      shadowColor: isDarkMode ? "#000" : "#007AFF",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: isFocused ? 0.18 : 0.08,
+      shadowRadius: isFocused ? 8 : 4,
+      elevation: isFocused ? 4 : 2,
+      borderRadius: 16,
+      paddingHorizontal: 18,
+      height: 56,
+      marginBottom: 2,
     },
     input: {
       color: isDarkMode ? "#FFFFFF" : "#000000",
@@ -76,7 +94,11 @@ const NBColorInput = (props: NBTextInputProps) => {
               placeholderTextColor="#A0A0A0"
               value={value}
               onChangeText={onChange}
-              onBlur={onBlur}
+              onBlur={() => {
+                setIsFocused(false);
+                onBlur();
+              }}
+              onFocus={() => setIsFocused(true)}
               keyboardType={props.keyboardType}
               autoCapitalize={props.autoCapitalize}
             />
