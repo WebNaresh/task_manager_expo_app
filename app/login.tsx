@@ -58,12 +58,30 @@ const LoginScreen = () => {
       justifyContent: "flex-start",
       paddingTop: 32,
     },
+    logoWrapper: {
+      position: "absolute",
+      top: -60,
+      alignSelf: "center",
+      zIndex: 2,
+      width: 110,
+      height: 110,
+      borderRadius: 55,
+      backgroundColor: isDarkMode ? "#23272f" : "#fff",
+      alignItems: "center",
+      justifyContent: "center",
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.18,
+      shadowRadius: 16,
+      elevation: 8,
+      borderWidth: 2,
+      borderColor: isDarkMode ? "#23272f" : "#e0e7ef",
+    },
     logo: {
-      width: 120,
-      height: 120,
+      width: 80,
+      height: 80,
       resizeMode: "contain",
-      marginBottom: 24,
-      marginTop: 24,
+      borderRadius: 40,
     },
     title: {
       fontSize: 28,
@@ -71,22 +89,25 @@ const LoginScreen = () => {
       color: isDarkMode ? "#fff" : "#1a1a1a",
       marginBottom: 8,
       textAlign: "center",
+      marginTop: 60,
     },
     subtitle: {
       fontSize: 16,
       color: isDarkMode ? "#b0b8c9" : "#666",
       marginBottom: 0,
       textAlign: "center",
+      fontWeight: "400",
     },
     formCardWrapper: {
       width: "100%",
       alignItems: "center",
       marginTop: 32,
+      paddingHorizontal: 16,
     },
     formCard: {
       width: "100%",
       maxWidth: 400,
-      borderRadius: 24,
+      borderRadius: 16,
       padding: 28,
       backgroundColor: isDarkMode
         ? "rgba(24,28,36,0.7)"
@@ -97,6 +118,7 @@ const LoginScreen = () => {
       shadowRadius: 24,
       elevation: 8,
       alignItems: "center",
+      marginTop: 60,
     },
     inputsContainer: {
       width: "100%",
@@ -105,7 +127,7 @@ const LoginScreen = () => {
     },
     signInButton: {
       width: "100%",
-      borderRadius: 16,
+      borderRadius: 12,
       paddingVertical: 16,
       marginBottom: 12,
       backgroundColor: primary_color,
@@ -241,20 +263,22 @@ const LoginScreen = () => {
             keyboardShouldPersistTaps="handled"
           >
             <View style={styles.content}>
-              <Image
-                source={require("@/assets/images/icon.png")}
-                style={styles.logo}
-              />
-              <Text style={styles.title}>Welcome Back</Text>
-              <Text style={styles.subtitle}>
-                Sign in to your Glory Prime Wealth account
-              </Text>
               <View style={styles.formCardWrapper}>
+                <View style={styles.logoWrapper}>
+                  <Image
+                    source={require("@/assets/images/icon.png")}
+                    style={styles.logo}
+                  />
+                </View>
                 <BlurView
                   intensity={60}
                   tint={isDarkMode ? "dark" : "light"}
                   style={styles.formCard}
                 >
+                  <Text style={styles.title}>Welcome Back</Text>
+                  <Text style={styles.subtitle}>
+                    Sign in to your Glory Prime Wealth account
+                  </Text>
                   <View style={styles.inputsContainer}>
                     <NBTextInput
                       form={form}
