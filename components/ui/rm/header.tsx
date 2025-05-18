@@ -3,7 +3,14 @@ import useAuth from "@/hooks/useAuth";
 import { BottomTabHeaderProps } from "@react-navigation/bottom-tabs";
 import { Redirect } from "expo-router";
 import React from "react";
-import { Image, StyleSheet, Text, useColorScheme, View } from "react-native";
+import {
+  Image,
+  Platform,
+  StyleSheet,
+  Text,
+  useColorScheme,
+  View,
+} from "react-native";
 
 export default function Header(props: BottomTabHeaderProps) {
   const colorScheme = useColorScheme();
@@ -27,6 +34,7 @@ export default function Header(props: BottomTabHeaderProps) {
       <Image
         source={require("@/assets/images/icon.png")}
         style={styles.clientLogo}
+        resizeMode="contain"
       />
       <View style={styles.textContainer}>
         <Text
@@ -54,6 +62,7 @@ export default function Header(props: BottomTabHeaderProps) {
           uri: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTG5CPz89vwuDB4H5EsXhkpKz0_koS-0HK0Yg&s",
         }}
         style={styles.avatar}
+        resizeMode="cover"
       />
     </View>
   );
@@ -73,10 +82,14 @@ const styles = StyleSheet.create({
   },
   card: {
     borderRadius: 18,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
+    ...(Platform.OS === "web"
+      ? { boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.08)" }
+      : {
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.08,
+          shadowRadius: 8,
+        }),
     elevation: 3,
     margin: 12,
     borderWidth: 0,

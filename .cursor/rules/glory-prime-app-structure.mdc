@@ -1,0 +1,45 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Glory Prime Wealth App Structure
+
+## Overview
+The Glory Prime Wealth app is a React Native application built with Expo. It's a task management platform with separate interfaces for admins and managers.
+
+## Key Components
+
+### Authentication
+The authentication flow starts at [app/login.tsx](mdc:app/login.tsx) which handles user login with email/password. The app uses JWT tokens stored in AsyncStorage.
+
+### Navigation Structure
+- Admin routes are under [app/(admin)/](mdc:app/(admin)/) directory
+- Manager routes are under [app/(manager)/](mdc:app/(manager)/) directory
+- The onboarding/welcome screen is at [app/index.tsx](mdc:app/index.tsx)
+
+### UI Components
+Custom UI components are organized in the [components/](mdc:components) directory:
+- Input components: [components/input/](mdc:components/input)
+- Task components: [components/task/](mdc:components/task)
+- UI elements: [components/ui/](mdc:components/ui)
+
+### Design System
+- The app uses a consistent design system with support for both light and dark modes
+- Primary colors and other constants are defined in [constants/Colors.js](mdc:constants/Colors.js)
+- Form inputs follow a consistent style pattern with focus states and error handling
+
+### Data Management
+- API calls use axios
+- State management uses React Query (@tanstack/react-query)
+- Form validation uses React Hook Form with Zod for schema validation
+
+### Assets
+- App images and fonts are stored in the [assets/](mdc:assets) directory
+- The company logo is used throughout the app (Glory Prime Wealth)
+
+## Development Conventions
+- All components use TypeScript for type safety
+- Custom hooks are stored in the [hooks/](mdc:hooks) directory
+- Authentication logic is handled through the useAuth hook
+

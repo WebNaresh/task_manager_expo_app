@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Dimensions,
   FlatList,
+  Platform,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -291,9 +292,13 @@ const styles = StyleSheet.create({
   },
   headerTextDark: {
     color: "#a5b4fc",
-    textShadowColor: "rgba(165, 180, 252, 0.3)",
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
+    ...(Platform.OS === "web"
+      ? { textShadow: "0px 2px 4px rgba(165, 180, 252, 0.3)" }
+      : {
+          textShadowColor: "rgba(165, 180, 252, 0.3)",
+          textShadowOffset: { width: 0, height: 2 },
+          textShadowRadius: 4,
+        }),
   },
   itemContainer: {
     width,
@@ -310,18 +315,29 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     padding: 32,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 24,
-    elevation: 8,
+    ...(Platform.OS === "web"
+      ? { boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.15)" }
+      : {
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: 0.15,
+          shadowRadius: 24,
+          elevation: 8,
+        }),
     marginBottom: 40,
     width: width * 0.85,
     transform: [{ scale: 1 }],
   },
   featureCardDark: {
     backgroundColor: "#23272f",
-    shadowColor: "#000",
+    ...(Platform.OS === "web"
+      ? { boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.3)" }
+      : {
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 8 },
+          shadowOpacity: 0.3,
+          shadowRadius: 24,
+        }),
     borderColor: "rgba(165, 180, 252, 0.1)",
     borderWidth: 1,
   },
@@ -412,15 +428,26 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#007AFF",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 4,
+    ...(Platform.OS === "web"
+      ? { boxShadow: "0px 4px 12px rgba(0, 122, 255, 0.2)" }
+      : {
+          shadowColor: "#007AFF",
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.2,
+          shadowRadius: 12,
+          elevation: 4,
+        }),
   },
   getStartedButtonDark: {
     backgroundColor: "#a5b4fc",
-    shadowColor: "#a5b4fc",
+    ...(Platform.OS === "web"
+      ? { boxShadow: "0px 4px 12px rgba(165, 180, 252, 0.2)" }
+      : {
+          shadowColor: "#a5b4fc",
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.2,
+          shadowRadius: 12,
+        }),
   },
   getStartedText: {
     color: "#fff",

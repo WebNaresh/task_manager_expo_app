@@ -1,6 +1,7 @@
 import React from "react";
 import { Controller } from "react-hook-form";
 import {
+  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -25,11 +26,19 @@ const NBTextAreaInputField = (props: NBTextInputProps) => {
         ? "#333a4d"
         : "#e0e7ef",
       borderWidth: 1.5,
-      shadowColor: isDarkMode ? "#000" : "#007AFF",
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: isFocused ? 0.18 : 0.08,
-      shadowRadius: isFocused ? 8 : 4,
-      elevation: isFocused ? 4 : 2,
+      ...(Platform.OS === "web"
+        ? {
+            boxShadow: isFocused
+              ? "0px 2px 8px rgba(0, 122, 255, 0.18)"
+              : "0px 2px 4px rgba(0, 122, 255, 0.08)",
+          }
+        : {
+            shadowColor: isDarkMode ? "#000" : "#007AFF",
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: isFocused ? 0.18 : 0.08,
+            shadowRadius: isFocused ? 8 : 4,
+            elevation: isFocused ? 4 : 2,
+          }),
       borderRadius: 16,
       paddingHorizontal: 18,
       paddingVertical: 8,

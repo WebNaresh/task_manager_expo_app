@@ -1,5 +1,6 @@
 import NBTextInput from "@/components/input/text-input";
 import NBButton from "@/components/ui/button";
+import showToast from "@/components/ui/toast";
 import { error_color, primary_color, success_color } from "@/constants/Colors";
 import useAuth from "@/hooks/useAuth";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -7,14 +8,14 @@ import { zodResolver } from "@hookform/resolvers/zod"; // Add this import
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { Redirect, useRouter } from "expo-router";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   Dimensions,
   Image,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
@@ -24,10 +25,9 @@ import {
   View,
   useColorScheme,
 } from "react-native";
-import Toast from "react-native-root-toast";
 import { z } from "zod";
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
 const form_schema = z.object({
   email: z.string().email(),
@@ -39,103 +39,106 @@ type form_schema_types = z.infer<typeof form_schema>;
 const LoginScreen = () => {
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === "dark";
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      () => {
+        setKeyboardVisible(true);
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => {
+        setKeyboardVisible(false);
+      }
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: isDarkMode ? "#181c24" : "#FFFFFF",
+      backgroundColor: isDarkMode ? "#181c24" : "#f0f4f8",
     },
     gradientBackground: {
       flex: 1,
     },
     scrollContainer: {
       flexGrow: 1,
+      justifyContent: keyboardVisible ? "flex-start" : "center",
+      paddingTop: keyboardVisible ? 20 : 0,
     },
     content: {
-      flex: 1,
       width: "100%",
       alignItems: "center",
-      justifyContent: "flex-start",
-      paddingTop: 32,
+      paddingBottom: Platform.OS === "ios" ? 40 : 20,
     },
-    logoWrapper: {
-      position: "absolute",
-      top: -60,
-      alignSelf: "center",
-      zIndex: 2,
-      width: 110,
-      height: 110,
-      borderRadius: 55,
-      backgroundColor: isDarkMode ? "#23272f" : "#fff",
+    logoContainer: {
+      width: keyboardVisible ? 80 : 120,
+      height: keyboardVisible ? 80 : 120,
+      borderRadius: keyboardVisible ? 40 : 60,
+      backgroundColor: "#fff",
       alignItems: "center",
       justifyContent: "center",
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 8 },
-      shadowOpacity: 0.18,
-      shadowRadius: 16,
-      elevation: 8,
-      borderWidth: 2,
-      borderColor: isDarkMode ? "#23272f" : "#e0e7ef",
+      marginBottom: keyboardVisible ? 10 : 20,
+      marginTop: keyboardVisible ? 20 : 0,
+      ...(Platform.OS === "web"
+        ? { boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)" }
+        : {
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 4,
+          }),
+      alignSelf: "center",
     },
     logo: {
-      width: 80,
-      height: 80,
-      resizeMode: "contain",
-      borderRadius: 40,
-    },
-    title: {
-      fontSize: 28,
-      fontWeight: "bold",
-      color: isDarkMode ? "#fff" : "#1a1a1a",
-      marginBottom: 8,
-      textAlign: "center",
-      marginTop: 60,
-    },
-    subtitle: {
-      fontSize: 16,
-      color: isDarkMode ? "#b0b8c9" : "#666",
-      marginBottom: 0,
-      textAlign: "center",
-      fontWeight: "400",
+      width: keyboardVisible ? 70 : 100,
+      height: keyboardVisible ? 70 : 100,
+      borderRadius: 150,
     },
     formCardWrapper: {
-      width: "100%",
+      width: "90%",
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
       alignItems: "center",
-      marginTop: 32,
       paddingHorizontal: 16,
-    },
-    formCard: {
-      width: "100%",
-      maxWidth: 400,
-      borderRadius: 16,
-      padding: 28,
+      paddingBottom: 24,
+      paddingTop: keyboardVisible ? 16 : 24,
+      alignSelf: "center",
       backgroundColor: isDarkMode
-        ? "rgba(24,28,36,0.7)"
-        : "rgba(255,255,255,0.7)",
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 8 },
-      shadowOpacity: 0.15,
-      shadowRadius: 24,
-      elevation: 8,
-      alignItems: "center",
-      marginTop: 60,
+        ? "rgba(30,34,42,0.8)"
+        : "rgba(255,255,255,0.9)",
+      borderRadius: 24,
+      ...(Platform.OS === "web"
+        ? { boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)" }
+        : {
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.1,
+            shadowRadius: 12,
+            elevation: 4,
+          }),
     },
     inputsContainer: {
       width: "100%",
-      gap: 18,
-      marginBottom: 24,
+      gap: 20,
+      marginVertical: keyboardVisible ? 16 : 32,
     },
     signInButton: {
       width: "100%",
-      borderRadius: 12,
+      borderRadius: 16,
       paddingVertical: 16,
-      marginBottom: 12,
+      marginBottom: keyboardVisible ? 12 : 24,
       backgroundColor: primary_color,
-      shadowColor: primary_color,
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.2,
-      shadowRadius: 12,
-      elevation: 4,
     },
     signInButtonText: {
       fontSize: 18,
@@ -145,11 +148,9 @@ const LoginScreen = () => {
     },
     forgotPassword: {
       color: isDarkMode ? "#b0b8c9" : primary_color,
-      fontSize: 15,
+      fontSize: 16,
       textAlign: "center",
-      marginTop: 4,
       textDecorationLine: "underline",
-      opacity: 0.85,
     },
   });
 
@@ -185,12 +186,7 @@ const LoginScreen = () => {
       return response.data;
     },
     async onSuccess(data, _variables, _context) {
-      Toast.show(`Welcome, ${data?.name}`, {
-        duration: Toast.durations.LONG,
-        position: Toast.positions.TOP,
-        shadow: true,
-        animation: true,
-        hideOnPress: true,
+      showToast(`Welcome, ${data?.name}`, {
         backgroundColor: success_color,
       });
 
@@ -212,24 +208,14 @@ const LoginScreen = () => {
 
       // if data role is other than RM or ADMIN
       if (data.role !== "RM" && data.role !== "ADMIN") {
-        Toast.show("You are not authorized to login", {
-          duration: Toast.durations.LONG,
-          position: Toast.positions.TOP,
-          shadow: true,
-          animation: true,
-          hideOnPress: true,
+        showToast("You are not authorized to login", {
           backgroundColor: error_color,
         });
       }
     },
     onError(error, variables, context) {
       if (axios.isAxiosError(error)) {
-        Toast.show(error.response?.data.message, {
-          duration: Toast.durations.LONG,
-          position: Toast.positions.TOP,
-          shadow: true,
-          animation: true,
-          hideOnPress: true,
+        showToast(error.response?.data.message, {
           backgroundColor: error_color,
         });
       }
@@ -237,6 +223,7 @@ const LoginScreen = () => {
   });
 
   const onSubmit = (data: form_schema_types) => {
+    Keyboard.dismiss();
     mutation.mutate(data);
   };
 
@@ -251,71 +238,65 @@ const LoginScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <LinearGradient
-        colors={isDarkMode ? ["#181c24", "#23272f"] : ["#f8fafc", "#e0e7ef"]}
+        colors={isDarkMode ? ["#181c24", "#23272f"] : ["#e0e7ef", "#f8fafc"]}
         style={styles.gradientBackground}
       >
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={{ flex: 1 }}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 10 : 0}
         >
           <ScrollView
             contentContainerStyle={styles.scrollContainer}
             keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
           >
             <View style={styles.content}>
+              <View style={styles.logoContainer}>
+                <Image
+                  source={require("@/assets/images/icon.png")}
+                  style={styles.logo}
+                  resizeMode="contain"
+                />
+              </View>
+
               <View style={styles.formCardWrapper}>
-                <View style={styles.logoWrapper}>
-                  <Image
-                    source={require("@/assets/images/icon.png")}
-                    style={styles.logo}
+                <View style={styles.inputsContainer}>
+                  <NBTextInput
+                    form={form}
+                    name="email"
+                    placeholder="Enter your email"
+                    icon={
+                      <MaterialCommunityIcons
+                        name="email-outline"
+                        size={20}
+                        color={isDarkMode ? "#b0b8c9" : "#666666"}
+                      />
+                    }
+                    type="text"
+                  />
+                  <NBTextInput
+                    form={form}
+                    name="password"
+                    placeholder="Enter your password"
+                    icon={
+                      <MaterialCommunityIcons
+                        name="lock-outline"
+                        size={20}
+                        color={isDarkMode ? "#b0b8c9" : "#666666"}
+                      />
+                    }
+                    type="password"
                   />
                 </View>
-                <BlurView
-                  intensity={60}
-                  tint={isDarkMode ? "dark" : "light"}
-                  style={styles.formCard}
-                >
-                  <Text style={styles.title}>Welcome Back</Text>
-                  <Text style={styles.subtitle}>
-                    Sign in to your Glory Prime Wealth account
-                  </Text>
-                  <View style={styles.inputsContainer}>
-                    <NBTextInput
-                      form={form}
-                      name="email"
-                      placeholder="Enter your email"
-                      icon={
-                        <MaterialCommunityIcons
-                          name="email-outline"
-                          size={20}
-                          color={isDarkMode ? "#b0b8c9" : "#666666"}
-                        />
-                      }
-                      type="text"
-                    />
-                    <NBTextInput
-                      form={form}
-                      name="password"
-                      placeholder="Enter your password"
-                      icon={
-                        <MaterialCommunityIcons
-                          name="lock-outline"
-                          size={20}
-                          color={isDarkMode ? "#b0b8c9" : "#666666"}
-                        />
-                      }
-                      type="password"
-                    />
-                  </View>
-                  <NBButton
-                    onPress={handleSubmit(onSubmit)}
-                    isPending={mutation.isPending}
-                    text="Sign In"
-                    style={styles.signInButton}
-                    textStyle={styles.signInButtonText}
-                  />
-                  <Text style={styles.forgotPassword}>Forgot Password?</Text>
-                </BlurView>
+                <NBButton
+                  onPress={handleSubmit(onSubmit)}
+                  isPending={mutation.isPending}
+                  text="Sign In"
+                  style={styles.signInButton}
+                  textStyle={styles.signInButtonText}
+                />
+                <Text style={styles.forgotPassword}>Forgot Password?</Text>
               </View>
             </View>
           </ScrollView>

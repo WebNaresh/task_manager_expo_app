@@ -1,0 +1,113 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Glory Prime Wealth - Coding Conventions
+
+## TypeScript
+- Use TypeScript for all new code
+- Define interfaces and types in [types/](mdc:types) directory
+- Use explicit typing when type inference is not clear
+
+## State Management
+- Use Zustand for global client state
+- Use React Query for server state and data fetching
+- Form state should use React Hook Form with Zod for validation
+
+## Data Fetching & Mutations
+- Always use Axios for API requests
+- Use React Query's useQuery hook for data fetching
+- Use React Query's useMutation hook for data mutations
+- Always invalidate related queries after successful mutations
+- Structure query keys consistently for proper cache management
+
+## Form Handling
+- Use React Hook Form for all form state management
+- Integrate Zod schemas with React Hook Form for validation
+- Define reusable Zod schemas in separate files for complex validations
+
+## Notifications
+- Always use react-native-root-toast for toast notifications
+- Keep toast messages concise and descriptive
+- For form submissions, show success/error toasts after the operation completes
+- Do not use other toast libraries (such as sonner or react-toastify)
+
+## UI Development
+- Design UIs creatively with modern design patterns and visual appeal
+- Ensure proper alignment and consistent spacing in all components
+- Implement responsive layouts that work across different screen sizes
+- Test UI components on both light and dark themes
+- Pay attention to touch targets, making them appropriately sized for mobile
+- Use consistent border-radius, shadows, and color schemes throughout the app
+
+## Cross-Platform Styling
+- Always use Platform-specific styling for features that have different implementations on web vs native
+- For shadow effects, use Platform.select or conditional spreading:
+  ```tsx
+  // Good approach
+  shadowStyle: Platform.select({
+    web: {
+      boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)'
+    },
+    default: {
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.1, 
+      shadowRadius: 8
+    }
+  })
+  ```
+- For Image components, always use the resizeMode as a prop and not in style:
+  ```tsx
+  // Good
+  <Image source={source} style={styles.image} resizeMode="contain" />
+  
+  // Avoid
+  <Image source={source} style={[styles.image, { resizeMode: 'contain' }]} />
+  ```
+- For text shadows, use textShadow on web and individual properties on native:
+  ```tsx
+  textStyle: Platform.select({
+    web: {
+      textShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)'
+    },
+    default: {
+      textShadowColor: 'rgba(0, 0, 0, 0.2)',
+      textShadowOffset: { width: 0, height: 2 },
+      textShadowRadius: 4
+    }
+  })
+  ```
+
+## Package Management
+- Always check package.json before adding new packages
+- Avoid redundant packages with overlapping functionality (e.g., don't use both date-fns and moment.js)
+- Prefer smaller, focused packages over larger all-in-one solutions
+- Use the existing dependencies where possible before adding new ones
+- Document any unusual package choices or version requirements
+
+## Authentication
+- Use the useAuth hook from hooks/useAuth.ts for token management and user authentication
+- Never store sensitive user credentials in local state
+- Always handle authentication errors gracefully with informative messages
+- Implement proper token refresh logic for expired tokens
+
+## CLI Commands
+- Always use yarn instead of npm for package management and running scripts
+- Use `yarn add` instead of `npm install` for adding dependencies
+- Use `yarn dev` instead of `npm run dev` for development
+- Use `yarn build` instead of `npm run build` for production builds
+- Use `yarn start` instead of `npm start` for running the production server
+
+## Error Handling
+- Use try/catch blocks for error handling
+- Always provide user-friendly error messages
+- Log errors appropriately
+
+# 07-editing-policy
+
+**Rule:**
+Whenever a user request involves a code or UI change, the assistant must directly edit the relevant file(s) in the codebase, rather than only providing code suggestions or asking for permission to edit.
+- The assistant should only provide suggestions or ask for confirmation if the user explicitly requests it, or if the change is potentially destructive or ambiguous.
+- For all other cases, the assistant should make the necessary edits directly and inform the user of the changes made.
