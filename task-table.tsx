@@ -21,11 +21,11 @@ interface TaskTableProps {
     id: string;
     title: string;
     description: string;
-    priority: {
+    priority?: {
       color: string;
       name: string;
     };
-    responsibleUser: {
+    responsibleUser?: {
       name: string;
     };
     dueDate: string;
@@ -155,7 +155,7 @@ const TaskDetailView = ({ task, isDarkMode }: TaskDetailViewProps) => {
             style={{
               flexDirection: "row",
               alignItems: "center",
-              backgroundColor: `${task.priority.color}20`,
+              backgroundColor: `${task.priority?.color || "#666"}20`,
               paddingHorizontal: 8,
               paddingVertical: 4,
               borderRadius: 12,
@@ -166,18 +166,18 @@ const TaskDetailView = ({ task, isDarkMode }: TaskDetailViewProps) => {
                 width: 8,
                 height: 8,
                 borderRadius: 4,
-                backgroundColor: task.priority.color,
+                backgroundColor: task.priority?.color || "#666",
                 marginRight: 6,
               }}
             />
             <Text
               style={{
-                color: task.priority.color,
+                color: task.priority?.color || "#666",
                 fontWeight: "600",
                 fontSize: 13,
               }}
             >
-              {task.priority.name}
+              {task.priority?.name || "No Priority"}
             </Text>
           </View>
         </View>
@@ -238,7 +238,7 @@ const TaskDetailView = ({ task, isDarkMode }: TaskDetailViewProps) => {
               color: isDarkMode ? "#ccc" : "#424242",
             }}
           >
-            {task.responsibleUser.name}
+            {task.responsibleUser?.name || "Unassigned"}
           </Text>
         </View>
       </View>
@@ -308,6 +308,22 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
   const [pressedRow, setPressedRow] = React.useState<string | null>(null);
   const [selectedTask, setSelectedTask] = React.useState<any | null>(null);
   const [isModalVisible, setIsModalVisible] = React.useState(false);
+
+  // Add safety check for tasks data
+  const safeTasks = React.useMemo(() => {
+    if (!Array.isArray(tasks)) {
+      console.warn("TaskTable: tasks is not an array", tasks);
+      return [];
+    }
+
+    return tasks.filter((task) => {
+      if (!task || typeof task !== "object") {
+        console.warn("TaskTable: invalid task object", task);
+        return false;
+      }
+      return true;
+    });
+  }, [tasks]);
   const scaleAnims = useRef<{ [key: string]: Animated.Value }>({}).current;
   const buttonScaleAnims = useRef<{ [key: string]: Animated.Value }>(
     {}
@@ -582,7 +598,7 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
   });
 
   // Show empty state if no tasks
-  if (tasks.length === 0) {
+  if (safeTasks.length === 0) {
     return (
       <View style={[dynamicStyles.container, styles.container]}>
         <EmptyState isDarkMode={isDarkMode} />
@@ -639,7 +655,7 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
           </View>
 
           {/* Data Rows */}
-          {tasks.map((task, index) => {
+          {safeTasks.map((task, index) => {
             const isTaskOverdue = isOverdue(task.dueDate);
 
             return (
@@ -824,7 +840,9 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
                           }}
                         >
                           <Text style={{ fontSize: 10, fontWeight: "600" }}>
-                            {task.responsibleUser.name.charAt(0).toUpperCase()}
+                            {task.responsibleUser?.name
+                              ?.charAt(0)
+                              ?.toUpperCase() || "?"}
                           </Text>
                         </View>
                         <Text
@@ -834,7 +852,7 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
                           ]}
                           numberOfLines={1}
                         >
-                          {task.responsibleUser.name}
+                          {task.responsibleUser?.name || "Unassigned"}
                         </Text>
                       </View>
                     </View>

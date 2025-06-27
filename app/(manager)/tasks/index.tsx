@@ -66,7 +66,7 @@ const Tasks: React.FC = () => {
         <TaskTable tasks={data} user_id={user?.id!} />
       </ScrollView>
 
-      <Link href={"/(admin)/tasks/add_task"} asChild>
+      <Link href={"/(manager)/tasks/add_task"} asChild>
         <TouchableOpacity style={styles.fab}>
           <Text style={styles.fabText}>+</Text>
         </TouchableOpacity>

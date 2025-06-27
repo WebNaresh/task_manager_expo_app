@@ -1,7 +1,9 @@
 import useAuth from "@/hooks/useAuth";
+import TaskTable from "@/task-table";
 import { Feather, MaterialIcons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
@@ -113,6 +115,7 @@ const TaskScreen: React.FC = () => {
   const colorScheme = useColorScheme() as ThemeType;
   const theme = colorScheme === "dark" ? "dark" : "light";
   const colors = themes[theme];
+  const router = useRouter();
 
   const { user } = useAuth();
   const rm_id = user?.id;
@@ -240,7 +243,10 @@ const TaskScreen: React.FC = () => {
             <Text style={[styles.sectionTitle, { color: colors.text }]}>
               Recent Tasks
             </Text>
-            <TouchableOpacity style={styles.viewAllButton}>
+            <TouchableOpacity
+              style={styles.viewAllButton}
+              onPress={() => router.push("/(manager)/tasks")}
+            >
               <Text style={[styles.viewAllText, { color: "#667eea" }]}>
                 View All
               </Text>
@@ -250,14 +256,7 @@ const TaskScreen: React.FC = () => {
 
           <View style={styles.tasksList}>
             {tasks.length > 0 ? (
-              tasks.map((task: any) => (
-                <TaskItem
-                  key={task.id}
-                  task={task}
-                  theme={theme}
-                  onTaskPress={handleTaskPress}
-                />
-              ))
+              <TaskTable tasks={tasks} user_id={user?.id!} />
             ) : (
               <View
                 style={[styles.emptyState, { backgroundColor: colors.card }]}

@@ -17,11 +17,57 @@ import { showToast } from "../toast";
 
 export default function Header(props: BottomTabHeaderProps) {
   const colorScheme = useColorScheme();
-  const { user, token } = useAuth();
+  const { user, token, isFetching } = useAuth();
   const insets = useSafeAreaInsets();
 
   if (!token) {
     return <Redirect href={"/login"} />;
+  }
+
+  // Show loading state while user data is being fetched
+  if (isFetching || !user) {
+    return (
+      <View
+        style={{
+          paddingTop: insets.top,
+          backgroundColor: Colors[colorScheme ?? "light"].background,
+        }}
+      >
+        <View
+          style={[
+            styles.container,
+            { backgroundColor: Colors[colorScheme ?? "light"].background },
+            styles.card,
+          ]}
+        >
+          <Image
+            source={require("@/assets/images/icon.png")}
+            style={styles.clientLogo}
+            resizeMode="contain"
+          />
+          <View style={styles.textContainer}>
+            <Text
+              style={[
+                styles.title,
+                { color: Colors[colorScheme ?? "light"].text },
+              ]}
+            >
+              Loading...
+            </Text>
+            <Text
+              style={[
+                styles.subtitle,
+                { color: Colors[colorScheme ?? "light"].text },
+                styles.welcomeText,
+              ]}
+            >
+              Please wait...
+            </Text>
+          </View>
+          <View style={styles.avatar} />
+        </View>
+      </View>
+    );
   }
 
   const isDarkMode = colorScheme === "dark";
@@ -54,7 +100,7 @@ export default function Header(props: BottomTabHeaderProps) {
               isDarkMode && styles.darkModeText,
             ]}
           >
-            {user?.name}
+            {user?.name || "Loading..."}
           </Text>
           <Text
             style={[
@@ -64,7 +110,8 @@ export default function Header(props: BottomTabHeaderProps) {
               styles.welcomeText,
             ]}
           >
-            Welcome back, <Text style={styles.bold}>{user?.name}</Text>
+            Welcome back,{" "}
+            <Text style={styles.bold}>{user?.name || "User"}</Text>
           </Text>
         </View>
         <TouchableOpacity
