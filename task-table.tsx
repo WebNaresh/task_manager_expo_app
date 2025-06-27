@@ -4,6 +4,7 @@ import React, { useRef } from "react";
 import {
   Animated,
   Easing,
+  Modal,
   Platform,
   ScrollView,
   StyleSheet,
@@ -305,8 +306,8 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
   const isDarkMode = colorScheme === "dark";
   const router = useRouter();
   const [pressedRow, setPressedRow] = React.useState<string | null>(null);
-  const [expandedRow, setExpandedRow] = React.useState<string | null>(null);
-  const [pressedButton, setPressedButton] = React.useState<string | null>(null);
+  const [selectedTask, setSelectedTask] = React.useState<any | null>(null);
+  const [isModalVisible, setIsModalVisible] = React.useState(false);
   const scaleAnims = useRef<{ [key: string]: Animated.Value }>({}).current;
   const buttonScaleAnims = useRef<{ [key: string]: Animated.Value }>(
     {}
@@ -349,37 +350,28 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
     ]).start();
   };
 
-  const toggleRowExpand = (taskId: string) => {
-    const isExpanding = expandedRow !== taskId;
-
-    // If there's a currently expanded row, animate it closed
-    if (expandedRow && expandedRow !== taskId) {
-      animateExpand(expandedRow, false);
-    }
-
-    // Animate the new row
-    if (isExpanding) {
-      setExpandedRow(taskId);
-      animateExpand(taskId, true);
-    } else {
-      animateExpand(taskId, false);
-      // Wait for animation to complete before setting expandedRow to null
-      setTimeout(() => setExpandedRow(null), 300);
-    }
+  const openTaskModal = (task: any) => {
+    setSelectedTask(task);
+    setIsModalVisible(true);
   };
 
-  const handleRowPress = (taskId: string) => {
-    setPressedRow(taskId);
+  const closeTaskModal = () => {
+    setSelectedTask(null);
+    setIsModalVisible(false);
+  };
+
+  const handleRowPress = (task: any) => {
+    setPressedRow(task.id);
 
     // Button press animation
     Animated.sequence([
-      Animated.timing(scaleAnims[taskId], {
+      Animated.timing(scaleAnims[task.id], {
         toValue: 0.98,
         duration: 100,
         useNativeDriver: true,
         easing: Easing.inOut(Easing.ease),
       }),
-      Animated.timing(scaleAnims[taskId], {
+      Animated.timing(scaleAnims[task.id], {
         toValue: 1,
         duration: 200,
         useNativeDriver: true,
@@ -387,7 +379,7 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
       }),
     ]).start(() => {
       setPressedRow(null);
-      toggleRowExpand(taskId);
+      openTaskModal(task);
     });
   };
 
@@ -525,17 +517,7 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
       marginHorizontal: 2,
       width: 32,
       height: 32,
-      ...(Platform.OS === "web"
-        ? {
-            boxShadow: "0px 1px 2px rgba(0, 0, 0, 0.1)",
-          }
-        : {
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.1,
-            shadowRadius: 2,
-            elevation: 2,
-          }),
+      backgroundColor: "transparent",
     },
     actionRow: {
       flexDirection: "row",
@@ -659,38 +641,34 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
           {/* Data Rows */}
           {tasks.map((task, index) => {
             const isTaskOverdue = isOverdue(task.dueDate);
-            const isExpanded = expandedRow === task.id;
 
             return (
               <React.Fragment key={task.id}>
                 <TouchableOpacity
                   activeOpacity={0.8}
-                  onPress={() => handleRowPress(task.id)}
+                  onPress={() => handleRowPress(task)}
                 >
                   <Animated.View
                     style={[
                       dynamicStyles.row,
                       styles.row,
                       {
-                        backgroundColor: isExpanded
-                          ? isDarkMode
-                            ? "rgba(50, 50, 70, 0.9)"
-                            : "rgba(220, 235, 250, 0.9)"
-                          : pressedRow === task.id
-                          ? isDarkMode
-                            ? "rgba(42, 42, 42, 0.9)"
-                            : "rgba(230, 240, 250, 0.9)"
-                          : index % 2 === 0
-                          ? isDarkMode
-                            ? "rgba(35, 39, 47, 0.7)"
-                            : "rgba(255, 255, 255, 0.7)"
-                          : isDarkMode
-                          ? "rgba(26, 29, 35, 0.6)"
-                          : "rgba(246, 248, 250, 0.7)",
+                        backgroundColor:
+                          pressedRow === task.id
+                            ? isDarkMode
+                              ? "rgba(42, 42, 42, 0.9)"
+                              : "rgba(230, 240, 250, 0.9)"
+                            : index % 2 === 0
+                            ? isDarkMode
+                              ? "rgba(35, 39, 47, 0.7)"
+                              : "rgba(255, 255, 255, 0.7)"
+                            : isDarkMode
+                            ? "rgba(26, 29, 35, 0.6)"
+                            : "rgba(246, 248, 250, 0.7)",
                         borderBottomLeftRadius:
-                          !isExpanded && index === tasks.length - 1 ? 16 : 0,
+                          index === tasks.length - 1 ? 16 : 0,
                         borderBottomRightRadius:
-                          !isExpanded && index === tasks.length - 1 ? 16 : 0,
+                          index === tasks.length - 1 ? 16 : 0,
                         transform: [{ scale: scaleAnims[task.id] || 1 }],
                       },
                     ]}
@@ -1035,7 +1013,7 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
                           accessibilityLabel="Update task status"
                           accessibilityHint="Opens a modal to change the task status and task list"
                         >
-                          <Feather name="edit-3" size={14} color="#FFFFFF" />
+                          <Feather name="edit-3" size={14} color="#3b82f6" />
                         </TouchableOpacity>
 
                         {/* Eye icon for task detail */}
@@ -1080,41 +1058,53 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
                     </View>
                   </Animated.View>
                 </TouchableOpacity>
-
-                {/* Expandable Detail View */}
-                {isExpanded && (
-                  <Animated.View
-                    style={[
-                      dynamicStyles.expandedRow,
-                      {
-                        borderBottomLeftRadius:
-                          index === tasks.length - 1 ? 16 : 0,
-                        borderBottomRightRadius:
-                          index === tasks.length - 1 ? 16 : 0,
-                        opacity: expandAnims[task.id].opacity,
-                        maxHeight: expandAnims[task.id].height.interpolate({
-                          inputRange: [0, 1],
-                          outputRange: ["0%", "1000%"],
-                        }),
-                        transform: [
-                          {
-                            scale: expandAnims[task.id].opacity.interpolate({
-                              inputRange: [0, 1],
-                              outputRange: [0.95, 1],
-                            }),
-                          },
-                        ],
-                      },
-                    ]}
-                  >
-                    <TaskDetailView task={task} isDarkMode={isDarkMode} />
-                  </Animated.View>
-                )}
               </React.Fragment>
             );
           })}
         </View>
       </ScrollView>
+
+      {/* Task Detail Modal */}
+      <Modal
+        visible={isModalVisible}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={closeTaskModal}
+      >
+        <View
+          style={[
+            styles.modalContainer,
+            isDarkMode && styles.modalContainerDark,
+          ]}
+        >
+          <View
+            style={[styles.modalHeader, isDarkMode && styles.modalHeaderDark]}
+          >
+            <TouchableOpacity
+              style={[styles.closeButton, isDarkMode && styles.closeButtonDark]}
+              onPress={closeTaskModal}
+            >
+              <Feather
+                name="x"
+                size={24}
+                color={isDarkMode ? "#fff" : "#000"}
+              />
+            </TouchableOpacity>
+            <Text
+              style={[styles.modalTitle, isDarkMode && styles.modalTitleDark]}
+            >
+              Task Details
+            </Text>
+            <View style={{ width: 40 }} />
+          </View>
+
+          <ScrollView style={styles.modalContent}>
+            {selectedTask && (
+              <TaskDetailView task={selectedTask} isDarkMode={isDarkMode} />
+            )}
+          </ScrollView>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -1162,6 +1152,47 @@ const styles = StyleSheet.create({
   actionContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
+  },
+
+  // Modal Styles
+  modalContainer: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
+  modalContainerDark: {
+    backgroundColor: "#1F2937",
+  },
+  modalHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E7EB",
+  },
+  modalHeaderDark: {
+    borderBottomColor: "#374151",
+  },
+  closeButton: {
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: "#F3F4F6",
+  },
+  closeButtonDark: {
+    backgroundColor: "#374151",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#111827",
+  },
+  modalTitleDark: {
+    color: "#F9FAFB",
+  },
+  modalContent: {
+    flex: 1,
+    padding: 20,
   },
 });
 
