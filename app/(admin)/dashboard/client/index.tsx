@@ -1,10 +1,11 @@
 "use client";
 
 import { primary_color } from "@/constants/Colors";
+import { Feather } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { Link } from "expo-router";
-import React from "react";
+import React, { useMemo, useState } from "react";
 import {
   Image,
   RefreshControl,
@@ -12,12 +13,15 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
   useColorScheme,
 } from "react-native";
 
 const ClientList = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+
   const { data, isFetching, refetch } = useQuery({
     queryKey: ["clients"],
     queryFn: async () => {
@@ -26,6 +30,17 @@ const ClientList = () => {
     },
     initialData: [],
   });
+
+  // Filter clients based on search query
+  const filteredClients = useMemo(() => {
+    if (!searchQuery.trim()) return data;
+
+    return data.filter(
+      (client: any) =>
+        client.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        client.email?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [data, searchQuery]);
 
   const onRefresh = React.useCallback(() => {
     refetch();
@@ -38,6 +53,47 @@ const ClientList = () => {
     <SafeAreaView
       style={[styles.container, isDarkMode && styles.darkContainer]}
     >
+      {/* Search Header */}
+      <View
+        style={[
+          styles.searchContainer,
+          isDarkMode && styles.darkSearchContainer,
+        ]}
+      >
+        <View
+          style={[
+            styles.searchInputContainer,
+            isDarkMode && styles.darkSearchInputContainer,
+          ]}
+        >
+          <Feather
+            name="search"
+            size={20}
+            color={isDarkMode ? "#ccc" : "#666"}
+            style={styles.searchIcon}
+          />
+          <TextInput
+            style={[styles.searchInput, isDarkMode && styles.darkSearchInput]}
+            placeholder="Search clients by name or email..."
+            placeholderTextColor={isDarkMode ? "#888" : "#999"}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity
+              onPress={() => setSearchQuery("")}
+              style={styles.clearButton}
+            >
+              <Feather
+                name="x"
+                size={18}
+                color={isDarkMode ? "#ccc" : "#666"}
+              />
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+
       <ScrollView
         style={styles.scrollView}
         refreshControl={
@@ -48,7 +104,7 @@ const ClientList = () => {
           />
         }
       >
-        {data.map((client: any) => {
+        {filteredClients.map((client: any) => {
           const progress = Math.floor(
             (client?.assignedTasks?.filter(
               (task: any) => task?.status === "COMPLETED"
@@ -228,6 +284,44 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingVertical: 20,
+  },
+  searchContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: "#fff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#e0e0e0",
+  },
+  darkSearchContainer: {
+    backgroundColor: "#000",
+    borderBottomColor: "#333",
+  },
+  searchInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f5f5f5",
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  darkSearchInputContainer: {
+    backgroundColor: "#1a1a1a",
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    color: "#000",
+    paddingVertical: 4,
+  },
+  darkSearchInput: {
+    color: "#fff",
+  },
+  clearButton: {
+    padding: 4,
+    marginLeft: 8,
   },
 });
 

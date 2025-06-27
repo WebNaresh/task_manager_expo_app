@@ -1,10 +1,11 @@
 "use client";
 
 import { primary_color } from "@/constants/Colors";
+import { Feather } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { Link } from "expo-router";
-import React from "react";
+import React, { useMemo, useState } from "react";
 import {
   Image,
   RefreshControl,
@@ -12,6 +13,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
   useColorScheme,
@@ -43,6 +45,8 @@ const ProgressBar = ({ percentage }: { percentage: number }) => {
 };
 
 const RelationshipManagersList = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+
   const { data, isFetching, refetch } = useQuery({
     queryKey: ["managers"],
     queryFn: async () => {
@@ -52,6 +56,17 @@ const RelationshipManagersList = () => {
     initialData: [],
   });
 
+  // Filter managers based on search query
+  const filteredManagers = useMemo(() => {
+    if (!searchQuery.trim()) return data;
+
+    return data.filter(
+      (manager: any) =>
+        manager.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        manager.email?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [data, searchQuery]);
+
   const scheme = useColorScheme();
   const isDarkMode = scheme === "dark";
 
@@ -59,6 +74,47 @@ const RelationshipManagersList = () => {
     <SafeAreaView
       style={[styles.container, isDarkMode && styles.darkContainer]}
     >
+      {/* Search Header */}
+      <View
+        style={[
+          styles.searchContainer,
+          isDarkMode && styles.darkSearchContainer,
+        ]}
+      >
+        <View
+          style={[
+            styles.searchInputContainer,
+            isDarkMode && styles.darkSearchInputContainer,
+          ]}
+        >
+          <Feather
+            name="search"
+            size={20}
+            color={isDarkMode ? "#ccc" : "#666"}
+            style={styles.searchIcon}
+          />
+          <TextInput
+            style={[styles.searchInput, isDarkMode && styles.darkSearchInput]}
+            placeholder="Search managers by name or email..."
+            placeholderTextColor={isDarkMode ? "#888" : "#999"}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity
+              onPress={() => setSearchQuery("")}
+              style={styles.clearButton}
+            >
+              <Feather
+                name="x"
+                size={18}
+                color={isDarkMode ? "#ccc" : "#666"}
+              />
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+
       <ScrollView
         style={styles.scrollView}
         refreshControl={
@@ -69,7 +125,7 @@ const RelationshipManagersList = () => {
           />
         }
       >
-        {data.map((manager: any) => {
+        {filteredManagers.map((manager: any) => {
           const progress = Math.min(
             Math.floor(
               (manager?.assignedTasks?.filter(
@@ -272,6 +328,44 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingVertical: 20,
+  },
+  searchContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: "#fff",
+    borderBottomWidth: 1,
+    borderBottomColor: "#e0e0e0",
+  },
+  darkSearchContainer: {
+    backgroundColor: "#000",
+    borderBottomColor: "#333",
+  },
+  searchInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f5f5f5",
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  darkSearchInputContainer: {
+    backgroundColor: "#1a1a1a",
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    color: "#000",
+    paddingVertical: 4,
+  },
+  darkSearchInput: {
+    color: "#fff",
+  },
+  clearButton: {
+    padding: 4,
+    marginLeft: 8,
   },
 });
 
