@@ -145,6 +145,12 @@ const TaskScreen: React.FC = () => {
     queryFn: async () => {
       const response = await axios.get(`/api/v1/task/top3tasks/${rm_id}`);
 
+      // Debug log to check data structure
+      console.log("Manager tasks data:", response.data);
+      if (Array.isArray(response.data) && response.data.length > 0) {
+        console.log("First task structure:", response.data[0]);
+      }
+
       return response.data;
     },
     initialData: [],
@@ -255,7 +261,7 @@ const TaskScreen: React.FC = () => {
           </View>
 
           <View style={styles.tasksList}>
-            {tasks.length > 0 ? (
+            {tasks && Array.isArray(tasks) && tasks.length > 0 ? (
               <TaskTable tasks={tasks} user_id={user?.id!} />
             ) : (
               <View

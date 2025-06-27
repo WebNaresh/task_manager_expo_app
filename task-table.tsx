@@ -682,9 +682,9 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
                             ? "rgba(26, 29, 35, 0.6)"
                             : "rgba(246, 248, 250, 0.7)",
                         borderBottomLeftRadius:
-                          index === tasks.length - 1 ? 16 : 0,
+                          index === safeTasks.length - 1 ? 16 : 0,
                         borderBottomRightRadius:
-                          index === tasks.length - 1 ? 16 : 0,
+                          index === safeTasks.length - 1 ? 16 : 0,
                         transform: [{ scale: scaleAnims[task.id] || 1 }],
                       },
                     ]}
