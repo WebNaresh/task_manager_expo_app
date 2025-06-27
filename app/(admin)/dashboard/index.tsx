@@ -125,8 +125,16 @@ const PriorityItem: React.FC<PriorityItemProps> = ({
           gap: 12,
         }}
       >
-        <View style={styles.colorSection}>
-          <View style={[styles.colorBar, { backgroundColor: color }]} />
+        <View
+          style={[styles.colorSection, isDarkMode && styles.colorSectionDark]}
+        >
+          <View
+            style={[
+              styles.colorBar,
+              { backgroundColor: color },
+              isDarkMode && styles.colorBarDark,
+            ]}
+          />
         </View>
         <Text
           style={[
@@ -535,10 +543,27 @@ const styles = StyleSheet.create({
     backgroundColor: "#f7fafd",
     borderRadius: 8,
     marginBottom: 8,
-    paddingHorizontal: 8,
+    paddingHorizontal: 12,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
   priorityRowDark: {
     borderBottomColor: "#333",
+    backgroundColor: "#1a1a1a",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 3,
   },
   priorityName: {
     flex: 1,
@@ -558,6 +583,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
+  colorSectionDark: {
+    // Additional dark mode styling if needed
+  },
   colorLabel: {
     marginRight: 8,
     color: "#666",
@@ -569,6 +597,10 @@ const styles = StyleSheet.create({
     width: 50,
     height: 24,
     borderRadius: 4,
+  },
+  colorBarDark: {
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.2)",
   },
   loader: {
     marginVertical: 20,
@@ -615,9 +647,11 @@ const styles = StyleSheet.create({
   editButton: {
     padding: 8,
     marginLeft: 8,
+    borderRadius: 6,
+    backgroundColor: "rgba(66, 133, 244, 0.1)",
   },
   editButtonDark: {
-    color: "#8AB4F8",
+    backgroundColor: "rgba(138, 180, 248, 0.2)",
   },
   closeButton: {
     padding: 4,

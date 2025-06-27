@@ -3,7 +3,7 @@ import useAuth from "@/hooks/useAuth";
 import TaskTable from "@/task-table";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { Link, useRouter } from "expo-router";
+import { Link } from "expo-router";
 import React from "react";
 import {
   RefreshControl,
@@ -12,27 +12,14 @@ import {
   Text,
   TouchableOpacity,
   View,
+  useColorScheme,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const formatDate = (date: Date): string => {
-  return date.toLocaleDateString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
-};
-
-interface FilterOption {
-  id: string;
-  label: string;
-}
-
 const Tasks: React.FC = () => {
   const { user } = useAuth();
-
-  const router = useRouter();
-
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === "dark";
   const { data, refetch, isFetching } = useQuery({
     queryKey: ["tasks"],
     queryFn: async () => {
@@ -52,213 +39,152 @@ const Tasks: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.taskHeader}>
-        <Text style={styles.title}>Tasks</Text>
-      </View>
-
-      <ScrollView
-        style={styles.taskList}
-        refreshControl={
-          <RefreshControl refreshing={isFetching} onRefresh={onRefresh} />
-        }
+    <View style={styles.rootContainer}>
+      <SafeAreaView
+        style={[styles.container, isDarkMode && styles.containerDark]}
       >
-        <TaskTable tasks={data} user_id={user?.id!} />
-      </ScrollView>
+        <View style={[styles.taskHeader, isDarkMode && styles.taskHeaderDark]}>
+          <Text style={[styles.title, isDarkMode && styles.titleDark]}>
+            Tasks
+          </Text>
+        </View>
 
-      <Link href={"/(manager)/tasks/add_task"} asChild>
-        <TouchableOpacity style={styles.fab}>
-          <Text style={styles.fabText}>+</Text>
-        </TouchableOpacity>
-      </Link>
-    </SafeAreaView>
+        <ScrollView
+          style={[styles.taskList, isDarkMode && styles.taskListDark]}
+          refreshControl={
+            <RefreshControl
+              refreshing={isFetching}
+              onRefresh={onRefresh}
+              tintColor={isDarkMode ? "#fff" : "#000"}
+              colors={isDarkMode ? ["#fff"] : [primary_color]}
+            />
+          }
+        >
+          <TaskTable tasks={data} user_id={user?.id!} />
+        </ScrollView>
+      </SafeAreaView>
+
+      {/* FAB with reliable positioning */}
+      <View style={styles.fabWrapper}>
+        <Link href={"/(manager)/tasks/add_task"} asChild>
+          <TouchableOpacity
+            style={{
+              width: 56,
+              height: 56,
+              borderRadius: 28,
+              backgroundColor: "#007AFF",
+              justifyContent: "center",
+              alignItems: "center",
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 6 },
+              shadowOpacity: 0.5,
+              shadowRadius: 10,
+              elevation: 20,
+            }}
+          >
+            <Text
+              style={{
+                color: "#FFFFFF",
+                fontSize: 24,
+                fontWeight: "bold",
+              }}
+            >
+              +
+            </Text>
+          </TouchableOpacity>
+        </Link>
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  rootContainer: {
+    flex: 1,
+    position: "relative", // Establish positioning context
+  },
   container: {
     flex: 1,
     backgroundColor: "#fff",
+  },
+  containerDark: {
+    backgroundColor: "#000",
   },
   taskHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 16,
-    paddingVertical: 16,
+  },
+  taskHeaderDark: {
+    backgroundColor: "#000",
   },
   title: {
     fontSize: 28,
     fontWeight: "bold",
+    color: "#000",
   },
-  calendarIcon: {
-    marginRight: 4,
-  },
-  calendarText: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#f43f5e",
-  },
-
-  searchContainer: {
-    paddingHorizontal: 16,
-    marginBottom: 16,
-  },
-  searchInputWrapper: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#f5f5f5",
-    borderRadius: 8,
-    paddingHorizontal: 12,
-  },
-  searchIcon: {
-    marginRight: 8,
-  },
-  searchInput: {
-    flex: 1,
-    padding: 12,
-    fontSize: 16,
-  },
-  filterContainer: {
-    paddingHorizontal: 16,
-    marginBottom: 8, // Reduced from 16
-    flexDirection: "row",
-    flexGrow: 0, // Added fixed height
-  },
-
-  filterContainerContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    height: "100%", // Ensure content fills container height
-  },
-
-  filterChip: {
-    paddingHorizontal: 16, // Reduced from 20
-    paddingVertical: 8, // Reduced from 12
-    borderRadius: 8,
-    backgroundColor: "#f5f5f5",
-    marginRight: 8,
-    minWidth: 90, // Reduced from 100
-    alignSelf: "center", // Changed from flex-start to center
-    height: 36, // Added fixed height
-    justifyContent: "center", // Center content vertically
-  },
-  activeFilterChip: {
-    backgroundColor: primary_color,
-  },
-  filterText: {
-    color: "#666",
-    textAlign: "center",
-    fontSize: 16,
-  },
-  activeFilterText: {
+  titleDark: {
     color: "#fff",
   },
+
   taskList: {
     flex: 1,
     paddingHorizontal: 16,
   },
+  taskListDark: {
+    backgroundColor: "#000",
+  },
 
-  highPriority: {
-    backgroundColor: "#fee2e2",
-  },
-  assigneeName: {
-    fontSize: 16,
-    color: "#666",
-  },
-  pendingPriority: {
-    backgroundColor: "#fff2cc",
-  },
-  lowPriority: {
-    backgroundColor: "#d1e7dd",
-  },
-  calendarButton: {
-    padding: 8,
-    borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  datePickerButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 12,
-    backgroundColor: "#f5f5f5",
-    borderRadius: 8,
-    marginHorizontal: 16,
-    marginBottom: 12,
-  },
-  datePickerButtonText: {
-    marginLeft: 8,
-    fontSize: 14,
-    color: "#666",
-  },
-  dateRangeContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 12,
-    backgroundColor: "#f5f5f5",
-    marginHorizontal: 16,
-    borderRadius: 8,
-    marginBottom: 12,
-  },
-  dateRangeContent: {
-    flex: 1,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginRight: 12,
-  },
-  dateText: {
-    fontSize: 14,
-    color: "#666",
-  },
-  closeButton: {
-    padding: 4,
-  },
-  datePickerWrapper: {
-    position: "relative",
-  },
-  bottomNav: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    backgroundColor: "#fff",
-    paddingVertical: 12,
-    borderTopWidth: 1,
-    borderTopColor: "#eee",
-  },
-  navItem: {
-    alignItems: "center",
-    padding: 8,
-  },
-  activeNavItem: {
-    borderBottomWidth: 2,
-    borderBottomColor: "#6366f1",
-  },
-  activeNavText: {
-    color: "#6366f1",
-    fontWeight: "500",
-  },
-  fab: {
+  fabWrapper: {
     position: "absolute",
-    bottom: 16,
-    right: 16,
+    bottom: 0,
+    right: 0,
+    left: 0,
+    top: 0,
+    pointerEvents: "box-none", // Allow touches to pass through
+    justifyContent: "flex-end",
+    alignItems: "flex-end",
+    padding: 30,
+    zIndex: 999999, // Very high z-index
+  },
+
+  fab: {
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: primary_color,
+    backgroundColor: "#007AFF", // Blue color as requested
     justifyContent: "center",
     alignItems: "center",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
-    shadowRadius: 2,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+    elevation: 20, // Maximum elevation
+    borderWidth: 2,
+    borderColor: "#FFFFFF", // White border
   },
   fabText: {
-    color: "#fff",
+    color: "#FFFFFF", // White text for gray background
     fontSize: 24,
     fontWeight: "bold",
+    textShadowColor: "rgba(0, 0, 0, 0.5)",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
+  },
+  fabDark: {
+    backgroundColor: "#007AFF", // Same blue color for dark mode
+    shadowColor: "#fff",
+    shadowOpacity: 0.8,
+    borderColor: "#FFFFFF", // White border for contrast
+    borderWidth: 2, // Consistent border width
+    shadowRadius: 12, // Larger glow effect
+  },
+  fabTextDark: {
+    color: "#ffffff", // Black text for better contrast on bright orange
+    textShadowColor: "rgba(255, 255, 255, 0.5)",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
 });
 
