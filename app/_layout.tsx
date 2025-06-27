@@ -33,16 +33,31 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    if (error) throw error;
+    if (error) {
+      console.error("Font loading error:", error);
+      // Hide splash screen even if font fails to load
+      SplashScreen.hideAsync();
+    }
   }, [error]);
 
   useEffect(() => {
     if (loaded) {
+      console.log("Fonts loaded successfully");
       SplashScreen.hideAsync();
     }
   }, [loaded]);
 
-  if (!loaded) {
+  // Add timeout to prevent infinite loading
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      console.log("Font loading timeout, hiding splash screen");
+      SplashScreen.hideAsync();
+    }, 5000); // 5 second timeout
+
+    return () => clearTimeout(timeout);
+  }, []);
+
+  if (!loaded && !error) {
     return null;
   }
 
@@ -58,11 +73,7 @@ function RootLayoutNav() {
     <QueryClientProvider client={query_client}>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
         <NotificationWrapper>
-          <StatusBar
-            backgroundColor="transparent"
-            style={colorScheme === "dark" ? "light" : "dark"}
-            translucent
-          />
+          <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
           <RootSiblingParent>
             <Stack>
               <Stack.Screen name="index" options={{ headerShown: false }} />

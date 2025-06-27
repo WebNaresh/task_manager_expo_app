@@ -12,11 +12,13 @@ import {
   useColorScheme,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { showToast } from "../toast";
 
 export default function Header(props: BottomTabHeaderProps) {
   const colorScheme = useColorScheme();
   const { user, token } = useAuth();
+  const insets = useSafeAreaInsets();
 
   if (!token) {
     return <Redirect href={"/login"} />;
@@ -26,53 +28,60 @@ export default function Header(props: BottomTabHeaderProps) {
 
   return (
     <View
-      style={[
-        styles.container,
-        { backgroundColor: Colors[colorScheme ?? "light"].background },
-        isDarkMode && styles.darkMode,
-        styles.card,
-      ]}
+      style={{
+        paddingTop: insets.top,
+        backgroundColor: Colors[colorScheme ?? "light"].background,
+      }}
     >
-      <Image
-        source={require("@/assets/images/icon.png")}
-        style={styles.clientLogo}
-        resizeMode="contain"
-      />
-      <View style={styles.textContainer}>
-        <Text
-          style={[
-            styles.title,
-            { color: Colors[colorScheme ?? "light"].text },
-            isDarkMode && styles.darkModeText,
-          ]}
-        >
-          {user?.name}
-        </Text>
-        <Text
-          style={[
-            styles.subtitle,
-            { color: Colors[colorScheme ?? "light"].text },
-            isDarkMode && styles.darkModeText,
-            styles.welcomeText,
-          ]}
-        >
-          Welcome back, <Text style={styles.bold}>{user?.name}</Text>
-        </Text>
-      </View>
-      <TouchableOpacity
-        onPress={() => {
-          // toast "logout"
-          showToast("Logout");
-        }}
+      <View
+        style={[
+          styles.container,
+          { backgroundColor: Colors[colorScheme ?? "light"].background },
+          isDarkMode && styles.darkMode,
+          styles.card,
+        ]}
       >
         <Image
-          source={{
-            uri: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTG5CPz89vwuDB4H5EsXhkpKz0_koS-0HK0Yg&s",
-          }}
-          style={styles.avatar}
-          resizeMode="cover"
+          source={require("@/assets/images/icon.png")}
+          style={styles.clientLogo}
+          resizeMode="contain"
         />
-      </TouchableOpacity>
+        <View style={styles.textContainer}>
+          <Text
+            style={[
+              styles.title,
+              { color: Colors[colorScheme ?? "light"].text },
+              isDarkMode && styles.darkModeText,
+            ]}
+          >
+            {user?.name}
+          </Text>
+          <Text
+            style={[
+              styles.subtitle,
+              { color: Colors[colorScheme ?? "light"].text },
+              isDarkMode && styles.darkModeText,
+              styles.welcomeText,
+            ]}
+          >
+            Welcome back, <Text style={styles.bold}>{user?.name}</Text>
+          </Text>
+        </View>
+        <TouchableOpacity
+          onPress={() => {
+            // toast "logout"
+            showToast("Logout");
+          }}
+        >
+          <Image
+            source={{
+              uri: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTG5CPz89vwuDB4H5EsXhkpKz0_koS-0HK0Yg&s",
+            }}
+            style={styles.avatar}
+            resizeMode="cover"
+          />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -87,7 +96,6 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderBottomWidth: 1,
     borderBottomColor: "#e0e0e0",
-    paddingTop: 28,
   },
   card: {
     borderRadius: 18,

@@ -4,22 +4,15 @@ import React, { useRef } from "react";
 import {
   Animated,
   Easing,
-  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
-  UIManager,
   useColorScheme,
   View,
 } from "react-native";
 
-// Enable LayoutAnimation for Android
-if (Platform.OS === "android") {
-  if (UIManager.setLayoutAnimationEnabledExperimental) {
-    UIManager.setLayoutAnimationEnabledExperimental(true);
-  }
-}
+// Note: LayoutAnimation is automatically enabled in the New Architecture
 
 interface TaskTableProps {
   tasks: Array<{
