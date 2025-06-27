@@ -110,5 +110,4 @@
 ├── task-table.tsx
 ├── Tree.md
 ├── tsconfig.json
-├── types
 └── yarn.lock
