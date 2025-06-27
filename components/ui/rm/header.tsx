@@ -100,15 +100,19 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: 18,
     ...(Platform.OS === "web"
-      ? { boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.08)" }
+      ? {
+          boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.08)",
+        }
       : {
           shadowColor: "#000",
           shadowOffset: { width: 0, height: 2 },
           shadowOpacity: 0.08,
           shadowRadius: 8,
+          elevation: 3,
         }),
-    elevation: 3,
-    margin: 12,
+    marginHorizontal: 12,
+    marginTop: 8,
+    marginBottom: 4,
     borderWidth: 0,
   },
   textContainer: {

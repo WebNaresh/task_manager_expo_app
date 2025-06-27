@@ -11,9 +11,11 @@ import { useRouter } from "expo-router";
 import React from "react";
 import { useForm } from "react-hook-form";
 import {
+  Platform,
   RefreshControl,
   ScrollView,
   StyleSheet,
+  Text,
   TouchableOpacity,
   useColorScheme,
   View,
@@ -141,61 +143,199 @@ const AddTaskForm = (props: Props) => {
       contentContainerStyle={[
         { paddingBottom: 26 },
         isDarkMode && styles.darkContainer,
-        styles.formCard,
       ]}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
+      showsVerticalScrollIndicator={false}
     >
-      <View style={styles.headerRow}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => {
-            if (auth.user?.role === "ADMIN") {
-              router.push("/(admin)/tasks");
-            } else {
-              router.push("/(manager)/tasks");
-            }
-          }}
-        >
-          <Feather
-            name="arrow-left"
-            size={24}
-            color={isDarkMode ? "#fff" : "#222"}
-          />
-        </TouchableOpacity>
-      </View>
-      <View style={styles.formContent}>
-        <NBTextInput
-          form={form}
-          name="description"
-          placeholder="Enter description"
-          type="textarea"
-          icon={
+      {/* Header Section */}
+      <View
+        style={[styles.headerSection, isDarkMode && styles.headerSectionDark]}
+      >
+        <View style={styles.headerRow}>
+          <TouchableOpacity
+            style={[styles.backButton, isDarkMode && styles.backButtonDark]}
+            onPress={() => {
+              if (auth.user?.role === "ADMIN") {
+                router.push("/(admin)/tasks");
+              } else {
+                router.push("/(manager)/tasks");
+              }
+            }}
+          >
             <Feather
-              name="file-text"
+              name="arrow-left"
               size={24}
-              color={isDarkMode ? "white" : "black"}
+              color={isDarkMode ? "#fff" : "#222"}
             />
-          }
-        />
-        <View style={styles.taskListContainer}>
-          <View style={{ flex: 1 }}>
+          </TouchableOpacity>
+          <View style={styles.headerTextContainer}>
+            <Text
+              style={[styles.headerTitle, isDarkMode && styles.headerTitleDark]}
+            >
+              Create New Task
+            </Text>
+            <Text
+              style={[
+                styles.headerSubtitle,
+                isDarkMode && styles.headerSubtitleDark,
+              ]}
+            >
+              Fill in the details to create a new task
+            </Text>
+          </View>
+        </View>
+      </View>
+
+      {/* Form Card */}
+      <View style={[styles.formCard, isDarkMode && styles.formCardDark]}>
+        {/* Basic Information Section */}
+        <View style={styles.sectionContainer}>
+          <View style={styles.sectionHeader}>
+            <View style={[styles.sectionIcon, { backgroundColor: "#3B82F6" }]}>
+              <Feather name="edit-3" size={16} color="#fff" />
+            </View>
+            <Text
+              style={[
+                styles.sectionTitle,
+                isDarkMode && styles.sectionTitleDark,
+              ]}
+            >
+              Basic Information
+            </Text>
+          </View>
+
+          <View style={styles.sectionContent}>
             <NBTextInput
               form={form}
-              name="taskListId"
-              placeholder="Enter tasklist"
+              name="title"
+              placeholder="Enter task title"
+              type="text"
+              icon={
+                <Feather
+                  name="type"
+                  size={20}
+                  color={isDarkMode ? "white" : "#6B7280"}
+                />
+              }
+            />
+
+            <NBTextInput
+              form={form}
+              name="description"
+              placeholder="Enter task description"
+              type="textarea"
+              icon={
+                <Feather
+                  name="file-text"
+                  size={20}
+                  color={isDarkMode ? "white" : "#6B7280"}
+                />
+              }
+            />
+          </View>
+        </View>
+
+        {/* Assignment Section */}
+        <View style={styles.sectionContainer}>
+          <View style={styles.sectionHeader}>
+            <View style={[styles.sectionIcon, { backgroundColor: "#10B981" }]}>
+              <Feather name="users" size={16} color="#fff" />
+            </View>
+            <Text
+              style={[
+                styles.sectionTitle,
+                isDarkMode && styles.sectionTitleDark,
+              ]}
+            >
+              Assignment & Client
+            </Text>
+          </View>
+
+          <View style={styles.sectionContent}>
+            <NBTextInput
+              form={form}
+              name="responsibleUserId"
+              placeholder="Select responsible manager"
               type="select"
               icon={
                 <Feather
-                  name="list"
-                  size={24}
-                  color={isDarkMode ? "white" : "black"}
+                  name="user"
+                  size={20}
+                  color={isDarkMode ? "white" : "#6B7280"}
+                />
+              }
+              options={props.managers.map((manager) => ({
+                label: manager.name,
+                value: manager.id,
+              }))}
+            />
+
+            <NBTextInput
+              form={form}
+              name="clientId"
+              placeholder="Select client"
+              type="select"
+              icon={
+                <Feather
+                  name="briefcase"
+                  size={20}
+                  color={isDarkMode ? "white" : "#6B7280"}
                 />
               }
               options={[
                 {
-                  label: "Add New Tasklist",
+                  label: "➕ Add New Client",
+                  value: "add_new",
+                },
+                ...props.clients.map((client) => ({
+                  label: client.name,
+                  value: client.id,
+                })),
+              ]}
+              onSelect={(value) => {
+                if (value === "add_new") {
+                  form.setValue("clientId", "");
+                  router.push("/add_client_modal");
+                }
+              }}
+            />
+          </View>
+        </View>
+
+        {/* Task Details Section */}
+        <View style={styles.sectionContainer}>
+          <View style={styles.sectionHeader}>
+            <View style={[styles.sectionIcon, { backgroundColor: "#F59E0B" }]}>
+              <Feather name="settings" size={16} color="#fff" />
+            </View>
+            <Text
+              style={[
+                styles.sectionTitle,
+                isDarkMode && styles.sectionTitleDark,
+              ]}
+            >
+              Task Details
+            </Text>
+          </View>
+
+          <View style={styles.sectionContent}>
+            <NBTextInput
+              form={form}
+              name="taskListId"
+              placeholder="Select task list"
+              type="select"
+              icon={
+                <Feather
+                  name="list"
+                  size={20}
+                  color={isDarkMode ? "white" : "#6B7280"}
+                />
+              }
+              options={[
+                {
+                  label: "➕ Add New Tasklist",
                   value: "add_new",
                 },
                 ...props.tasklists.map((tasklist) => ({
@@ -210,89 +350,55 @@ const AddTaskForm = (props: Props) => {
                 }
               }}
             />
+
+            <View style={styles.rowContainer}>
+              <View style={styles.halfWidth}>
+                <NBTextInput
+                  form={form}
+                  name="dueDate"
+                  placeholder="Select due date"
+                  type="date"
+                  icon={
+                    <Feather
+                      name="calendar"
+                      size={20}
+                      color={isDarkMode ? "white" : "#6B7280"}
+                    />
+                  }
+                />
+              </View>
+
+              <View style={styles.halfWidth}>
+                <NBTextInput
+                  form={form}
+                  name="priorityId"
+                  placeholder="Select priority"
+                  type="select"
+                  icon={
+                    <Feather
+                      name="flag"
+                      size={20}
+                      color={isDarkMode ? "white" : "#6B7280"}
+                    />
+                  }
+                  options={props.priorities.map((priority) => ({
+                    label: priority.name,
+                    value: priority.id,
+                  }))}
+                />
+              </View>
+            </View>
           </View>
         </View>
-        <NBTextInput
-          form={form}
-          name="dueDate"
-          placeholder="Enter due date"
-          type="date"
-          icon={
-            <Feather
-              name="calendar"
-              size={24}
-              color={isDarkMode ? "white" : "black"}
-            />
-          }
-        />
-        <NBTextInput
-          form={form}
-          name="responsibleUserId"
-          placeholder="Enter assigned RM"
-          type="select"
-          icon={
-            <Feather
-              name="user"
-              size={24}
-              color={isDarkMode ? "white" : "black"}
-            />
-          }
-          options={props.managers.map((manager) => ({
-            label: manager.name,
-            value: manager.id,
-          }))}
-        />
-        <NBTextInput
-          form={form}
-          name="clientId"
-          placeholder="Enter client"
-          type="select"
-          icon={
-            <Feather
-              name="briefcase"
-              size={24}
-              color={isDarkMode ? "white" : "black"}
-            />
-          }
-          options={[
-            {
-              label: "Add New Client",
-              value: "add_new",
-            },
-            ...props.clients.map((client) => ({
-              label: client.name,
-              value: client.id,
-            })),
-          ]}
-          onSelect={(value) => {
-            if (value === "add_new") {
-              form.setValue("clientId", "");
-              router.push("/add_client_modal");
-            }
-          }}
-        />
-        <NBTextInput
-          form={form}
-          name="priorityId"
-          placeholder="Enter priority"
-          type="select"
-          icon={
-            <Feather
-              name="star"
-              size={24}
-              color={isDarkMode ? "white" : "black"}
-            />
-          }
-          options={props.priorities.map((priority) => ({
-            label: priority.name,
-            value: priority.id,
-          }))}
-        />
-        <NBButton
-          text="Create Task"
-          onPress={handleSubmit(onSubmit)}
-          isPending={formState.isSubmitting || isPending}
-        />
+
+        {/* Submit Button */}
+        <View style={styles.submitContainer}>
+          <NBButton
+            text={isPending ? "Creating Task..." : "Create Task"}
+            onPress={handleSubmit(onSubmit)}
+            isPending={formState.isSubmitting || isPending}
+          />
+        </View>
       </View>
     </ScrollView>
   );
@@ -302,36 +408,130 @@ export default AddTaskForm;
 
 const styles = StyleSheet.create({
   darkContainer: {
-    backgroundColor: "#000",
+    backgroundColor: "#111827",
   },
-  formCard: {
+
+  // Header Styles
+  headerSection: {
     backgroundColor: "#fff",
-    borderRadius: 18,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
-    margin: 16,
-    padding: 12,
+    paddingTop: 8,
+    paddingBottom: 12,
+    paddingHorizontal: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F3F4F6",
+  },
+  headerSectionDark: {
+    backgroundColor: "#1F2937",
+    borderBottomColor: "#374151",
   },
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 8,
   },
   backButton: {
-    backgroundColor: "#f2f2f2",
-    borderRadius: 8,
-    padding: 8,
-    marginRight: 8,
-    alignSelf: "flex-start",
+    backgroundColor: "#F3F4F6",
+    borderRadius: 12,
+    padding: 12,
+    marginRight: 16,
   },
-  formContent: {
-    gap: 16,
+  backButtonDark: {
+    backgroundColor: "#374151",
   },
-  taskListContainer: {
+  headerTextContainer: {
+    flex: 1,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#111827",
+    marginBottom: 4,
+  },
+  headerTitleDark: {
+    color: "#F9FAFB",
+  },
+  headerSubtitle: {
+    fontSize: 16,
+    color: "#6B7280",
+  },
+  headerSubtitleDark: {
+    color: "#9CA3AF",
+  },
+
+  // Form Card Styles
+  formCard: {
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    ...(Platform.OS === "web"
+      ? {
+          boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+        }
+      : {
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.1,
+          shadowRadius: 12,
+          elevation: 5,
+        }),
+    marginHorizontal: 16,
+    marginTop: 8,
+    marginBottom: 16,
+    padding: 20,
+  },
+  formCardDark: {
+    backgroundColor: "#1F2937",
+    ...(Platform.OS === "web"
+      ? {
+          boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.3)",
+        }
+      : {
+          shadowColor: "#000",
+          shadowOpacity: 0.3,
+        }),
+  },
+
+  // Section Styles
+  sectionContainer: {
+    marginBottom: 24,
+  },
+  sectionHeader: {
     flexDirection: "row",
     alignItems: "center",
+    marginBottom: 16,
+  },
+  sectionIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#111827",
+  },
+  sectionTitleDark: {
+    color: "#F9FAFB",
+  },
+  sectionContent: {
+    gap: 16,
+  },
+
+  // Layout Styles
+  rowContainer: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  halfWidth: {
+    flex: 1,
+  },
+
+  // Submit Button
+  submitContainer: {
+    marginTop: 8,
+    paddingTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: "#F3F4F6",
   },
 });

@@ -1,9 +1,10 @@
 import { AntDesign, Feather, MaterialIcons } from "@expo/vector-icons";
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import React, { useRef } from "react";
 import {
   Animated,
   Easing,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -244,13 +245,72 @@ const TaskDetailView = ({ task, isDarkMode }: TaskDetailViewProps) => {
   );
 };
 
+// Empty state component
+const EmptyState = ({ isDarkMode }: { isDarkMode: boolean }) => (
+  <View
+    style={{
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      paddingVertical: 60,
+      paddingHorizontal: 20,
+    }}
+  >
+    <View
+      style={{
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        backgroundColor: isDarkMode
+          ? "rgba(59, 130, 246, 0.1)"
+          : "rgba(59, 130, 246, 0.05)",
+        justifyContent: "center",
+        alignItems: "center",
+        marginBottom: 16,
+      }}
+    >
+      <MaterialIcons
+        name="assignment"
+        size={40}
+        color={isDarkMode ? "#60a5fa" : "#3b82f6"}
+      />
+    </View>
+    <Text
+      style={{
+        fontSize: 18,
+        fontWeight: "600",
+        color: isDarkMode ? "#e2e8f0" : "#374151",
+        marginBottom: 8,
+        textAlign: "center",
+      }}
+    >
+      No Tasks Found
+    </Text>
+    <Text
+      style={{
+        fontSize: 14,
+        color: isDarkMode ? "#94a3b8" : "#6b7280",
+        textAlign: "center",
+        lineHeight: 20,
+      }}
+    >
+      There are no tasks to display at the moment.{"\n"}
+      Tasks will appear here once they are created.
+    </Text>
+  </View>
+);
+
 const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === "dark";
   const router = useRouter();
   const [pressedRow, setPressedRow] = React.useState<string | null>(null);
   const [expandedRow, setExpandedRow] = React.useState<string | null>(null);
+  const [pressedButton, setPressedButton] = React.useState<string | null>(null);
   const scaleAnims = useRef<{ [key: string]: Animated.Value }>({}).current;
+  const buttonScaleAnims = useRef<{ [key: string]: Animated.Value }>(
+    {}
+  ).current;
   const expandAnims = useRef<{
     [key: string]: { height: Animated.Value; opacity: Animated.Value };
   }>({}).current;
@@ -364,31 +424,43 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
       flex: 1,
       padding: 0,
       backgroundColor: isDarkMode
-        ? "rgba(24, 24, 24, 0.9)"
-        : "rgba(248, 249, 250, 0.9)",
-      borderRadius: 16,
-      shadowColor: isDarkMode ? "#000" : "#aaa",
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: isDarkMode ? 0.3 : 0.1,
-      shadowRadius: 12,
-      elevation: 5,
+        ? "rgba(17, 24, 39, 0.95)"
+        : "rgba(255, 255, 255, 0.95)",
+      borderRadius: 20,
+      ...(Platform.OS === "web"
+        ? {
+            boxShadow: isDarkMode
+              ? "0px 8px 16px rgba(0, 0, 0, 0.4)"
+              : "0px 8px 16px rgba(100, 116, 139, 0.15)",
+          }
+        : {
+            shadowColor: isDarkMode ? "#000" : "#64748b",
+            shadowOffset: { width: 0, height: 8 },
+            shadowOpacity: isDarkMode ? 0.4 : 0.15,
+            shadowRadius: 16,
+            elevation: 8,
+          }),
       marginVertical: 16,
       borderWidth: 1,
       borderColor: isDarkMode
-        ? "rgba(255, 255, 255, 0.05)"
-        : "rgba(0, 0, 0, 0.05)",
+        ? "rgba(59, 130, 246, 0.1)"
+        : "rgba(226, 232, 240, 0.8)",
     },
     headerRow: {
       flexDirection: "row",
       marginBottom: 0,
-      borderTopLeftRadius: 16,
-      borderTopRightRadius: 16,
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
       overflow: "hidden",
       backgroundColor: isDarkMode
-        ? "rgba(35, 39, 47, 0.9)"
-        : "rgba(255, 255, 255, 0.9)",
+        ? "rgba(30, 41, 59, 0.95)"
+        : "rgba(248, 250, 252, 0.95)",
       zIndex: 2,
-      paddingVertical: 4,
+      paddingVertical: 8,
+      borderBottomWidth: 2,
+      borderBottomColor: isDarkMode
+        ? "rgba(59, 130, 246, 0.2)"
+        : "rgba(226, 232, 240, 0.8)",
     },
     headerCell: {
       paddingVertical: 16,
@@ -400,11 +472,11 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
         : "rgba(0, 0, 0, 0.08)",
     },
     headerText: {
-      color: isDarkMode ? "#a0a8b8" : "#546E7A",
-      fontWeight: "600",
-      fontSize: 13,
+      color: isDarkMode ? "#e2e8f0" : "#374151",
+      fontWeight: "700",
+      fontSize: 12,
       textTransform: "uppercase",
-      letterSpacing: 0.5,
+      letterSpacing: 0.8,
     },
     cellText: {
       color: isDarkMode ? "#ccc" : "#546E7A",
@@ -446,13 +518,24 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
       textTransform: "capitalize",
     },
     actionButton: {
-      padding: 10,
-      borderRadius: 12,
+      padding: 8,
+      borderRadius: 8,
       justifyContent: "center",
       alignItems: "center",
-      marginHorizontal: 4,
-      width: 34,
-      height: 34,
+      marginHorizontal: 2,
+      width: 32,
+      height: 32,
+      ...(Platform.OS === "web"
+        ? {
+            boxShadow: "0px 1px 2px rgba(0, 0, 0, 0.1)",
+          }
+        : {
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.1,
+            shadowRadius: 2,
+            elevation: 2,
+          }),
     },
     actionRow: {
       flexDirection: "row",
@@ -516,47 +599,60 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
     },
   });
 
+  // Show empty state if no tasks
+  if (tasks.length === 0) {
+    return (
+      <View style={[dynamicStyles.container, styles.container]}>
+        <EmptyState isDarkMode={isDarkMode} />
+      </View>
+    );
+  }
+
   return (
     <View style={[dynamicStyles.container, styles.container]}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={true}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={true}
+        contentContainerStyle={{ minWidth: "100%" }}
+      >
         <View>
           {/* Header Row */}
           <View style={[dynamicStyles.headerRow, styles.headerRow]}>
-            <View style={[dynamicStyles.headerCell, { width: 180 }]}>
+            <View style={[dynamicStyles.headerCell, { width: 200 }]}>
               {/* Task Name */}
-              <Text style={dynamicStyles.headerText}>Task Name</Text>
+              <Text style={dynamicStyles.headerText}>📋 Task Name</Text>
             </View>
-            <View style={[dynamicStyles.headerCell, { width: 50 }]}>
+            <View style={[dynamicStyles.headerCell, { width: 60 }]}>
               {/* SR Number */}
               <Text style={dynamicStyles.headerText}>#</Text>
             </View>
-            <View style={[dynamicStyles.headerCell, { width: 130 }]}>
+            <View style={[dynamicStyles.headerCell, { width: 150 }]}>
               {/* Due Date */}
-              <Text style={dynamicStyles.headerText}>Due Date</Text>
+              <Text style={dynamicStyles.headerText}>📅 Due Date</Text>
+            </View>
+            <View style={[dynamicStyles.headerCell, { width: 160 }]}>
+              {/* Client */}
+              <Text style={dynamicStyles.headerText}>👤 Client</Text>
             </View>
             <View style={[dynamicStyles.headerCell, { width: 140 }]}>
-              {/* Client */}
-              <Text style={dynamicStyles.headerText}>Client</Text>
-            </View>
-            <View style={[dynamicStyles.headerCell, { width: 120 }]}>
               {/* RM */}
-              <Text style={dynamicStyles.headerText}>RM</Text>
+              <Text style={dynamicStyles.headerText}>👨‍💼 RM</Text>
             </View>
-            <View style={[dynamicStyles.headerCell, { width: 120 }]}>
+            <View style={[dynamicStyles.headerCell, { width: 140 }]}>
               {/* Task List */}
-              <Text style={dynamicStyles.headerText}>Task List</Text>
+              <Text style={dynamicStyles.headerText}>📝 Task List</Text>
             </View>
-            <View style={[dynamicStyles.headerCell, { width: 110 }]}>
+            <View style={[dynamicStyles.headerCell, { width: 130 }]}>
               {/* Status */}
-              <Text style={dynamicStyles.headerText}>Status</Text>
+              <Text style={dynamicStyles.headerText}>🔄 Status</Text>
             </View>
             <View
               style={[
                 dynamicStyles.headerCell,
-                { width: 140, borderRightWidth: 0 },
+                { width: 160, borderRightWidth: 0 },
               ]}
             >
-              <Text style={dynamicStyles.headerText}>Actions</Text>
+              <Text style={dynamicStyles.headerText}>⚡ Actions</Text>
             </View>
           </View>
 
@@ -602,26 +698,33 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
                     <View
                       style={[
                         dynamicStyles.cell,
-                        { width: 180, height: "100%" },
+                        { width: 200, height: "100%" },
                       ]}
                     >
                       <Text
-                        style={dynamicStyles.taskTitle}
+                        style={[dynamicStyles.taskTitle, { lineHeight: 18 }]}
                         numberOfLines={2}
                         ellipsizeMode="tail"
                       >
-                        {task.title.length === 0 ? "N/A" : task.title}
+                        {task.title.length === 0 ? "📝 No title" : task.title}
                       </Text>
                     </View>
 
                     <View
                       style={[
                         dynamicStyles.cell,
-                        { width: 50, alignItems: "center", height: "100%" },
+                        { width: 60, alignItems: "center", height: "100%" },
                       ]}
                     >
-                      <View style={dynamicStyles.srNumber}>
-                        <Text style={dynamicStyles.srNumberText}>
+                      <View
+                        style={[
+                          dynamicStyles.srNumber,
+                          { width: 32, height: 32, borderRadius: 16 },
+                        ]}
+                      >
+                        <Text
+                          style={[dynamicStyles.srNumberText, { fontSize: 13 }]}
+                        >
                           {index + 1}
                         </Text>
                       </View>
@@ -630,30 +733,96 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
                     <View
                       style={[
                         dynamicStyles.cell,
-                        { width: 130, height: "100%" },
+                        { width: 150, height: "100%" },
                       ]}
                     >
-                      <Text
-                        style={[
-                          dynamicStyles.cellText,
-                          isTaskOverdue
-                            ? dynamicStyles.overdue
-                            : dynamicStyles.upcoming,
-                        ]}
+                      <View
+                        style={{ flexDirection: "row", alignItems: "center" }}
                       >
                         {isTaskOverdue ? (
-                          <React.Fragment>
+                          <>
                             <MaterialIcons
                               name="schedule"
-                              size={12}
+                              size={14}
                               color={isDarkMode ? "#ff6e6e" : "#f44336"}
+                              style={{ marginRight: 4 }}
                             />
-                            <Text>{" " + formatDateTime(task.dueDate)}</Text>
-                          </React.Fragment>
+                            <Text
+                              style={[
+                                dynamicStyles.cellText,
+                                dynamicStyles.overdue,
+                                { fontSize: 12, fontWeight: "600" },
+                              ]}
+                            >
+                              {formatDateTime(task.dueDate)}
+                            </Text>
+                          </>
                         ) : (
-                          formatDateTime(task.dueDate)
+                          <>
+                            <MaterialIcons
+                              name="event"
+                              size={14}
+                              color={isDarkMode ? "#87ceeb" : "#0288d1"}
+                              style={{ marginRight: 4 }}
+                            />
+                            <Text
+                              style={[
+                                dynamicStyles.cellText,
+                                dynamicStyles.upcoming,
+                                { fontSize: 12 },
+                              ]}
+                            >
+                              {formatDateTime(task.dueDate)}
+                            </Text>
+                          </>
                         )}
-                      </Text>
+                      </View>
+                    </View>
+
+                    <View
+                      style={[
+                        dynamicStyles.cell,
+                        { width: 160, height: "100%" },
+                      ]}
+                    >
+                      <View
+                        style={{ flexDirection: "row", alignItems: "center" }}
+                      >
+                        <View
+                          style={{
+                            width: 8,
+                            height: 8,
+                            borderRadius: 4,
+                            backgroundColor:
+                              task?.client?.status === "ACTIVE"
+                                ? "#4CAF50"
+                                : "#FF9800",
+                            marginRight: 6,
+                          }}
+                        />
+                        <View style={{ flex: 1 }}>
+                          <Text
+                            style={[dynamicStyles.clientName, { fontSize: 12 }]}
+                            numberOfLines={1}
+                          >
+                            {task?.client?.name || "👤 No client"}
+                          </Text>
+                          {task?.client?.status && (
+                            <Text
+                              style={[
+                                dynamicStyles.cellText,
+                                {
+                                  fontSize: 10,
+                                  opacity: 0.7,
+                                  textTransform: "capitalize",
+                                },
+                              ]}
+                            >
+                              {task.client.status.toLowerCase()}
+                            </Text>
+                          )}
+                        </View>
+                      </View>
                     </View>
 
                     <View
@@ -662,53 +831,71 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
                         { width: 140, height: "100%" },
                       ]}
                     >
-                      <Text style={dynamicStyles.clientName} numberOfLines={1}>
-                        {task?.client?.name || "—"}
-                      </Text>
-                      {task?.client?.status && (
+                      <View
+                        style={{ flexDirection: "row", alignItems: "center" }}
+                      >
+                        <View
+                          style={{
+                            width: 24,
+                            height: 24,
+                            borderRadius: 12,
+                            backgroundColor: isDarkMode ? "#4A5568" : "#E2E8F0",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            marginRight: 8,
+                          }}
+                        >
+                          <Text style={{ fontSize: 10, fontWeight: "600" }}>
+                            {task.responsibleUser.name.charAt(0).toUpperCase()}
+                          </Text>
+                        </View>
                         <Text
                           style={[
-                            dynamicStyles.cellText,
-                            { fontSize: 11, opacity: 0.8 },
+                            dynamicStyles.rmName,
+                            { fontSize: 12, flex: 1 },
                           ]}
+                          numberOfLines={1}
                         >
-                          {task.client.status}
+                          {task.responsibleUser.name}
                         </Text>
-                      )}
+                      </View>
                     </View>
 
                     <View
                       style={[
                         dynamicStyles.cell,
-                        { width: 120, height: "100%" },
+                        { width: 140, height: "100%", overflow: "hidden" },
                       ]}
                     >
-                      <Text style={dynamicStyles.rmName}>
-                        {task.responsibleUser.name}
-                      </Text>
-                    </View>
-
-                    <View
-                      style={[
-                        dynamicStyles.cell,
-                        { width: 120, height: "100%", overflow: "hidden" },
-                      ]}
-                    >
-                      <Link href={`/tasks/${task.id}`}>
+                      <TouchableOpacity
+                        onPress={() => router.push(`/tasks/${task.id}`)}
+                        style={{
+                          backgroundColor: isDarkMode
+                            ? "rgba(59, 130, 246, 0.1)"
+                            : "rgba(59, 130, 246, 0.05)",
+                          paddingHorizontal: 8,
+                          paddingVertical: 4,
+                          borderRadius: 6,
+                          borderWidth: 1,
+                          borderColor: isDarkMode
+                            ? "rgba(59, 130, 246, 0.3)"
+                            : "rgba(59, 130, 246, 0.2)",
+                        }}
+                      >
                         <Text
-                          style={dynamicStyles.taskListLink}
+                          style={[dynamicStyles.taskListLink, { fontSize: 11 }]}
                           numberOfLines={1}
                           ellipsizeMode="tail"
                         >
-                          {task.taskList?.name || "—"}
+                          {task.taskList?.name || "📝 No list"}
                         </Text>
-                      </Link>
+                      </TouchableOpacity>
                     </View>
 
                     <View
                       style={[
                         dynamicStyles.cell,
-                        { width: 110, height: "100%" },
+                        { width: 130, height: "100%" },
                       ]}
                     >
                       <View
@@ -761,59 +948,94 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
                     <View
                       style={[
                         dynamicStyles.cell,
-                        { width: 140, borderRightWidth: 0, height: "100%" },
+                        { width: 160, borderRightWidth: 0, height: "100%" },
                       ]}
                     >
-                      <View style={dynamicStyles.actionRow}>
+                      <View
+                        style={[
+                          dynamicStyles.actionRow,
+                          { justifyContent: "space-between" },
+                        ]}
+                      >
                         <TouchableOpacity
                           style={[
                             dynamicStyles.actionButton,
                             {
-                              backgroundColor: isDarkMode
-                                ? "rgba(68, 68, 68, 0.6)"
-                                : "rgba(245, 245, 245, 0.8)",
+                              backgroundColor: "transparent",
+                              borderWidth: 1,
+                              borderColor: isDarkMode
+                                ? "rgba(34, 197, 94, 0.4)"
+                                : "rgba(34, 197, 94, 0.3)",
                             },
                           ]}
                           onPress={(e) => {
                             e.stopPropagation();
-                            router.push({
-                              pathname: `/tasks/[task_id]/[user_id]/remark_modal`,
-                              params: {
-                                task_id: task.id,
-                                user_id: user_id as string,
-                              },
-                            });
+                            try {
+                              router.push({
+                                pathname: `/tasks/[task_id]/[user_id]/remark_modal`,
+                                params: {
+                                  task_id: task.id,
+                                  user_id: user_id as string,
+                                },
+                              });
+                            } catch (error) {
+                              console.error("Navigation error:", error);
+                              // Fallback navigation
+                              router.push(
+                                `/tasks/${task.id}/${user_id}/remark_modal`
+                              );
+                            }
                           }}
+                          accessibilityLabel="Add remark to task"
+                          accessibilityHint="Opens a modal to add comments or remarks to this task"
                         >
                           <Feather
                             name="message-square"
-                            size={16}
-                            color={isDarkMode ? "#a0a8b8" : "#546E7A"}
+                            size={14}
+                            color={isDarkMode ? "#22c55e" : "#16a34a"}
                           />
                         </TouchableOpacity>
-
-                        <View style={dynamicStyles.verticalDivider} />
 
                         <TouchableOpacity
                           style={[
                             dynamicStyles.actionButton,
-                            { backgroundColor: "rgba(0, 122, 255, 0.9)" },
+                            {
+                              backgroundColor: "transparent",
+                              borderWidth: 1,
+                              borderColor: "rgba(59, 130, 246, 0.6)",
+                            },
                           ]}
                           onPress={(e) => {
                             e.stopPropagation();
-                            const params = {
-                              task_id: task.id,
-                              user_id: user_id,
-                              task_list_id: task.taskList?.id!,
-                            };
 
-                            router.push({
-                              pathname: `/tasks/[task_id]/[user_id]/[task_list_id]/status_modal`,
-                              params,
-                            });
+                            if (!task.taskList?.id) {
+                              console.warn("Task list ID is missing");
+                              return;
+                            }
+
+                            try {
+                              const params = {
+                                task_id: task.id,
+                                user_id: user_id,
+                                task_list_id: task.taskList.id,
+                              };
+
+                              router.push({
+                                pathname: `/tasks/[task_id]/[user_id]/[task_list_id]/status_modal`,
+                                params,
+                              });
+                            } catch (error) {
+                              console.error("Navigation error:", error);
+                              // Fallback navigation
+                              router.push(
+                                `/tasks/${task.id}/${user_id}/${task.taskList.id}/status_modal`
+                              );
+                            }
                           }}
+                          accessibilityLabel="Update task status"
+                          accessibilityHint="Opens a modal to change the task status and task list"
                         >
-                          <Feather name="list" size={16} color="#FFFFFF" />
+                          <Feather name="edit-3" size={14} color="#FFFFFF" />
                         </TouchableOpacity>
 
                         {/* Eye icon for task detail */}
@@ -821,23 +1043,37 @@ const TaskTable: React.FC<TaskTableProps> = ({ tasks, user_id }) => {
                           style={[
                             dynamicStyles.actionButton,
                             {
-                              backgroundColor: isDarkMode
-                                ? "rgba(34, 34, 34, 0.8)"
-                                : "rgba(224, 231, 239, 0.9)",
+                              backgroundColor: "transparent",
+                              borderWidth: 1,
+                              borderColor: isDarkMode
+                                ? "rgba(139, 92, 246, 0.4)"
+                                : "rgba(139, 92, 246, 0.3)",
                             },
                           ]}
                           onPress={(e) => {
                             e.stopPropagation();
-                            router.push({
-                              pathname: "/tasks/[task_id]",
-                              params: { task_id: task.id },
-                            });
+                            try {
+                              router.push({
+                                pathname: "/tasks/[task_id]",
+                                params: {
+                                  task_id: task.id,
+                                  clientName:
+                                    task.client?.name || "Unknown Client",
+                                },
+                              });
+                            } catch (error) {
+                              console.error("Navigation error:", error);
+                              // Fallback navigation
+                              router.push(`/tasks/${task.id}`);
+                            }
                           }}
+                          accessibilityLabel="View task details"
+                          accessibilityHint="Opens the detailed view of this task"
                         >
                           <Feather
                             name="eye"
-                            size={16}
-                            color={isDarkMode ? "#e0e0e0" : "#37474F"}
+                            size={14}
+                            color={isDarkMode ? "#a78bfa" : "#8b5cf6"}
                           />
                         </TouchableOpacity>
                       </View>
