@@ -12,13 +12,6 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "dark": {
-      "splash": {
-        "image": "./assets/images/splash-icon.png",
-        "resizeMode": "contain",
-        "backgroundColor": "#181c24"
-      }
-    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.goanny.glorytask",
