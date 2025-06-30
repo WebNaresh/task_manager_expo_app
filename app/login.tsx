@@ -40,6 +40,7 @@ const LoginScreen = () => {
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === "dark";
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -159,6 +160,21 @@ const LoginScreen = () => {
       textAlign: "center",
       textDecorationLine: "underline",
     },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    loadingContent: {
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    loadingText: {
+      fontSize: 18,
+      fontWeight: "600",
+      marginTop: 20,
+      textAlign: "center",
+    },
   });
 
   const form = useForm<form_schema_types>({
@@ -187,9 +203,6 @@ const LoginScreen = () => {
   const mutation = useMutation({
     mutationFn: async (data: form_schema_types) => {
       console.log("🚀 Login attempt with data:", data);
-      await queryClient.invalidateQueries({
-        queryKey: ["token"],
-      });
       const response = await axios.post("/api/v1/auth/login", data);
       console.log("🚀 Login response:", response.data);
       return response.data;
@@ -199,41 +212,52 @@ const LoginScreen = () => {
 
       // Check authorization first before proceeding
       if (data.role !== "RM" && data.role !== "ADMIN") {
+        setIsLoggingIn(false);
         showToast("You are not authorized to login", {
           backgroundColor: error_color,
         });
         return;
       }
 
-      // Show welcome message
-      showToast(`Welcome, ${data?.name}`, {
-        backgroundColor: success_color,
-      });
-
       try {
+        // Set logging in state to prevent flickering
+        setIsLoggingIn(true);
+
         // Store token first
         await AsyncStorage.setItem("token", data.token);
         console.log("🚀 Token stored successfully");
 
-        // Invalidate queries to refresh auth state
+        // Wait a brief moment to ensure AsyncStorage write is complete
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        // Update user status
+        mutate({ isActive: true });
+
+        // Show welcome message
+        showToast(`Welcome, ${data?.name}`, {
+          backgroundColor: success_color,
+        });
+
+        // Invalidate queries to refresh auth state and wait for it to complete
         await queryClient.invalidateQueries({
           queryKey: ["token"],
         });
         console.log("🚀 Queries invalidated");
 
-        // Update user status
-        mutate({ isActive: true });
+        // Wait for auth state to settle
+        await new Promise((resolve) => setTimeout(resolve, 200));
 
         // Navigate based on role
         if (data.role === "RM") {
-          router.push("/(manager)/dashboard");
+          router.replace("/(manager)/dashboard");
         } else if (data.role === "ADMIN") {
-          router.push("/(admin)/dashboard");
+          router.replace("/(admin)/dashboard");
         }
 
         console.log("🚀 Navigation completed");
       } catch (error) {
         console.error("🚀 Error in login success handler:", error);
+        setIsLoggingIn(false);
         showToast(
           "Login successful but there was an issue. Please try again.",
           {
@@ -244,6 +268,7 @@ const LoginScreen = () => {
     },
     onError(error, _variables, _context) {
       console.error("🚀 Login error:", error);
+      setIsLoggingIn(false);
 
       if (axios.isAxiosError(error)) {
         if (error.code === "NETWORK_ERROR" || error.code === "ECONNABORTED") {
@@ -276,15 +301,50 @@ const LoginScreen = () => {
 
   const onSubmit = (data: form_schema_types) => {
     Keyboard.dismiss();
+    setIsLoggingIn(true);
     mutation.mutate(data);
   };
 
-  if (token !== null) {
+  // Only redirect if we have a token and we're not in the middle of logging in
+  // This prevents flickering during the login process
+  if (token !== null && !isLoggingIn && !mutation.isPending) {
     if (user?.role === "ADMIN") {
       return <Redirect href={"/(admin)/dashboard"} />;
     } else {
       return <Redirect href="/(manager)/dashboard" />;
     }
+  }
+
+  // Show loading screen during login process
+  if (isLoggingIn || mutation.isPending) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <LinearGradient
+          colors={isDarkMode ? ["#181c24", "#23272f"] : ["#e0e7ef", "#f8fafc"]}
+          style={styles.gradientBackground}
+        >
+          <View style={styles.loadingContainer}>
+            <View style={styles.loadingContent}>
+              <View style={styles.logoContainer}>
+                <Image
+                  source={require("@/assets/images/icon.png")}
+                  style={styles.logo}
+                  resizeMode="contain"
+                />
+              </View>
+              <Text
+                style={[
+                  styles.loadingText,
+                  { color: isDarkMode ? "#FFFFFF" : "#000000" },
+                ]}
+              >
+                Signing you in...
+              </Text>
+            </View>
+          </View>
+        </LinearGradient>
+      </SafeAreaView>
+    );
   }
 
   return (

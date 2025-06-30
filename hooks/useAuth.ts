@@ -10,6 +10,11 @@ const useAuth = () => {
             return storedToken ? storedToken : null;
         },
         initialData: null,
+        staleTime: 5 * 60 * 1000, // 5 minutes
+        gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+        refetchOnWindowFocus: false,
+        refetchOnMount: false,
+        refetchOnReconnect: false,
     });
 
     const user = token ? jwtDecode(token) as {
