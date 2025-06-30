@@ -186,43 +186,88 @@ const LoginScreen = () => {
 
   const mutation = useMutation({
     mutationFn: async (data: form_schema_types) => {
+      console.log("🚀 Login attempt with data:", data);
       await queryClient.invalidateQueries({
         queryKey: ["token"],
       });
       const response = await axios.post("/api/v1/auth/login", data);
+      console.log("🚀 Login response:", response.data);
       return response.data;
     },
     async onSuccess(data, _variables, _context) {
-      showToast(`Welcome, ${data?.name}`, {
-        backgroundColor: success_color,
-      });
+      console.log("🚀 Login success with data:", data);
 
-      if (data.role === "RM") {
-        await AsyncStorage.setItem("token", data.token);
-        await queryClient.invalidateQueries({
-          queryKey: ["token"],
-        });
-        router.push("/(manager)/dashboard");
-      } else if (data.role === "ADMIN") {
-        router.push("/(admin)/dashboard");
-        await AsyncStorage.setItem("token", data.token);
-        await queryClient.invalidateQueries({
-          queryKey: ["token"],
-        });
-      }
-
-      mutate({ isActive: true });
-
-      // if data role is other than RM or ADMIN
+      // Check authorization first before proceeding
       if (data.role !== "RM" && data.role !== "ADMIN") {
         showToast("You are not authorized to login", {
           backgroundColor: error_color,
         });
+        return;
+      }
+
+      // Show welcome message
+      showToast(`Welcome, ${data?.name}`, {
+        backgroundColor: success_color,
+      });
+
+      try {
+        // Store token first
+        await AsyncStorage.setItem("token", data.token);
+        console.log("🚀 Token stored successfully");
+
+        // Invalidate queries to refresh auth state
+        await queryClient.invalidateQueries({
+          queryKey: ["token"],
+        });
+        console.log("🚀 Queries invalidated");
+
+        // Update user status
+        mutate({ isActive: true });
+
+        // Navigate based on role
+        if (data.role === "RM") {
+          router.push("/(manager)/dashboard");
+        } else if (data.role === "ADMIN") {
+          router.push("/(admin)/dashboard");
+        }
+
+        console.log("🚀 Navigation completed");
+      } catch (error) {
+        console.error("🚀 Error in login success handler:", error);
+        showToast(
+          "Login successful but there was an issue. Please try again.",
+          {
+            backgroundColor: error_color,
+          }
+        );
       }
     },
-    onError(error, variables, context) {
+    onError(error, _variables, _context) {
+      console.error("🚀 Login error:", error);
+
       if (axios.isAxiosError(error)) {
-        showToast(error.response?.data.message, {
+        if (error.code === "NETWORK_ERROR" || error.code === "ECONNABORTED") {
+          showToast(
+            "Network error. Please check your connection and try again.",
+            {
+              backgroundColor: error_color,
+            }
+          );
+        } else if (error.response?.status === 401) {
+          showToast("Invalid email or password", {
+            backgroundColor: error_color,
+          });
+        } else if (error.response?.data?.message) {
+          showToast(error.response.data.message, {
+            backgroundColor: error_color,
+          });
+        } else {
+          showToast("Login failed. Please try again.", {
+            backgroundColor: error_color,
+          });
+        }
+      } else {
+        showToast("An unexpected error occurred. Please try again.", {
           backgroundColor: error_color,
         });
       }
