@@ -201,11 +201,28 @@ export default function ProfileSetup() {
       {
         text: "Logout",
         onPress: async () => {
-          // Handle logout logic here
-          await AsyncStorage.removeItem("token");
-          logout_mutate({ isActive: false });
+          try {
+            // Handle logout logic here
+            await AsyncStorage.removeItem("token");
 
-          router.navigate("/login");
+            // Invalidate the token query to clear auth state
+            await query_client.invalidateQueries({
+              queryKey: ["token"],
+            });
+
+            // Clear all queries to reset app state
+            query_client.clear();
+
+            // Update user status to inactive
+            logout_mutate({ isActive: false });
+
+            // Use replace instead of navigate to prevent going back
+            router.replace("/login");
+          } catch (error) {
+            console.error("Logout error:", error);
+            // Still navigate to login even if there's an error
+            router.replace("/login");
+          }
         },
         style: "destructive",
       },
