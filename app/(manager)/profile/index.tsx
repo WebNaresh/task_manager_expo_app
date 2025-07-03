@@ -154,20 +154,40 @@ export default function ProfileSetup() {
       return response.data;
     },
     async onSuccess(data, variables, context) {
-      await AsyncStorage.setItem("token", data.token);
-      await query_client.invalidateQueries({
-        queryKey: ["token"],
-      });
+      try {
+        const tokenStored = await storage.setItem("token", data.token);
+        if (!tokenStored) {
+          throw new Error("Failed to store updated token");
+        }
 
-      Toast.show(data?.message, {
-        duration: Toast.durations.LONG,
-        position: Toast.positions.TOP,
-        shadow: true,
-        animation: true,
-        hideOnPress: true,
-        backgroundColor: success_color,
-      });
-      // router.push("/(manager)");
+        await query_client.invalidateQueries({
+          queryKey: ["token"],
+        });
+
+        Toast.show(data?.message, {
+          duration: Toast.durations.LONG,
+          position: Toast.positions.TOP,
+          shadow: true,
+          animation: true,
+          hideOnPress: true,
+          backgroundColor: success_color,
+        });
+
+        logger.auth("Profile updated successfully");
+      } catch (error) {
+        logger.error("Error updating profile", error);
+        Toast.show(
+          "Profile updated but there was an issue with token storage",
+          {
+            duration: Toast.durations.LONG,
+            position: Toast.positions.TOP,
+            shadow: true,
+            animation: true,
+            hideOnPress: true,
+            backgroundColor: error_color,
+          }
+        );
+      }
     },
     onError(error, variables, context) {
       if (axios.isAxiosError(error)) {
@@ -203,8 +223,13 @@ export default function ProfileSetup() {
         text: "Logout",
         onPress: async () => {
           try {
+            logger.auth("Logout initiated");
+
             // Handle logout logic here
-            await AsyncStorage.removeItem("token");
+            const tokenRemoved = await storage.removeItem("token");
+            if (!tokenRemoved) {
+              logger.warn("Failed to remove token from storage");
+            }
 
             // Invalidate the token query to clear auth state
             await query_client.invalidateQueries({
@@ -219,8 +244,9 @@ export default function ProfileSetup() {
 
             // Use replace instead of navigate to prevent going back
             router.replace("/login");
+            logger.auth("Logout completed");
           } catch (error) {
-            console.error("Logout error:", error);
+            logger.error("Logout error", error);
             // Still navigate to login even if there's an error
             router.replace("/login");
           }
