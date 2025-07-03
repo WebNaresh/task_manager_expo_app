@@ -5,12 +5,14 @@ import { error_color, primary_color, success_color } from "@/constants/Colors";
 import useAuth from "@/hooks/useAuth";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod"; // Add this import
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { LinearGradient } from "expo-linear-gradient";
 import { Redirect, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
+import { storage } from "@/utils/storage";
+import { logger } from "@/utils/logger";
+import { validateToken } from "@/utils/tokenUtils";
 import { useForm } from "react-hook-form";
 import {
   Dimensions,
@@ -202,17 +204,18 @@ const LoginScreen = () => {
 
   const mutation = useMutation({
     mutationFn: async (data: form_schema_types) => {
-      console.log("🚀 Login attempt with data:", data);
+      logger.auth("Login attempt", { email: data.email });
       const response = await axios.post("/api/v1/auth/login", data);
-      console.log("🚀 Login response:", response.data);
+      logger.auth("Login response received", { role: response.data.role });
       return response.data;
     },
     async onSuccess(data, _variables, _context) {
-      console.log("🚀 Login success with data:", data);
+      logger.auth("Login success", { role: data.role, name: data.name });
 
       // Check authorization first before proceeding
       if (data.role !== "RM" && data.role !== "ADMIN") {
         setIsLoggingIn(false);
+        logger.auth("Unauthorized role", data.role);
         showToast("You are not authorized to login", {
           backgroundColor: error_color,
         });
@@ -223,12 +226,21 @@ const LoginScreen = () => {
         // Set logging in state to prevent flickering
         setIsLoggingIn(true);
 
-        // Store token first
-        await AsyncStorage.setItem("token", data.token);
-        console.log("🚀 Token stored successfully");
+        // Validate token before storing
+        const tokenValidation = validateToken(data.token);
+        if (!tokenValidation.isValid) {
+          throw new Error(`Invalid token received: ${tokenValidation.reason}`);
+        }
+
+        // Store token using enhanced storage utility
+        const tokenStored = await storage.setItem("token", data.token);
+        if (!tokenStored) {
+          throw new Error("Failed to store token in AsyncStorage");
+        }
+        logger.auth("Token stored successfully");
 
         // Wait a brief moment to ensure AsyncStorage write is complete
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 150));
 
         // Update user status
         mutate({ isActive: true });
@@ -242,22 +254,29 @@ const LoginScreen = () => {
         await queryClient.invalidateQueries({
           queryKey: ["token"],
         });
-        console.log("🚀 Queries invalidated");
+        logger.auth("Queries invalidated");
 
         // Wait for auth state to settle
-        await new Promise((resolve) => setTimeout(resolve, 200));
+        await new Promise((resolve) => setTimeout(resolve, 300));
 
-        // Navigate based on role
-        if (data.role === "RM") {
-          router.replace("/(manager)/dashboard");
-        } else if (data.role === "ADMIN") {
-          router.replace("/(admin)/dashboard");
-        }
+        // Navigate based on role with additional validation
+        const targetRoute =
+          data.role === "RM" ? "/(manager)/dashboard" : "/(admin)/dashboard";
+        logger.auth("Navigating to dashboard", targetRoute);
 
-        console.log("🚀 Navigation completed");
+        router.replace(targetRoute);
+
+        // Additional verification after navigation
+        setTimeout(() => {
+          logger.auth("Navigation completed");
+        }, 500);
       } catch (error) {
-        console.error("🚀 Error in login success handler:", error);
+        logger.error("Error in login success handler", error);
         setIsLoggingIn(false);
+
+        // Try to clean up any partial state
+        await storage.removeItem("token");
+
         showToast(
           "Login successful but there was an issue. Please try again.",
           {
@@ -267,11 +286,12 @@ const LoginScreen = () => {
       }
     },
     onError(error, _variables, _context) {
-      console.error("🚀 Login error:", error);
+      logger.error("Login error", error);
       setIsLoggingIn(false);
 
       if (axios.isAxiosError(error)) {
         if (error.code === "NETWORK_ERROR" || error.code === "ECONNABORTED") {
+          logger.auth("Network error during login");
           showToast(
             "Network error. Please check your connection and try again.",
             {
@@ -279,19 +299,23 @@ const LoginScreen = () => {
             }
           );
         } else if (error.response?.status === 401) {
+          logger.auth("Invalid credentials");
           showToast("Invalid email or password", {
             backgroundColor: error_color,
           });
         } else if (error.response?.data?.message) {
+          logger.auth("Server error", error.response.data.message);
           showToast(error.response.data.message, {
             backgroundColor: error_color,
           });
         } else {
+          logger.auth("Unknown axios error");
           showToast("Login failed. Please try again.", {
             backgroundColor: error_color,
           });
         }
       } else {
+        logger.auth("Unexpected error", error);
         showToast("An unexpected error occurred. Please try again.", {
           backgroundColor: error_color,
         });
@@ -302,16 +326,28 @@ const LoginScreen = () => {
   const onSubmit = (data: form_schema_types) => {
     Keyboard.dismiss();
     setIsLoggingIn(true);
+    logger.auth("Form submitted", { email: data.email });
     mutation.mutate(data);
   };
 
-  // Only redirect if we have a token and we're not in the middle of logging in
-  // This prevents flickering during the login process
+  // Enhanced redirect logic with better validation
+  // Only redirect if we have a valid token and we're not in the middle of logging in
   if (token !== null && !isLoggingIn && !mutation.isPending) {
+    logger.auth("Checking existing authentication", {
+      hasUser: !!user,
+      role: user?.role,
+    });
+
     if (user?.role === "ADMIN") {
+      logger.auth("Redirecting to admin dashboard");
       return <Redirect href={"/(admin)/dashboard"} />;
-    } else {
+    } else if (user?.role === "RM") {
+      logger.auth("Redirecting to manager dashboard");
       return <Redirect href="/(manager)/dashboard" />;
+    } else {
+      // Invalid user role, clear token and stay on login
+      logger.auth("Invalid user role, clearing token", user?.role);
+      storage.removeItem("token");
     }
   }
 
