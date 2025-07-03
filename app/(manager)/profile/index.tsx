@@ -4,11 +4,12 @@ import { error_color, primary_color, success_color } from "@/constants/Colors";
 import useAuth from "@/hooks/useAuth";
 import { Feather } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { useRouter } from "expo-router";
 import React from "react";
+import { storage } from "@/utils/storage";
+import { logger } from "@/utils/logger";
 import { useForm } from "react-hook-form";
 import {
   Alert,
