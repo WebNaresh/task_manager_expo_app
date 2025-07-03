@@ -43,6 +43,7 @@ const LoginScreen = () => {
   const isDarkMode = colorScheme === "dark";
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isNavigatingAfterLogin, setIsNavigatingAfterLogin] = useState(false);
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -223,9 +224,6 @@ const LoginScreen = () => {
       }
 
       try {
-        // Set logging in state to prevent flickering
-        setIsLoggingIn(true);
-
         // Validate token before storing
         const tokenValidation = validateToken(data.token);
         if (!tokenValidation.isValid) {
@@ -239,8 +237,14 @@ const LoginScreen = () => {
         }
         logger.auth("Token stored successfully");
 
-        // Wait a brief moment to ensure AsyncStorage write is complete
-        await new Promise((resolve) => setTimeout(resolve, 150));
+        // Invalidate queries to refresh auth state BEFORE navigation
+        await queryClient.invalidateQueries({
+          queryKey: ["token"],
+        });
+        logger.auth("Queries invalidated");
+
+        // Wait for auth state to settle and ensure token is available
+        await new Promise((resolve) => setTimeout(resolve, 200));
 
         // Update user status
         mutate({ isActive: true });
@@ -250,29 +254,26 @@ const LoginScreen = () => {
           backgroundColor: success_color,
         });
 
-        // Invalidate queries to refresh auth state and wait for it to complete
-        await queryClient.invalidateQueries({
-          queryKey: ["token"],
-        });
-        logger.auth("Queries invalidated");
-
-        // Wait for auth state to settle
-        await new Promise((resolve) => setTimeout(resolve, 300));
-
         // Navigate based on role with additional validation
         const targetRoute =
           data.role === "RM" ? "/(manager)/dashboard" : "/(admin)/dashboard";
         logger.auth("Navigating to dashboard", targetRoute);
 
-        router.replace(targetRoute);
+        // Set navigation flag to prevent component-level redirects
+        setIsNavigatingAfterLogin(true);
+        setIsLoggingIn(false);
 
-        // Additional verification after navigation
+        // Use setTimeout to ensure navigation happens after state updates
         setTimeout(() => {
+          router.replace(targetRoute);
           logger.auth("Navigation completed");
-        }, 500);
+          // Reset navigation flag after a delay
+          setTimeout(() => setIsNavigatingAfterLogin(false), 1000);
+        }, 100);
       } catch (error) {
         logger.error("Error in login success handler", error);
         setIsLoggingIn(false);
+        setIsNavigatingAfterLogin(false);
 
         // Try to clean up any partial state
         await storage.removeItem("token");
@@ -288,6 +289,7 @@ const LoginScreen = () => {
     onError(error, _variables, _context) {
       logger.error("Login error", error);
       setIsLoggingIn(false);
+      setIsNavigatingAfterLogin(false);
 
       if (axios.isAxiosError(error)) {
         if (error.code === "NETWORK_ERROR" || error.code === "ECONNABORTED") {
@@ -331,8 +333,15 @@ const LoginScreen = () => {
   };
 
   // Enhanced redirect logic with better validation
-  // Only redirect if we have a valid token and we're not in the middle of logging in
-  if (token !== null && !isLoggingIn && !mutation.isPending) {
+  // Only redirect if we have a valid token, we're not logging in, and mutation is not pending
+  // Also ensure we're not in the middle of a login process that will handle navigation
+  if (
+    token !== null &&
+    !isLoggingIn &&
+    !mutation.isPending &&
+    !mutation.isSuccess &&
+    !isNavigatingAfterLogin
+  ) {
     logger.auth("Checking existing authentication", {
       hasUser: !!user,
       role: user?.role,
@@ -344,15 +353,15 @@ const LoginScreen = () => {
     } else if (user?.role === "RM") {
       logger.auth("Redirecting to manager dashboard");
       return <Redirect href="/(manager)/dashboard" />;
-    } else {
-      // Invalid user role, clear token and stay on login
-      logger.auth("Invalid user role, clearing token", user?.role);
+    } else if (token && !user) {
+      // Token exists but user couldn't be decoded - likely invalid token
+      logger.auth("Token exists but user invalid, clearing token");
       storage.removeItem("token");
     }
   }
 
-  // Show loading screen during login process
-  if (isLoggingIn || mutation.isPending) {
+  // Show loading screen during login process or navigation
+  if (isLoggingIn || mutation.isPending || isNavigatingAfterLogin) {
     return (
       <SafeAreaView style={styles.container}>
         <LinearGradient

@@ -41,13 +41,13 @@ const useAuth = () => {
             }
         },
         initialData: null,
-        staleTime: 2 * 60 * 1000, // 2 minutes (reduced for better production reliability)
-        gcTime: 5 * 60 * 1000, // 5 minutes
-        refetchOnWindowFocus: true, // Enable for production reliability
-        refetchOnMount: true, // Enable for production reliability
-        refetchOnReconnect: true, // Enable for production reliability
-        retry: 3, // Retry failed requests
-        retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
+        staleTime: 5 * 60 * 1000, // 5 minutes - longer to prevent interference during login
+        gcTime: 10 * 60 * 1000, // 10 minutes
+        refetchOnWindowFocus: false, // Disable to prevent interference during login
+        refetchOnMount: false, // Disable to prevent interference during login
+        refetchOnReconnect: true, // Keep for network recovery
+        retry: 2, // Reduce retries to prevent delays
+        retryDelay: (attemptIndex) => Math.min(500 * 2 ** attemptIndex, 5000), // Faster retries
     });
 
     // Safely decode the user from the token
