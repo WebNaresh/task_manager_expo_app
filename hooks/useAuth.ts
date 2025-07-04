@@ -76,7 +76,13 @@ const useAuth = () => {
 
     // Safely decode the user from the token
     const user: DecodedToken | null = token ? (() => {
+        logger.debug('Attempting to validate token for user decode', { hasToken: !!token });
         const validation = validateToken(token);
+        logger.debug('Token validation result', {
+            isValid: validation.isValid,
+            reason: validation.reason,
+            hasUser: !!validation.user
+        });
         return validation.isValid ? validation.user : null;
     })() : null;
 
@@ -86,8 +92,19 @@ const useAuth = () => {
     }
 
     if (token && !user) {
-        logger.warn('Token exists but user could not be decoded');
+        logger.warn('Token exists but user could not be decoded', {
+            tokenLength: token?.length,
+            tokenStart: token?.substring(0, 20)
+        });
     }
+
+    logger.debug('useAuth hook result', {
+        hasToken: !!token,
+        hasUser: !!user,
+        userRole: user?.role,
+        isFetching,
+        hasError: !!error
+    });
 
     return {
         token,
