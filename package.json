@@ -8,7 +8,13 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "test": "jest --watchAll",
-    "fix": "expo install --fix"
+    "fix": "expo install --fix",
+    "build:android": "eas build --platform android --profile production",
+    "build:android:preview": "eas build --platform android --profile preview",
+    "build:android:debug": "eas build --platform android --profile development",
+    "logs:android": "adb logcat | grep -i 'ReactNativeJS\\|AsyncStorage\\|Glory\\|AUTH\\|STORAGE'",
+    "clear:cache": "expo start --clear",
+    "reset:storage": "adb shell pm clear com.goanny.glorytask"
   },
   "jest": {
     "preset": "jest-expo"

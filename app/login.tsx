@@ -11,6 +11,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Redirect, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { storage } from "@/utils/storage";
+import { alternativeStorage } from "@/utils/alternativeStorage";
 import { logger } from "@/utils/logger";
 import { validateToken } from "@/utils/tokenUtils";
 import { useForm } from "react-hook-form";
@@ -243,25 +244,98 @@ const LoginScreen = () => {
 
         // Store token using enhanced storage utility with production-specific handling
         logger.auth("Attempting to store token...");
-        const tokenStored = await storage.setItem("token", data.token);
+
+        // Try multiple storage approaches for maximum reliability
+        let tokenStored = false;
+        let storageMethod = "unknown";
+
+        try {
+          // Method 1: Enhanced storage utility
+          tokenStored = await storage.setItem("token", data.token);
+          if (tokenStored) {
+            storageMethod = "enhanced_storage";
+            logger.auth("Token stored via enhanced storage");
+          }
+        } catch (error) {
+          logger.error("Enhanced storage failed", error);
+        }
+
+        // Method 2: Direct AsyncStorage as fallback
+        if (!tokenStored) {
+          try {
+            const AsyncStorage =
+              require("@react-native-async-storage/async-storage").default;
+            await AsyncStorage.setItem("token", data.token);
+            const directVerify = await AsyncStorage.getItem("token");
+            if (directVerify === data.token) {
+              tokenStored = true;
+              storageMethod = "direct_async_storage";
+              logger.auth("Token stored via direct AsyncStorage");
+            }
+          } catch (error) {
+            logger.error("Direct AsyncStorage failed", error);
+          }
+        }
+
+        // Method 3: Alternative storage system
+        if (!tokenStored) {
+          try {
+            await alternativeStorage.setItem("token", data.token);
+            const altVerify = await alternativeStorage.getItem("token");
+            if (altVerify === data.token) {
+              tokenStored = true;
+              storageMethod = "alternative_storage";
+              logger.auth("Token stored via alternative storage");
+            }
+          } catch (error) {
+            logger.error("Alternative storage failed", error);
+          }
+        }
+
+        // Method 4: Force fallback storage
+        if (!tokenStored) {
+          try {
+            // Manually set in fallback storage
+            storage.getFallbackKeys(); // Initialize if needed
+            await storage.setItem("token", data.token); // This will use fallback
+            storageMethod = "fallback_only";
+            tokenStored = true;
+            logger.auth("Token stored via fallback storage only");
+          } catch (error) {
+            logger.error("Fallback storage failed", error);
+          }
+        }
 
         if (!tokenStored) {
-          logger.error(
-            "Failed to store token in AsyncStorage, but may be in fallback"
-          );
-          // Don't throw error immediately - fallback storage might be working
-        } else {
-          logger.auth("Token stored successfully in AsyncStorage");
+          throw new Error("All token storage methods failed");
         }
 
-        // Verify token was stored by attempting to retrieve it
-        const verifyToken = await storage.getItem("token");
-        if (!verifyToken) {
+        // Verify token was stored by attempting to retrieve it from multiple sources
+        let verifyToken = await storage.getItem("token");
+
+        // If primary storage verification fails, try alternative storage
+        if (!verifyToken || verifyToken !== data.token) {
+          try {
+            verifyToken = await alternativeStorage.getItem("token");
+            if (verifyToken === data.token) {
+              logger.auth("Token verified via alternative storage");
+            }
+          } catch (error) {
+            logger.warn("Alternative storage verification failed", error);
+          }
+        }
+
+        if (!verifyToken || verifyToken !== data.token) {
           throw new Error(
-            "Token storage verification failed - token not retrievable"
+            `Token storage verification failed in all storages. Expected: ${data.token.substring(
+              0,
+              20
+            )}..., Got: ${verifyToken?.substring(0, 20) || "null"}...`
           );
         }
-        logger.auth("Token storage verified successfully");
+        logger.auth("Token storage verified successfully", {
+          method: storageMethod,
+        });
 
         // Invalidate queries to refresh auth state BEFORE navigation
         await queryClient.invalidateQueries({

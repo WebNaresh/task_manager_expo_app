@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { storage } from '@/utils/storage';
+import { alternativeStorage } from '@/utils/alternativeStorage';
 import { logger } from '@/utils/logger';
 import { validateToken, DecodedToken } from '@/utils/tokenUtils';
 
@@ -10,17 +11,35 @@ const useAuth = () => {
             try {
                 logger.auth('Fetching token from storage');
 
-                // Check if AsyncStorage is available
-                const isStorageAvailable = await storage.isAvailable();
-                if (!isStorageAvailable) {
-                    logger.error('AsyncStorage is not available');
-                    return null;
+                let storedToken: string | null = null;
+
+                // Try primary storage first
+                try {
+                    const isStorageAvailable = await storage.isAvailable();
+                    if (isStorageAvailable) {
+                        storedToken = await storage.getItem("token");
+                        if (storedToken) {
+                            logger.auth('Token retrieved from primary storage');
+                        }
+                    }
+                } catch (error) {
+                    logger.warn('Primary storage failed, trying alternative', error);
                 }
 
-                const storedToken = await storage.getItem("token");
+                // Try alternative storage if primary failed
+                if (!storedToken) {
+                    try {
+                        storedToken = await alternativeStorage.getItem("token");
+                        if (storedToken) {
+                            logger.auth('Token retrieved from alternative storage');
+                        }
+                    } catch (error) {
+                        logger.warn('Alternative storage also failed', error);
+                    }
+                }
 
                 if (!storedToken) {
-                    logger.auth('No token found in storage');
+                    logger.auth('No token found in any storage');
                     return null;
                 }
 
@@ -28,8 +47,13 @@ const useAuth = () => {
                 const validation = validateToken(storedToken);
                 if (!validation.isValid) {
                     logger.auth('Invalid token found in storage', validation.reason);
-                    // Remove invalid token
-                    await storage.removeItem("token");
+                    // Remove invalid token from both storages
+                    try {
+                        await storage.removeItem("token");
+                        await alternativeStorage.removeItem("token");
+                    } catch (error) {
+                        logger.warn('Failed to remove invalid token', error);
+                    }
                     return null;
                 }
 
