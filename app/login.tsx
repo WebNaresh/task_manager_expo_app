@@ -27,6 +27,8 @@ import {
   View,
   useColorScheme,
 } from "react-native";
+// @ts-ignore
+const isDevelopment = process.env.NODE_ENV !== "production";
 import { z } from "zod";
 
 const { width, height } = Dimensions.get("window");
@@ -224,18 +226,42 @@ const LoginScreen = () => {
       }
 
       try {
+        logger.auth("Starting login success handler", {
+          platform: Platform.OS,
+        });
+
         // Validate token before storing
         const tokenValidation = validateToken(data.token);
         if (!tokenValidation.isValid) {
           throw new Error(`Invalid token received: ${tokenValidation.reason}`);
         }
+        logger.auth("Token validation passed");
 
-        // Store token using enhanced storage utility
+        // Get storage diagnostics for production debugging
+        const storageDiagnostics = await storage.getDiagnostics();
+        logger.auth("Storage diagnostics", storageDiagnostics);
+
+        // Store token using enhanced storage utility with production-specific handling
+        logger.auth("Attempting to store token...");
         const tokenStored = await storage.setItem("token", data.token);
+
         if (!tokenStored) {
-          throw new Error("Failed to store token in AsyncStorage");
+          logger.error(
+            "Failed to store token in AsyncStorage, but may be in fallback"
+          );
+          // Don't throw error immediately - fallback storage might be working
+        } else {
+          logger.auth("Token stored successfully in AsyncStorage");
         }
-        logger.auth("Token stored successfully");
+
+        // Verify token was stored by attempting to retrieve it
+        const verifyToken = await storage.getItem("token");
+        if (!verifyToken) {
+          throw new Error(
+            "Token storage verification failed - token not retrievable"
+          );
+        }
+        logger.auth("Token storage verified successfully");
 
         // Invalidate queries to refresh auth state BEFORE navigation
         await queryClient.invalidateQueries({
@@ -243,8 +269,10 @@ const LoginScreen = () => {
         });
         logger.auth("Queries invalidated");
 
-        // Wait for auth state to settle and ensure token is available
-        await new Promise((resolve) => setTimeout(resolve, 200));
+        // Wait longer for auth state to settle in production builds
+        const settleDelay = isDevelopment ? 200 : 500;
+        await new Promise((resolve) => setTimeout(resolve, settleDelay));
+        logger.auth("Auth state settled");
 
         // Update user status
         mutate({ isActive: true });
@@ -257,19 +285,28 @@ const LoginScreen = () => {
         // Navigate based on role with additional validation
         const targetRoute =
           data.role === "RM" ? "/(manager)/dashboard" : "/(admin)/dashboard";
-        logger.auth("Navigating to dashboard", targetRoute);
+        logger.auth("Preparing navigation to dashboard", {
+          targetRoute,
+          platform: Platform.OS,
+        });
 
         // Set navigation flag to prevent component-level redirects
         setIsNavigatingAfterLogin(true);
         setIsLoggingIn(false);
 
-        // Use setTimeout to ensure navigation happens after state updates
+        // Use longer timeout for production builds to ensure state updates complete
+        const navigationDelay = isDevelopment ? 100 : 300;
         setTimeout(() => {
+          logger.auth("Executing navigation", targetRoute);
           router.replace(targetRoute);
-          logger.auth("Navigation completed");
-          // Reset navigation flag after a delay
-          setTimeout(() => setIsNavigatingAfterLogin(false), 1000);
-        }, 100);
+
+          // Reset navigation flag after a longer delay in production
+          const resetDelay = isDevelopment ? 1000 : 2000;
+          setTimeout(() => {
+            setIsNavigatingAfterLogin(false);
+            logger.auth("Navigation completed and flag reset");
+          }, resetDelay);
+        }, navigationDelay);
       } catch (error) {
         logger.error("Error in login success handler", error);
         setIsLoggingIn(false);
