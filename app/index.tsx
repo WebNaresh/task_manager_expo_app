@@ -1,6 +1,7 @@
 "use client";
 
 import useAuth from "@/hooks/useAuth";
+import { useStableAuth } from "@/hooks/useStableAuth";
 import { LinearGradient } from "expo-linear-gradient";
 import { Redirect, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
@@ -118,6 +119,7 @@ export default function App() {
   const [isRedirecting, setIsRedirecting] = useState(false);
   const flatListRef = useRef<FlatList<any>>(null);
   const { token, user } = useAuth();
+  const stableAuth = useStableAuth();
   const router = useRouter();
 
   const onViewableItemsChanged = useRef(
@@ -165,8 +167,18 @@ export default function App() {
     return () => clearInterval(interval);
   }, [currentIndex]);
 
-  if (token !== null) {
-    if (user?.role === "ADMIN") {
+  // Use stable auth as fallback if main auth fails
+  const hasValidAuth =
+    (token !== null && user) || (stableAuth.isAuthenticated && stableAuth.user);
+  const currentUser = user || stableAuth.user;
+
+  if (hasValidAuth && currentUser) {
+    console.log("Index page: Valid auth found, redirecting", {
+      role: currentUser.role,
+      authSource: user ? "useAuth" : "stableAuth",
+    });
+
+    if (currentUser.role === "ADMIN") {
       return <Redirect href={"/(admin)/dashboard"} />;
     } else {
       return <Redirect href="/(manager)/dashboard" />;

@@ -1,5 +1,6 @@
 import Colors from "@/constants/Colors";
 import useAuth from "@/hooks/useAuth";
+import { useStableAuth } from "@/hooks/useStableAuth";
 import { BottomTabHeaderProps } from "@react-navigation/bottom-tabs";
 import { Redirect } from "expo-router";
 import React from "react";
@@ -18,14 +19,32 @@ import { showToast } from "../toast";
 export default function Header(props: BottomTabHeaderProps) {
   const colorScheme = useColorScheme();
   const { user, token, isFetching } = useAuth();
+  const stableAuth = useStableAuth();
   const insets = useSafeAreaInsets();
 
-  if (!token) {
+  // Use stable auth as fallback if main auth fails
+  const currentUser = user || stableAuth.user;
+  const hasValidAuth =
+    (!!token && !!user) || (!!stableAuth.token && !!stableAuth.user);
+  const isLoading = isFetching || stableAuth.isLoading;
+
+  // Debug logging for header auth state
+  console.log("Header auth state", {
+    hasUser: !!user,
+    hasToken: !!token,
+    hasStableUser: !!stableAuth.user,
+    hasStableToken: !!stableAuth.token,
+    hasValidAuth,
+    authSource: user ? "useAuth" : stableAuth.user ? "stableAuth" : "none",
+  });
+
+  if (!hasValidAuth) {
+    console.log("Header: No valid auth, redirecting to login");
     return <Redirect href={"/login"} />;
   }
 
   // Show loading state while user data is being fetched
-  if (isFetching || !user) {
+  if (isLoading || !currentUser) {
     return (
       <View
         style={{
@@ -100,7 +119,7 @@ export default function Header(props: BottomTabHeaderProps) {
               isDarkMode && styles.darkModeText,
             ]}
           >
-            {user?.name || "Loading..."}
+            {currentUser?.name || "Loading..."}
           </Text>
           <Text
             style={[
@@ -111,7 +130,7 @@ export default function Header(props: BottomTabHeaderProps) {
             ]}
           >
             Welcome back,{" "}
-            <Text style={styles.bold}>{user?.name || "User"}</Text>
+            <Text style={styles.bold}>{currentUser?.name || "User"}</Text>
           </Text>
         </View>
         <TouchableOpacity
