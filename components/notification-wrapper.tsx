@@ -1,4 +1,5 @@
 import useAuth from "@/hooks/useAuth";
+import { useStableAuth } from "@/hooks/useStableAuth";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import React from "react";
@@ -10,24 +11,32 @@ type Props = {
 
 const NotificationWrapper = (props: Props) => {
   const { user, token, isFetching } = useAuth();
-  console.log("user", user?.id);
+  const stableAuth = useStableAuth();
+
+  // Use stable auth as fallback if main auth fails
+  const currentUser = user || stableAuth.user;
+  const hasAuth =
+    (!!token && !!user) || (!!stableAuth.token && !!stableAuth.user);
+
+  console.log("user", currentUser?.id);
   console.log("notification wrapper auth state", {
-    hasUser: !!user,
-    hasToken: !!token,
-    isFetching,
-    userRole: user?.role,
+    hasUser: !!currentUser,
+    hasToken: !!token || !!stableAuth.token,
+    isFetching: isFetching || stableAuth.isLoading,
+    userRole: currentUser?.role,
+    authSource: user ? "useAuth" : stableAuth.user ? "stableAuth" : "none",
   });
 
   const { mutate } = useMutation({
     mutationFn: async (data: { isActive: boolean }) => {
-      if (!user?.id) {
+      if (!currentUser?.id) {
         console.log("Skipping user status update - no user id");
         return { message: "No user id available" };
       }
 
       console.log("updating user status", data);
       const response = await axios.put(
-        `/api/v1/auth/update-user-status/${user.id}`,
+        `/api/v1/auth/update-user-status/${currentUser.id}`,
         data
       );
 
@@ -36,10 +45,10 @@ const NotificationWrapper = (props: Props) => {
   });
 
   const { data: _data } = useQuery({
-    queryKey: [user?.id],
+    queryKey: [currentUser?.id],
     queryFn: async () => {
-      console.log("querying with user id:", user?.id);
-      if (user?.id) {
+      console.log("querying with user id:", currentUser?.id);
+      if (currentUser?.id) {
         mutate({ isActive: true });
       } else {
         console.log("Skipping mutation - no user id");
@@ -48,7 +57,7 @@ const NotificationWrapper = (props: Props) => {
 
       return { isActive: true };
     },
-    enabled: !!user?.id && !!token,
+    enabled: !!currentUser?.id && (!!token || !!stableAuth.token),
   });
   AppState.addEventListener("change", (nextAppState) => {
     console.log(`🚀 ~ nextAppState:`, nextAppState);

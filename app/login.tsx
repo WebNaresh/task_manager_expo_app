@@ -3,6 +3,7 @@ import NBButton from "@/components/ui/button";
 import showToast from "@/components/ui/toast";
 import { error_color, primary_color, success_color } from "@/constants/Colors";
 import useAuth from "@/hooks/useAuth";
+import { useStableAuth } from "@/hooks/useStableAuth";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod"; // Add this import
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -205,6 +206,7 @@ const LoginScreen = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { token, user } = useAuth();
+  const stableAuth = useStableAuth();
 
   const mutation = useMutation({
     mutationFn: async (data: form_schema_types) => {
@@ -337,14 +339,13 @@ const LoginScreen = () => {
           method: storageMethod,
         });
 
-        // Invalidate queries to refresh auth state BEFORE navigation
-        await queryClient.invalidateQueries({
-          queryKey: ["token"],
-        });
-        logger.auth("Queries invalidated");
+        // DON'T invalidate queries immediately - let the cache settle first
+        logger.auth(
+          "Skipping immediate query invalidation to prevent cache clearing"
+        );
 
         // Wait longer for auth state to settle in production builds
-        const settleDelay = isDevelopment ? 200 : 500;
+        const settleDelay = isDevelopment ? 200 : 800;
         await new Promise((resolve) => setTimeout(resolve, settleDelay));
         logger.auth("Auth state settled");
 
@@ -368,14 +369,19 @@ const LoginScreen = () => {
         setIsNavigatingAfterLogin(true);
         setIsLoggingIn(false);
 
+        // Manually update both the query cache and stable auth to ensure token persists
+        queryClient.setQueryData(["token"], data.token);
+        await stableAuth.setToken(data.token);
+        logger.auth("Token set in both query cache and stable auth");
+
         // Use longer timeout for production builds to ensure state updates complete
-        const navigationDelay = isDevelopment ? 100 : 300;
+        const navigationDelay = isDevelopment ? 100 : 500;
         setTimeout(() => {
           logger.auth("Executing navigation", targetRoute);
           router.replace(targetRoute);
 
           // Reset navigation flag after a longer delay in production
-          const resetDelay = isDevelopment ? 1000 : 2000;
+          const resetDelay = isDevelopment ? 1500 : 3000;
           setTimeout(() => {
             setIsNavigatingAfterLogin(false);
             logger.auth("Navigation completed and flag reset");
@@ -443,31 +449,37 @@ const LoginScreen = () => {
     mutation.mutate(data);
   };
 
-  // Enhanced redirect logic with better validation
+  // Enhanced redirect logic with better validation using both auth sources
   // Only redirect if we have a valid token, we're not logging in, and mutation is not pending
   // Also ensure we're not in the middle of a login process that will handle navigation
+  const hasValidAuth =
+    (token !== null && user) || (stableAuth.isAuthenticated && stableAuth.user);
+  const currentUser = user || stableAuth.user;
+
   if (
-    token !== null &&
+    hasValidAuth &&
     !isLoggingIn &&
     !mutation.isPending &&
     !mutation.isSuccess &&
     !isNavigatingAfterLogin
   ) {
     logger.auth("Checking existing authentication", {
-      hasUser: !!user,
-      role: user?.role,
+      hasUser: !!currentUser,
+      role: currentUser?.role,
+      source: user ? "useAuth" : "stableAuth",
     });
 
-    if (user?.role === "ADMIN") {
+    if (currentUser?.role === "ADMIN") {
       logger.auth("Redirecting to admin dashboard");
       return <Redirect href={"/(admin)/dashboard"} />;
-    } else if (user?.role === "RM") {
+    } else if (currentUser?.role === "RM") {
       logger.auth("Redirecting to manager dashboard");
       return <Redirect href="/(manager)/dashboard" />;
-    } else if (token && !user) {
+    } else if ((token || stableAuth.token) && !currentUser) {
       // Token exists but user couldn't be decoded - likely invalid token
       logger.auth("Token exists but user invalid, clearing token");
       storage.removeItem("token");
+      stableAuth.clearAuth();
     }
   }
 

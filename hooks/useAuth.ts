@@ -65,13 +65,13 @@ const useAuth = () => {
             }
         },
         initialData: null,
-        staleTime: 5 * 60 * 1000, // 5 minutes - longer to prevent interference during login
-        gcTime: 10 * 60 * 1000, // 10 minutes
-        refetchOnWindowFocus: false, // Disable to prevent interference during login
-        refetchOnMount: false, // Disable to prevent interference during login
-        refetchOnReconnect: true, // Keep for network recovery
-        retry: 2, // Reduce retries to prevent delays
-        retryDelay: (attemptIndex) => Math.min(500 * 2 ** attemptIndex, 5000), // Faster retries
+        staleTime: Infinity, // Never consider stale to prevent refetching during navigation
+        gcTime: 24 * 60 * 60 * 1000, // 24 hours - keep in cache longer
+        refetchOnWindowFocus: false, // Disable to prevent interference
+        refetchOnMount: false, // Disable to prevent interference during navigation
+        refetchOnReconnect: false, // Disable to prevent interference
+        retry: 1, // Minimal retries
+        retryDelay: 1000, // Simple delay
     });
 
     // Safely decode the user from the token
