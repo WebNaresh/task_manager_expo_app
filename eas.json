@@ -1,24 +1,54 @@
 {
   "cli": {
+    "version": ">= 3.0.0",
     "appVersionSource": "local"
   },
   "build": {
     "preview": {
       "android": {
         "buildType": "apk"
+      },
+      "distribution": "internal",
+      "cache": {
+        "key": "v1"
       }
     },
     "preview2": {
       "android": {
         "gradleCommand": ":app:assembleRelease"
+      },
+      "distribution": "internal",
+      "cache": {
+        "key": "v1"
       }
     },
     "preview3": {
-      "developmentClient": true
+      "developmentClient": true,
+      "distribution": "internal",
+      "cache": {
+        "key": "v1"
+      }
     },
     "preview4": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "cache": {
+        "key": "v1"
+      }
     },
-    "production": {}
+    "production": {
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "env": {
+        "NODE_ENV": "production"
+      },
+      "distribution": "store",
+      "cache": {
+        "key": "v1"
+      }
+    }
   }
 }
