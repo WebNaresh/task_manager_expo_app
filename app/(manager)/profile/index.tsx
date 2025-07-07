@@ -2,6 +2,7 @@ import NBTextInput from "@/components/input/text-input";
 import NBButton from "@/components/ui/button";
 import { error_color, primary_color, success_color } from "@/constants/Colors";
 import useAuth from "@/hooks/useAuth";
+import { useStableAuth } from "@/hooks/useStableAuth";
 import { Feather } from "@expo/vector-icons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -36,6 +37,7 @@ type FormValues = z.infer<typeof form_schema>;
 
 export default function ProfileSetup() {
   const { user, isFetching } = useAuth();
+  const stableAuth = useStableAuth();
   const router = useRouter();
   const query_client = useQueryClient();
   const form = useForm<FormValues>({
@@ -225,30 +227,47 @@ export default function ProfileSetup() {
           try {
             logger.auth("Logout initiated");
 
-            // Handle logout logic here
-            const tokenRemoved = await storage.removeItem("token");
-            if (!tokenRemoved) {
-              logger.warn("Failed to remove token from storage");
-            }
+            // CRITICAL: Clear both authentication systems
+            // 1. Clear useStableAuth state and both storage systems
+            await stableAuth.clearAuth();
+            logger.auth("StableAuth cleared");
 
-            // Invalidate the token query to clear auth state
+            // 2. Clear React Query cache
             await query_client.invalidateQueries({
               queryKey: ["token"],
             });
-
-            // Clear all queries to reset app state
             query_client.clear();
+            logger.auth("React Query cache cleared");
 
-            // Update user status to inactive
-            logout_mutate({ isActive: false });
+            // 3. Update user status to inactive (optional - can be done in background)
+            try {
+              logout_mutate({ isActive: false });
+            } catch (statusError) {
+              logger.warn(
+                "Failed to update user status, but continuing logout",
+                statusError
+              );
+            }
 
-            // Use replace instead of navigate to prevent going back
+            // 4. Navigate to login page
             router.replace("/login");
-            logger.auth("Logout completed");
+            logger.auth("Logout completed - redirected to login");
           } catch (error) {
             logger.error("Logout error", error);
-            // Still navigate to login even if there's an error
+
+            // Fallback: Force clear everything and navigate anyway
+            try {
+              await stableAuth.clearAuth();
+              query_client.clear();
+            } catch (fallbackError) {
+              logger.error("Fallback logout also failed", fallbackError);
+            }
+
+            // Always navigate to login, even if clearing failed
             router.replace("/login");
+            logger.auth(
+              "Logout completed with errors - forced redirect to login"
+            );
           }
         },
         style: "destructive",
