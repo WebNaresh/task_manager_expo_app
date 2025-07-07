@@ -23,8 +23,15 @@ const NotificationWrapper = (props: Props) => {
     hasUser: !!currentUser,
     hasToken: !!token || !!stableAuth.token,
     isFetching: isFetching || stableAuth.isLoading,
+    stableAuthLoading: stableAuth.isLoading,
     userRole: currentUser?.role,
-    authSource: user ? "useAuth" : stableAuth.user ? "stableAuth" : "none",
+    authSource: user
+      ? "useAuth"
+      : stableAuth.user
+      ? "stableAuth"
+      : stableAuth.isLoading
+      ? "loading"
+      : "none",
   });
 
   const { mutate } = useMutation({
@@ -57,7 +64,10 @@ const NotificationWrapper = (props: Props) => {
 
       return { isActive: true };
     },
-    enabled: !!currentUser?.id && (!!token || !!stableAuth.token),
+    enabled:
+      !!currentUser?.id &&
+      (!!token || !!stableAuth.token) &&
+      !stableAuth.isLoading,
   });
   AppState.addEventListener("change", (nextAppState) => {
     console.log(`🚀 ~ nextAppState:`, nextAppState);

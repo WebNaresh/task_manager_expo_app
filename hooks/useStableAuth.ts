@@ -24,7 +24,8 @@ export function useStableAuth() {
   const loadAuthState = useCallback(async () => {
     try {
       logger.auth('Loading auth state from storage');
-      setAuthState(prev => ({ ...prev, isLoading: true }));
+      // Don't set loading to true if we're already loading to prevent UI flicker
+      setAuthState(prev => prev.isLoading ? prev : { ...prev, isLoading: true });
 
       let token: string | null = null;
 
@@ -58,6 +59,10 @@ export function useStableAuth() {
           isLoading: false,
           isAuthenticated: false,
         });
+        logger.auth('useStableAuth: Auth state updated - no token found', {
+          isLoading: false,
+          isAuthenticated: false,
+        });
         return;
       }
 
@@ -72,7 +77,7 @@ export function useStableAuth() {
         } catch (error) {
           logger.warn('Failed to clear invalid token', error);
         }
-        
+
         setAuthState({
           token: null,
           user: null,
@@ -94,6 +99,12 @@ export function useStableAuth() {
         isAuthenticated: true,
       });
 
+      logger.auth('useStableAuth: Auth state updated with valid user', {
+        userId: validation.user?.id,
+        role: validation.user?.role,
+        isLoading: false,
+      });
+
     } catch (error) {
       logger.error('Error loading auth state', error);
       setAuthState({
@@ -108,7 +119,7 @@ export function useStableAuth() {
   const setToken = useCallback(async (newToken: string) => {
     try {
       logger.auth('Setting new token in stable auth');
-      
+
       // Store in both storage systems
       await Promise.all([
         storage.setItem('token', newToken),
@@ -136,7 +147,7 @@ export function useStableAuth() {
   const clearAuth = useCallback(async () => {
     try {
       logger.auth('Clearing auth state');
-      
+
       // Clear from both storage systems
       await Promise.all([
         storage.removeItem('token'),
@@ -149,7 +160,7 @@ export function useStableAuth() {
         isLoading: false,
         isAuthenticated: false,
       });
-      
+
       logger.auth('Auth state cleared');
     } catch (error) {
       logger.error('Error clearing auth state', error);
@@ -160,10 +171,11 @@ export function useStableAuth() {
     loadAuthState();
   }, [loadAuthState]);
 
-  // Load auth state on mount
+  // Load auth state on mount - run immediately
   useEffect(() => {
+    logger.auth('useStableAuth: Component mounted, loading auth state');
     loadAuthState();
-  }, [loadAuthState]);
+  }, []); // Empty dependency array to run only once on mount
 
   return {
     ...authState,

@@ -34,12 +34,63 @@ export default function Header(props: BottomTabHeaderProps) {
     hasToken: !!token,
     hasStableUser: !!stableAuth.user,
     hasStableToken: !!stableAuth.token,
+    stableAuthLoading: stableAuth.isLoading,
     hasValidAuth,
     authSource: user ? "useAuth" : stableAuth.user ? "stableAuth" : "none",
   });
 
+  // CRITICAL: Don't redirect if stableAuth is still loading
+  if (stableAuth.isLoading) {
+    console.log("Header: StableAuth is loading, showing loading state");
+    // Show loading state instead of redirecting
+    return (
+      <View
+        style={{
+          paddingTop: insets.top,
+          backgroundColor: Colors[colorScheme ?? "light"].background,
+        }}
+      >
+        <View
+          style={[
+            styles.container,
+            { backgroundColor: Colors[colorScheme ?? "light"].background },
+            styles.card,
+          ]}
+        >
+          <Image
+            source={require("@/assets/images/icon.png")}
+            style={styles.clientLogo}
+            resizeMode="contain"
+          />
+          <View style={styles.textContainer}>
+            <Text
+              style={[
+                styles.title,
+                { color: Colors[colorScheme ?? "light"].text },
+              ]}
+            >
+              Loading...
+            </Text>
+            <Text
+              style={[
+                styles.subtitle,
+                { color: Colors[colorScheme ?? "light"].text },
+                styles.welcomeText,
+              ]}
+            >
+              Checking authentication...
+            </Text>
+          </View>
+          <View style={styles.avatar} />
+        </View>
+      </View>
+    );
+  }
+
   if (!hasValidAuth) {
-    console.log("Header: No valid auth, redirecting to login");
+    console.log(
+      "Header: No valid auth after loading complete, redirecting to login"
+    );
     return <Redirect href={"/login"} />;
   }
 
